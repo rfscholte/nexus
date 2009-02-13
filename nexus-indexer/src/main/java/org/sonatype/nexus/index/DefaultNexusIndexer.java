@@ -35,11 +35,12 @@ import org.sonatype.nexus.index.context.IndexingContext;
 import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 
 /**
- * The default nexus indexer implementation.
+ * A default {@link NexusIndexer} implementation.
  * 
  * @author Tamas Cservenak
+ * @author Eugene Kuleshov
  */
-@Component(role=NexusIndexer.class)
+@Component(role = NexusIndexer.class)
 public class DefaultNexusIndexer
     extends AbstractLogEnabled
     implements NexusIndexer
@@ -240,6 +241,15 @@ public class DefaultNexusIndexer
         scan( context, listener, false );
     }
 
+    /**
+     * Uses {@link Scanner} to scan repository content. A
+     * {@link ArtifactScanningListener} is used to process found artifacts and to
+     * add them to the index using
+     * {@link NexusIndexer#artifactDiscovered(ArtifactContext, IndexingContext)}.
+     * 
+     * @see DefaultScannerListener
+     * @see #artifactDiscovered(ArtifactContext, IndexingContext)
+     */
     public void scan( IndexingContext context, final ArtifactScanningListener listener, boolean update )
         throws IOException
     {
@@ -285,7 +295,7 @@ public class DefaultNexusIndexer
                 true );
 
             scanner.scan( new ScanningRequest( tmpContext, //
-                new DefaultNexusIndexerListener( tmpContext, this, update, listener ) ) );
+                new DefaultScannerListener( tmpContext, indexerEngine, update, listener ) ) );
 
             tmpContext.updateTimestamp( true );
             context.replace( tmpContext.getIndexDirectory() );
@@ -314,16 +324,15 @@ public class DefaultNexusIndexer
 
     }
 
+    /**
+     * Delegates to the {@link IndexerEngine} to add a new artifact to the index
+     */
     public void artifactDiscovered( ArtifactContext ac, IndexingContext context )
         throws IOException
     {
         if ( ac != null )
         {
             indexerEngine.index( context, ac );
-            
-            // updateMainEntry( context, ac, false );
-
-            context.updateTimestamp();
         }
     }
 
@@ -331,6 +340,9 @@ public class DefaultNexusIndexer
     // Modifying
     // ----------------------------------------------------------------------------
 
+    /**
+     * Delegates to the {@link IndexerEngine} to update artifact to the index
+     */
     public void addArtifactToIndex( ArtifactContext ac, IndexingContext context )
         throws IOException
     {
@@ -340,6 +352,9 @@ public class DefaultNexusIndexer
         }
     }
     
+    /**
+     * Delegates to the {@link IndexerEngine} to remove artifact from the index
+     */
     public void deleteArtifactFromIndex( ArtifactContext ac, IndexingContext context )
         throws IOException
     {
@@ -348,77 +363,6 @@ public class DefaultNexusIndexer
             indexerEngine.remove( context, ac );
         }
     }
-
-//    private void updateMainEntry( IndexingContext context, ArtifactContext ac, boolean remove ) 
-//        throws IOException 
-//    {
-//        ArtifactInfo ai = ac.getArtifactInfo();
-//        
-//        if( ai.classifier == null )
-//        {
-//            return;  // main artifact or pom
-//        }
-//
-//        // TODO can be too slow to do a search and update for every artifact
-//        
-//        String uinfo = AbstractIndexCreator.getGAV( ai.groupId, ai.artifactId, ai.version, null );
-//        
-//        Query query = new TermQuery( new Term( ArtifactInfo.UINFO, uinfo ) );
-//        
-//        IndexSearcher searcher = context.getIndexSearcher();
-//        
-//        Hits hits = searcher.search( query );
-//        
-//        if ( hits.length() > 0 )
-//        {
-//            Document doc = hits.doc( 0 );
-//            
-//            ArtifactInfo mai = context.constructArtifactInfo( doc );
-//            
-//            if( remove )
-//            {
-//                mai.getArtifacts().add( ac.getGav() );
-//            }
-//            else
-//            {
-//                mai.getArtifacts().remove( ac.getGav() );
-//            }
-//            
-//            indexerEngine.update( context, new ArtifactContext( null, null, null, mai, ac.getGav() ) );
-//        }
-//    }
-    
-    // ----------------------------------------------------------------------------
-    // Root groups
-    // ----------------------------------------------------------------------------
-
-//    public Set<String> getRootGroups( IndexingContext context )
-//        throws IOException
-//    {
-//        return IndexUtils.getRootGroups( context );
-//    }
-//
-//    public void setRootGroups( IndexingContext context, Collection<String> groups )
-//        throws IOException
-//    {
-//        IndexUtils.setRootGroups( context, groups );
-//    }
-
-//    // ----------------------------------------------------------------------------
-//    // All groups
-//    // ----------------------------------------------------------------------------
-//
-//    public Set<String> getAllGroups( IndexingContext context )
-//        throws IOException
-//    {
-//        return IndexUtils.getAllGroups( context );
-//    }
-//
-//    public void setAllGroups( IndexingContext context, Collection<String> groups )
-//        throws IOException
-//    {
-//        IndexUtils.setAllGroups( context, groups );
-//    }
 
     // ----------------------------------------------------------------------------
     // Searching

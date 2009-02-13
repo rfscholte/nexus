@@ -616,7 +616,7 @@ public class DefaultIndexingContext
     public void setRootGroups( Collection<String> groups )
         throws IOException
     {
-        IndexUtils.setAllGroups( this, groups );
+        IndexUtils.setRootGroups( this, groups );
     }
     
     @Override

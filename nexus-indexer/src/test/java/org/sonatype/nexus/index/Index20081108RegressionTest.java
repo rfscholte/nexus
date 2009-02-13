@@ -20,8 +20,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.sonatype.nexus.index.context.IndexUtils;
 import org.sonatype.nexus.index.search.grouping.GAGrouping;
+import org.sonatype.nexus.index.updater.DefaultIndexUpdater;
 
 /** 
  * @author Eugene Kuleshov
@@ -48,7 +48,7 @@ public class Index20081108RegressionTest
             File.separator  + "nexus-maven-repository-index.20081108.zip" );
         
         Directory tempDir = new RAMDirectory();
-        IndexUtils.unpackIndexArchive( is, tempDir, context );
+        DefaultIndexUpdater.unpackIndexArchive( is, tempDir, context );
         context.replace( tempDir );
     }
     

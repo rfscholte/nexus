@@ -25,11 +25,11 @@ import org.sonatype.nexus.index.context.IndexingContext;
  * 
  * @author Eugene Kuleshov
  */
-class DefaultNexusIndexerListener implements
+class DefaultScannerListener implements
     ArtifactScanningListener 
 {
     private final IndexingContext context;
-    private final NexusIndexer indexer;
+    private final IndexerEngine indexerEngine;
     private final boolean update;
     private final ArtifactScanningListener listener;
 
@@ -42,12 +42,12 @@ class DefaultNexusIndexerListener implements
     
     private int count = 0;
     
-    DefaultNexusIndexerListener( IndexingContext context, //
-        NexusIndexer indexer, boolean update, // 
+    DefaultScannerListener( IndexingContext context, //
+        IndexerEngine indexerEngine, boolean update, // 
         ArtifactScanningListener listener ) 
     {
         this.context = context;
-        this.indexer = indexer;
+        this.indexerEngine = indexerEngine;
         this.update = update;
         this.listener = listener;
     }
@@ -97,7 +97,7 @@ class DefaultNexusIndexerListener implements
                 listener.artifactDiscovered( ac );
             }
 
-            indexer.artifactDiscovered( ac, context );
+            indexerEngine.index( context, ac );
             
             for ( Exception e : ac.getErrors() )
             {
@@ -241,7 +241,7 @@ class DefaultNexusIndexerListener implements
                 
                 for ( int i = 0; i < hits.length(); i++ )
                 {
-                    indexer.deleteArtifactFromIndex( ac, context );
+                    indexerEngine.remove( context, ac );
                     
                     deleted++;
                 }

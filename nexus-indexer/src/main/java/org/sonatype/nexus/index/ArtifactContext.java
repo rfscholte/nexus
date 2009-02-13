@@ -20,7 +20,12 @@ import org.sonatype.nexus.index.context.IndexCreator;
 import org.sonatype.nexus.index.context.IndexingContext;
 
 /**
- * The context of an artifact.
+ * An artifact context used to provide information about artifact during
+ * scanning. It is passed to the {@link IndexCreator}, which can populate
+ * {@link ArtifactInfo} for the given artifact.
+ * 
+ * @see IndexCreator#populateArtifactInfo(ArtifactContext)
+ * @see NexusIndexer#scan(IndexingContext)
  * 
  * @author Jason van Zyl
  * @author Tamas Cservenak
@@ -88,6 +93,9 @@ public class ArtifactContext
         errors.add( e );
     }
 
+    /**
+     * Creates Lucene Document using {@link IndexCreator}s from the given {@link IndexingContext}.
+     */
     public Document createDocument( IndexingContext context )
     {
         Document doc = new Document();

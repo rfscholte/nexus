@@ -9,11 +9,12 @@ package org.sonatype.nexus.index.search.grouping;
 import java.util.Comparator;
 
 import org.sonatype.nexus.index.ArtifactInfo;
+import org.sonatype.nexus.index.Grouping;
 
 /**
- * This is the GroupId grouping.
+ * A Repository : GroupId {@link Grouping} implementation.
  * 
- * @author cstamas
+ * @author Tamas Cservenak
  */
 public class RGGrouping
     extends AbstractGrouping

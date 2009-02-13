@@ -22,7 +22,7 @@ import org.apache.lucene.store.Directory;
 import org.sonatype.nexus.artifact.GavCalculator;
 
 /**
- * An indexing context representing artifact repository for indexing and searching.
+ * An indexing context is representing artifact repository for indexing and searching.
  * Indexing context is a statefull component, it keeps state of index readers 
  * and writers. 
  * 
@@ -38,16 +38,34 @@ public interface IndexingContext
      */
     public static final String INDEX_FILE = "nexus-maven-repository-index";
 
+    /**
+     * A prefix used for all index property names
+     */
     public static final String INDEX_PROPERTY_PREFIX = "nexus.index.";
 
+    /**
+     * A property name used to specify index id
+     */
     public static final String INDEX_ID = INDEX_PROPERTY_PREFIX + "id";
 
+    /**
+     * A property name used to specify index timestam (the last update time)
+     */
     public static final String INDEX_TIMESTAMP = INDEX_PROPERTY_PREFIX + "time";
 
+    /**
+     * A prefix used to specify an incremental update chunk name
+     */
     public static final String INDEX_CHUNK_PREFIX = INDEX_PROPERTY_PREFIX + "update-";
 
+    /**
+     * A date format used for index timestamp
+     */
     public static final String INDEX_TIME_FORMAT = "yyyyMMddHHmmss.SSS Z";
 
+    /**
+     * A date format used for incremental update chunk names
+     */
     public static final String INDEX_TIME_DAY_FORMAT = "yyyyMMdd";
 
     /**
@@ -197,26 +215,36 @@ public interface IndexingContext
 
     /**
      * Returns the GavCalculator for this Context. Implies repository layout.
-     * 
-     * @return
      */
     GavCalculator getGavCalculator();
 
     /**
-     * Sets all groups stored in the current indexing context
+     * Sets all group names stored in the current indexing context
      */
     void setAllGroups( Collection<String> groups )
         throws IOException;
 
+    /**
+     * Gets all group names stored in the current indexing context
+     */
     Set<String> getAllGroups()
         throws IOException;
 
-    Set<String> getRootGroups()
-        throws IOException;
-
+    /**
+     * Sets root group names stored in the current indexing context
+     */
     void setRootGroups( Collection<String> groups )
         throws IOException;
 
+    /**
+     * Gets root group names stored in the current indexing context
+     */
+    Set<String> getRootGroups()
+        throws IOException;
+
+    /**
+     * Rebuilds stored group names from the index
+     */
     void rebuildGroups()
         throws IOException;
 

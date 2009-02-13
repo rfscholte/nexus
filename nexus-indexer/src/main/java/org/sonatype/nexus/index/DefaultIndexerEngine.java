@@ -18,7 +18,7 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.sonatype.nexus.index.context.IndexingContext;
 
 /**
- * A default indexer engine implementation.
+ * A default {@link IndexerEngine} implementation.
  * 
  * @author Tamas Cservenak
  */
@@ -32,13 +32,15 @@ public class DefaultIndexerEngine
         throws IOException
     {
         // skip artifacts not obeying repository layout (whether m1 or m2) 
-        if ( ac.getGav() != null )
+        if ( ac != null && ac.getGav() != null )
         {
             Document d = ac.createDocument( context );
 
             if ( d != null )
             {
                 context.getIndexWriter().addDocument( d );
+                
+                context.updateTimestamp();
             }
         }
     }
@@ -81,28 +83,25 @@ public class DefaultIndexerEngine
         }
     }
     
-    
-    
     public void remove( IndexingContext context, ArtifactContext ac )
         throws IOException
     {
-        IndexWriter w = context.getIndexWriter();
-
-        String uinfo = ac.getArtifactInfo().getUinfo();
-
-        // add artifact deletion marker
-        Document doc = new Document();
-        doc.add( new Field( ArtifactInfo.DELETED, uinfo, Field.Store.YES, Field.Index.NO ) );
-        doc.add( new Field( ArtifactInfo.LAST_MODIFIED, //
-            Long.toString( System.currentTimeMillis() ), Field.Store.YES, Field.Index.NO ) );
-        
-        w.addDocument( doc );
-        
-        w.deleteDocuments( new Term( ArtifactInfo.UINFO, uinfo ) );
-        
-        w.flush();
-
-        context.updateTimestamp();
+        if ( ac != null )
+        {
+            String uinfo = ac.getArtifactInfo().getUinfo();
+            // add artifact deletion marker
+            Document doc = new Document();
+            doc.add( new Field( ArtifactInfo.DELETED, uinfo, Field.Store.YES, Field.Index.NO ) );
+            doc.add( new Field( ArtifactInfo.LAST_MODIFIED, //
+                Long.toString( System.currentTimeMillis() ),
+                Field.Store.YES,
+                Field.Index.NO ) );
+            IndexWriter w = context.getIndexWriter();
+            w.addDocument( doc );
+            w.deleteDocuments( new Term( ArtifactInfo.UINFO, uinfo ) );
+            w.flush();
+            context.updateTimestamp();
+        }
     }
 
 }

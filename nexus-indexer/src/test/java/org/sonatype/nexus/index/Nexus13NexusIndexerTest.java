@@ -20,9 +20,10 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.sonatype.nexus.index.context.IndexUtils;
 import org.sonatype.nexus.index.context.IndexingContext;
+import org.sonatype.nexus.index.packer.DefaultIndexPacker;
 import org.sonatype.nexus.index.search.grouping.GAGrouping;
+import org.sonatype.nexus.index.updater.DefaultIndexUpdater;
 
 /** http://issues.sonatype.org/browse/NEXUS-13 */
 public class Nexus13NexusIndexerTest
@@ -100,7 +101,7 @@ public class Nexus13NexusIndexerTest
     {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        IndexUtils.packIndexArchive( context, os );
+        DefaultIndexPacker.packIndexArchive( context, os );
 
         Thread.sleep( 1000L );
 
@@ -117,7 +118,7 @@ public class Nexus13NexusIndexerTest
         
         Directory newIndexDir = new RAMDirectory();
         
-        IndexUtils.unpackIndexArchive(
+        DefaultIndexUpdater.unpackIndexArchive(
             new ByteArrayInputStream( os.toByteArray() ),
             newIndexDir,
             newContext );

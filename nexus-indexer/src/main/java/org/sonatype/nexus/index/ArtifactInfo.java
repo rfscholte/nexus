@@ -139,9 +139,9 @@ public class ArtifactInfo
      */
     public static final String DELETED = "del";
 
-    public static final VersionComparator VERSION_COMPARATOR = new VersionComparator();
+    public static final Comparator<ArtifactInfo> VERSION_COMPARATOR = new VersionComparator();
 
-    public static final VersionComparator REPOSITORY_VERSION_COMPARATOR = new RepositoryVersionComparator();
+    public static final Comparator<ArtifactInfo> REPOSITORY_VERSION_COMPARATOR = new RepositoryVersionComparator();
 
     public String fname;
 
@@ -336,7 +336,7 @@ public class ArtifactInfo
     /**
      * A version comparator
      */
-    public static class VersionComparator
+    static class VersionComparator
         implements Comparator<ArtifactInfo>
     {
         @SuppressWarnings( "unchecked" )
@@ -400,7 +400,10 @@ public class ArtifactInfo
         }
     }
 
-    public static class RepositoryVersionComparator
+    /**
+     * A repository and version comparator
+     */
+    static class RepositoryVersionComparator
         extends VersionComparator
     {
         @Override

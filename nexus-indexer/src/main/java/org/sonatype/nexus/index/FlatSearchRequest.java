@@ -11,6 +11,11 @@ import java.util.Comparator;
 import org.apache.lucene.search.Query;
 import org.sonatype.nexus.index.context.IndexingContext;
 
+/**
+ * A flat search request.
+ * 
+ * @see NexusIndexer#searchFlat(FlatSearchRequest)
+ */
 public class FlatSearchRequest
 {
     public static int UNDEFINED = -1;

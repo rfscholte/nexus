@@ -15,13 +15,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -29,10 +25,8 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
-import org.apache.lucene.store.LockObtainFailedException;
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.nexus.index.ArtifactInfo;
 
@@ -147,144 +141,6 @@ public class IndexUtils
         }
     }
 
-    // pack/unpack
-
-    // public static Date getIndexArchiveTime( InputStream is )
-    // throws IOException
-    // {
-    // ZipInputStream zis = null;
-    // try
-    // {
-    // zis = new ZipInputStream( is );
-    //
-    // long timestamp = -1;
-    //
-    // ZipEntry entry;
-    // while ( ( entry = zis.getNextEntry() ) != null )
-    // {
-    // if ( entry.getName() == IndexUtils.TIMESTAMP_FILE )
-    // {
-    // return new Date( new DataInputStream( zis ).readLong() );
-    // }
-    // timestamp = entry.getTime();
-    // }
-    //
-    // return timestamp == -1 ? null : new Date( timestamp );
-    // }
-    // finally
-    // {
-    // close( zis );
-    // close( is );
-    // }
-    // }
-
-    /**
-     * Unpack legacy index archive into a specified Lucene <code>Directory</code>
-     * 
-     * @param is a <code>ZipInputStream</code> with index data
-     * @param directory Lucene <code>Directory</code> to unpack index data to
-     * @return {@link Date} of the index update or null if it can't be read
-     */
-    public static Date unpackIndexArchive( InputStream is, Directory directory, IndexingContext context )
-        throws IOException
-    {
-        File indexArchive = File.createTempFile( "nexus-index", "" );
-
-        File indexDir = new File( indexArchive.getAbsoluteFile().getParentFile(), indexArchive.getName() + ".dir" );
-
-        indexDir.mkdirs();
-
-        FSDirectory fdir = FSDirectory.getDirectory( indexDir );
-
-        try
-        {
-            unpackDirectory( fdir, is );
-            copyUpdatedDocuments( fdir, directory, context );
-
-            Date timestamp = getTimestamp( fdir );
-            updateTimestamp( directory, timestamp );
-            return timestamp;
-        }
-        finally
-        {
-            close( fdir );
-            indexArchive.delete();
-            delete( indexDir );
-        }
-    }
-
-    private static void unpackDirectory( Directory directory, InputStream is )
-        throws IOException
-    {
-        byte[] buf = new byte[4096];
-
-        ZipEntry entry;
-
-        ZipInputStream zis = null;
-
-        try
-        {
-            zis = new ZipInputStream( is );
-
-            while ( ( entry = zis.getNextEntry() ) != null )
-            {
-                if ( entry.isDirectory() || entry.getName().indexOf( '/' ) > -1 )
-                {
-                    continue;
-                }
-
-                IndexOutput io = directory.createOutput( entry.getName() );
-                try
-                {
-                    int n = 0;
-
-                    while ( ( n = zis.read( buf ) ) != -1 )
-                    {
-                        io.writeBytes( buf, n );
-                    }
-                }
-                finally
-                {
-                    close( io );
-                }
-            }
-        }
-        finally
-        {
-            close( zis );
-        }
-    }
-
-    private static void copyUpdatedDocuments( Directory sourcedir, Directory targetdir, IndexingContext context )
-        throws CorruptIndexException,
-            LockObtainFailedException,
-            IOException
-    {
-        IndexWriter w = null;
-        IndexReader r = null;
-        try
-        {
-            r = IndexReader.open( sourcedir );
-            w = new IndexWriter( targetdir, false, new NexusAnalyzer(), true );
-
-            for ( int i = 0; i < r.maxDoc(); i++ )
-            {
-                if ( !r.isDeleted( i ) )
-                {
-                    w.addDocument( IndexUtils.updateDocument( r.document( i ), context ) );
-                }
-            }
-
-            w.optimize();
-            w.flush();
-        }
-        finally
-        {
-            close( w );
-            close( r );
-        }
-    }
-    
     /**
      * Used to rebuild group information, for example on context which were merged, since merge() of contexts 
      * only merges the Documents with UINFO record (Artifacts).

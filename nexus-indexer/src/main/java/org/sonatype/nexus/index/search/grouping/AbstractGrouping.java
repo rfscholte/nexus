@@ -14,7 +14,7 @@ import org.sonatype.nexus.index.ArtifactInfoGroup;
 import org.sonatype.nexus.index.Grouping;
 
 /**
- * The base implementation of Grouping.
+ * An abstract {@link Grouping} implementation.
  * 
  * @author Tamas Cservenak
  */

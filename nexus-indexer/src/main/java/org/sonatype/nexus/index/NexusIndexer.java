@@ -16,17 +16,74 @@ import java.util.Map;
 
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
+import org.sonatype.nexus.index.cli.NexusIndexerCli;
 import org.sonatype.nexus.index.context.IndexCreator;
 import org.sonatype.nexus.index.context.IndexingContext;
 import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
 import org.sonatype.nexus.index.creator.JarFileContentsIndexCreator;
 import org.sonatype.nexus.index.creator.MinimalArtifactInfoIndexCreator;
+import org.sonatype.nexus.index.packer.IndexPacker;
+import org.sonatype.nexus.index.updater.IndexUpdater;
 
 /**
- * The Nexus indexer interface.
+ * The Nexus indexer is a statefull facade that maintains state of indexing
+ * contexts.
+ * 
+ * <p>
+ * The following code snippet shows how to register indexing context, which
+ * should be done once on the application startup and Nexus indexer instance
+ * should be reused after that.
+ * 
+ * <pre>
+ * NexusIndexer indexer;
+ * 
+ * IndexingContext context = indexer.addIndexingContext(indexId, // index id (usually the same as repository id)
+ *     repositoryId, // repository id
+ *     directory, // Lucene directory where index is stored
+ *     repositoryDir, // local repository dir or null for remote repo
+ *     repositoryUrl, // repository url, used by index updater
+ *     indexUpdateUrl, // index update url or null if derived from repositoryUrl
+ *     false, false);
+ * </pre>
+ * 
+ * An indexing context could be populated using one of
+ * {@link #scan(IndexingContext)},
+ * {@link #addArtifactToIndex(ArtifactContext, IndexingContext)} or
+ * {@link #deleteArtifactFromIndex(ArtifactContext, IndexingContext)} methods.
+ * 
+ * <p>
+ * An {@link IndexUpdater} could be used to fetch indexes from remote repositories.
+ * These indexers could be created using the {@link NexusIndexerCli} command line tool
+ * or {@link IndexPacker} API.  
+ * 
+ * <p>
+ * Once index is populated you can perform search queries using field names
+ * declared in the {@link ArtifactInfo}:
+ * 
+ * <pre>
+ *   // run search query
+ *   BooleanQuery q = new BooleanQuery();
+ *   q.add(indexer.constructQuery(ArtifactInfo.GROUP_ID, term), Occur.SHOULD);
+ *   q.add(indexer.constructQuery(ArtifactInfo.ARTIFACT_ID, term), Occur.SHOULD);
+ *   q.add(new PrefixQuery(new Term(ArtifactInfo.SHA1, term)), Occur.SHOULD);
+ *   
+ *   FlatSearchRequest request = new FlatSearchRequest(q);
+ *   FlatSearchResponse response = indexer.searchFlat(request);
+ *   ...
+ * </pre>
+ * 
+ * Query could be also constructed using a convenience
+ * {@link NexusIndexer#constructQuery(String, String)} method that handles
+ * creation of the wildcard queries. Also see {@link DefaultQueryCreator} for
+ * more details on supported queries.
+ * 
+ * @see IndexingContext
+ * @see IndexUpdater
+ * @see DefaultQueryCreator
  * 
  * @author Jason van Zyl
  * @author Tamas Cservenak
+ * @author Eugene Kuleshov
  */
 public interface NexusIndexer
 {
@@ -170,12 +227,21 @@ public interface NexusIndexer
     // Scanning
     // ----------------------------------------------------------------------------
 
+    /**
+     * Performs full scan (reindex) for the local repository
+     */
     void scan( IndexingContext context )
         throws IOException;
 
+    /**
+     * Performs full scan (reindex) for the local repository
+     */
     void scan( IndexingContext context, ArtifactScanningListener listener )
         throws IOException;
 
+    /**
+     * Performs optionally incremental scan (reindex) for the local repository
+     */
     void scan( IndexingContext context, ArtifactScanningListener listener, boolean update )
         throws IOException;
 
@@ -197,7 +263,7 @@ public interface NexusIndexer
     // ----------------------------------------------------------------------------
 
     /**
-     * Will search all searchable contexts know to Nexus indexer and merge the results. The default comparator will be
+     * Searches all searchable contexts know to Nexus indexer and merge the results. The default comparator will be
      * used (VersionComparator) to sort the results.
      * 
      * @deprecated use {@link #searchFlat(FlatSearchRequest)} instead 
@@ -214,7 +280,7 @@ public interface NexusIndexer
         throws IOException;
 
     /**
-     * Will search all searchable contexts know to Nexus indexer and merge the results. The given comparator will be
+     * Searches all searchable contexts know to Nexus indexer and merge the results. The given comparator will be
      * used to sort the results.
      * 
      * @deprecated use {@link #searchFlat(FlatSearchRequest)} instead
@@ -223,7 +289,7 @@ public interface NexusIndexer
         throws IOException;
 
     /**
-     * Will search the given context. The given comparator will be used to sort the results.
+     * Searches the given context. The given comparator will be used to sort the results.
      * 
      * @deprecated use {@link #searchFlat(FlatSearchRequest)} instead
      */ 
@@ -232,7 +298,7 @@ public interface NexusIndexer
         throws IOException;
 
     /**
-     * Will search according the request parameters.
+     * Searches according the request parameters.
      * 
      * @param request
      * @return
@@ -242,7 +308,7 @@ public interface NexusIndexer
         throws IOException;
 
     /**
-     * Will search all searchable contexts know to Nexus indexer and merge the results.
+     * Searches all searchable contexts know to Nexus indexer and merge the results.
      * 
      * @param grouping
      * @param query
@@ -255,7 +321,7 @@ public interface NexusIndexer
         throws IOException;
 
     /**
-     * Will search the given context.
+     * Searches the given context.
      * 
      * @param grouping
      * @param query
@@ -269,7 +335,7 @@ public interface NexusIndexer
         throws IOException;
 
     /**
-     * Will search all searchable contexts know to Nexus indexer and merge the results.
+     * Searches all searchable contexts know to Nexus indexer and merge the results.
      * 
      * @param grouping
      * @param groupKeyComparator
@@ -283,7 +349,7 @@ public interface NexusIndexer
         throws IOException;
 
     /**
-     * Will search the given context.
+     * Searches the given context.
      * 
      * @param grouping
      * @param groupKeyComparator
@@ -299,7 +365,7 @@ public interface NexusIndexer
         throws IOException;
 
     /**
-     * Will search according the request parameters.
+     * Searches according the request parameters.
      * 
      * @param request
      * @return
@@ -312,6 +378,13 @@ public interface NexusIndexer
     // Query construction
     // ----------------------------------------------------------------------------
 
+    /**
+     * A convenience method to construct Lucene query for given field name and query text.
+     * 
+     * @param field a field name, one of the fields declared in {@link ArtifactInfo}
+     * @param query a query text
+     * @see DefaultQueryCreator
+     */
     Query constructQuery( String field, String query );
 
     // ----------------------------------------------------------------------------
@@ -329,25 +402,5 @@ public interface NexusIndexer
 
     ArtifactInfo identify( Query query, Collection<IndexingContext> contexts )
         throws IOException;
-
-//    // ----------------------------------------------------------------------------
-//    // Root groups
-//    // ----------------------------------------------------------------------------
-//
-//    Set<String> getRootGroups( IndexingContext context )
-//        throws IOException;
-//
-//    void setRootGroups( IndexingContext context, Collection<String> groups )
-//        throws IOException;
-//
-//    // ----------------------------------------------------------------------------
-//    // All groups
-//    // ----------------------------------------------------------------------------
-//
-//    Set<String> getAllGroups( IndexingContext context )
-//        throws IOException;
-//
-//    void setAllGroups( IndexingContext context, Collection<String> groups )
-//        throws IOException;
 
 }

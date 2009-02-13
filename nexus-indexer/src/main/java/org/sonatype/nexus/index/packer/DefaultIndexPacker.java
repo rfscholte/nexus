@@ -44,12 +44,12 @@ import org.sonatype.nexus.index.creator.LegacyDocumentUpdater;
 import org.sonatype.nexus.index.updater.IndexDataWriter;
 
 /**
- * Default provider for IndexPacker. Creates the properties and zip files.
+ * A default {@link IndexPacker} implementation. Creates the properties, legacy index zip and new gz files.
  * 
  * @author Tamas Cservenak
  * @author Eugene Kuleshov
  */
-@Component(role=IndexPacker.class)
+@Component(role = IndexPacker.class)
 public class DefaultIndexPacker
     extends AbstractLogEnabled
     implements IndexPacker
@@ -209,7 +209,7 @@ public class DefaultIndexPacker
     /**
      * Pack legacy index archive into a specified output stream
      */
-    void packIndexArchive( IndexingContext context, OutputStream os )
+    public static void packIndexArchive( IndexingContext context, OutputStream os )
         throws IOException
     {
         File indexArchive = File.createTempFile( "nexus-index", "" );
@@ -237,7 +237,7 @@ public class DefaultIndexPacker
         }
     }
     
-    void copyLegacyDocuments( IndexReader r, Directory targetdir, IndexingContext context )
+    static void copyLegacyDocuments( IndexReader r, Directory targetdir, IndexingContext context )
         throws CorruptIndexException,
             LockObtainFailedException,
             IOException
@@ -264,7 +264,7 @@ public class DefaultIndexPacker
         }
     }
     
-    Document updateLegacyDocument( Document doc, IndexingContext context )
+    static Document updateLegacyDocument( Document doc, IndexingContext context )
     {
         ArtifactInfo ai = IndexUtils.constructArtifactInfo( doc, context );
         if ( ai == null )
@@ -286,7 +286,7 @@ public class DefaultIndexPacker
         return document;
     }
     
-    void packDirectory( Directory directory, OutputStream os )
+    static void packDirectory( Directory directory, OutputStream os )
         throws IOException
     {
         ZipOutputStream zos = null;
@@ -325,7 +325,7 @@ public class DefaultIndexPacker
         }
     }
 
-    void writeFile( String name, ZipOutputStream zos, Directory directory, byte[] buf )
+    static void writeFile( String name, ZipOutputStream zos, Directory directory, byte[] buf )
         throws IOException
     {
         ZipEntry e = new ZipEntry( name );

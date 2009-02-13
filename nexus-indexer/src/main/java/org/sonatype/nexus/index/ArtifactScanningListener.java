@@ -9,7 +9,7 @@ package org.sonatype.nexus.index;
 import org.sonatype.nexus.index.context.IndexingContext;
 
 /**
- * Listener that is triggered during repository scan process. Usable to track progress, collect results, etc.
+ * A listener notified during repository scan process to track progress, collect results, etc.
  * 
  * @author Jason van Zyl
  */

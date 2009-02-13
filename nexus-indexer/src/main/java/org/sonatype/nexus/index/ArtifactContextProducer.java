@@ -11,7 +11,7 @@ import java.io.File;
 import org.sonatype.nexus.index.context.IndexingContext;
 
 /**
- * A producer that creates ArtifactContext from POM (and possibly other available files).
+ * A producer that creates {@link ArtifactContext} from POM and from other available files.
  * 
  * @author Tamas Cservenak
  */

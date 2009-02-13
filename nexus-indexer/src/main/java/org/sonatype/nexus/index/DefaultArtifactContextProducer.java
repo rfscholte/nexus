@@ -18,13 +18,12 @@ import org.sonatype.nexus.index.locator.MetadataLocator;
 import org.sonatype.nexus.index.locator.PomLocator;
 
 /**
- * The default implementation of the ArtifactContextProducer.
+ * A default implementation of the {@link ArtifactContextProducer}.
  * 
  * @author Tamas Cservenak
  * @author Eugene Kuleshov
- * 
  */
-@Component(role=ArtifactContextProducer.class)
+@Component(role = ArtifactContextProducer.class)
 public class DefaultArtifactContextProducer
     implements ArtifactContextProducer
 {

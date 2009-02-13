@@ -16,12 +16,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.IndexOutput;
+import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.maven.artifact.manager.WagonManager;
 import org.apache.maven.wagon.ConnectionException;
 import org.apache.maven.wagon.ResourceDoesNotExistException;
@@ -45,10 +50,12 @@ import org.sonatype.nexus.index.context.NexusIndexWriter;
 import org.sonatype.nexus.index.updater.IndexDataReader.IndexDataReadResult;
 
 /**
+ * A default index updater implementation
+ * 
  * @author Jason van Zyl
  * @author Eugene Kuleshov
  */
-@Component(role=IndexUpdater.class)
+@Component(role = IndexUpdater.class)
 public class DefaultIndexUpdater
     extends AbstractLogEnabled
     implements IndexUpdater
@@ -184,7 +191,7 @@ public class DefaultIndexUpdater
                 else
                 {
                     // legacy transfer format
-                    timestamp = IndexUtils.unpackIndexArchive( is, directory, //
+                    timestamp = unpackIndexArchive( is, directory, //
                         updateRequest.getIndexingContext() );
                 }
             }
@@ -227,6 +234,113 @@ public class DefaultIndexUpdater
         }
     }
 
+    /**
+     * Unpack legacy index archive into a specified Lucene <code>Directory</code>
+     * 
+     * @param is a <code>ZipInputStream</code> with index data
+     * @param directory Lucene <code>Directory</code> to unpack index data to
+     * @return {@link Date} of the index update or null if it can't be read
+     */
+    public static Date unpackIndexArchive( InputStream is, Directory directory, IndexingContext context )
+        throws IOException
+    {
+        File indexArchive = File.createTempFile( "nexus-index", "" );
+
+        File indexDir = new File( indexArchive.getAbsoluteFile().getParentFile(), indexArchive.getName() + ".dir" );
+
+        indexDir.mkdirs();
+
+        FSDirectory fdir = FSDirectory.getDirectory( indexDir );
+
+        try
+        {
+            unpackDirectory( fdir, is );
+            copyUpdatedDocuments( fdir, directory, context );
+
+            Date timestamp = IndexUtils.getTimestamp( fdir );
+            IndexUtils.updateTimestamp( directory, timestamp );
+            return timestamp;
+        }
+        finally
+        {
+            IndexUtils.close( fdir );
+            indexArchive.delete();
+            IndexUtils.delete( indexDir );
+        }
+    }
+
+    private static void unpackDirectory( Directory directory, InputStream is )
+        throws IOException
+    {
+        byte[] buf = new byte[4096];
+
+        ZipEntry entry;
+
+        ZipInputStream zis = null;
+
+        try
+        {
+            zis = new ZipInputStream( is );
+
+            while ( ( entry = zis.getNextEntry() ) != null )
+            {
+                if ( entry.isDirectory() || entry.getName().indexOf( '/' ) > -1 )
+                {
+                    continue;
+                }
+
+                IndexOutput io = directory.createOutput( entry.getName() );
+                try
+                {
+                    int n = 0;
+
+                    while ( ( n = zis.read( buf ) ) != -1 )
+                    {
+                        io.writeBytes( buf, n );
+                    }
+                }
+                finally
+                {
+                    IndexUtils.close( io );
+                }
+            }
+        }
+        finally
+        {
+            IndexUtils.close( zis );
+        }
+    }
+
+    private static void copyUpdatedDocuments( Directory sourcedir, Directory targetdir, IndexingContext context )
+        throws CorruptIndexException,
+            LockObtainFailedException,
+            IOException
+    {
+        IndexWriter w = null;
+        IndexReader r = null;
+        try
+        {
+            r = IndexReader.open( sourcedir );
+            w = new IndexWriter( targetdir, false, new NexusAnalyzer(), true );
+
+            for ( int i = 0; i < r.maxDoc(); i++ )
+            {
+                if ( !r.isDeleted( i ) )
+                {
+                    w.addDocument( IndexUtils.updateDocument( r.document( i ), context ) );
+                }
+            }
+
+            w.optimize();
+            w.flush();
+        }
+        finally
+        {
+            IndexUtils.close( w );
+            IndexUtils.close( r );
+        }
+    }
+    
     private static void filterDirectory( Directory directory, DocumentFilter filter )
         throws IOException
     {

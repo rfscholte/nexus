@@ -15,16 +15,14 @@ import org.apache.lucene.search.Query;
 import org.sonatype.nexus.index.context.IndexingContext;
 
 /**
+ * A search engine used to perform searches trough repository indexes.
+ *  
  * @author Eugene Kuleshov
  * @author Jason van Zyl
  * @author Tamas Cservenak
  */
 public interface SearchEngine
 {
-    // ----------------------------------------------------------------------------
-    // Searching
-    // ----------------------------------------------------------------------------
-
     @Deprecated
     public Set<ArtifactInfo> searchFlat( Comparator<ArtifactInfo> artifactInfoComparator,
         IndexingContext indexingContext, Query query )
