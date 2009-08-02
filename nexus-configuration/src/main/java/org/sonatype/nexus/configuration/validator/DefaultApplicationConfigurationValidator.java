@@ -51,6 +51,7 @@ import org.sonatype.nexus.proxy.repository.ShadowRepository;
  * The default configuration validator provider. It checks the model for semantical validity.
  * 
  * @author cstamas
+ * @deprecated see Configurable
  */
 @Component( role = ApplicationConfigurationValidator.class )
 public class DefaultApplicationConfigurationValidator

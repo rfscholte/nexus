@@ -14,6 +14,9 @@
 package org.sonatype.nexus.proxy.maven;
 
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.sonatype.nexus.configuration.ConfigurationException;
+import org.sonatype.nexus.configuration.CoreConfiguration;
+import org.sonatype.nexus.configuration.application.ApplicationConfiguration;
 import org.sonatype.nexus.proxy.repository.AbstractGroupRepositoryConfiguration;
 
 public abstract class AbstractMavenGroupRepositoryConfiguration
@@ -29,11 +32,19 @@ public abstract class AbstractMavenGroupRepositoryConfiguration
     public boolean isMergeMetadata()
     {
         return Boolean
-            .parseBoolean( getNodeValue( getConfiguration( false ), MERGE_METADATA, Boolean.TRUE.toString() ) );
+            .parseBoolean( getNodeValue( getRootNode(), MERGE_METADATA, Boolean.TRUE.toString() ) );
     }
 
     public void setMergeMetadata( boolean val )
     {
-        setNodeValue( getConfiguration( true ), MERGE_METADATA, Boolean.toString( val ) );
+        setNodeValue( getRootNode(), MERGE_METADATA, Boolean.toString( val ) );
+    }
+
+    @Override
+    public void validate( ApplicationConfiguration applicationConfiguration, CoreConfiguration owner )
+        throws ConfigurationException
+    {
+        // TODO Auto-generated method stub
+        super.validate( applicationConfiguration, owner );
     }
 }

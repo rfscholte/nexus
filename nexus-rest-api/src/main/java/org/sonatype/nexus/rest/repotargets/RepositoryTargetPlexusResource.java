@@ -23,7 +23,7 @@ import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sonatype.nexus.configuration.ConfigurationException;
-import org.sonatype.nexus.configuration.model.CRepositoryTarget;
+import org.sonatype.nexus.proxy.target.Target;
 import org.sonatype.nexus.rest.model.RepositoryTargetResource;
 import org.sonatype.nexus.rest.model.RepositoryTargetResourceResponse;
 import org.sonatype.plexus.rest.resource.PathProtectionDescriptor;
@@ -74,7 +74,7 @@ public class RepositoryTargetPlexusResource
     {
         RepositoryTargetResourceResponse result = new RepositoryTargetResourceResponse();
 
-        CRepositoryTarget target = getNexusConfiguration().readRepositoryTarget( this.getRepoTargetId( request ) );
+        Target target = getTargetRegistry().getRepositoryTarget( getRepoTargetId( request ) );
 
         if ( target != null )
         {
@@ -99,7 +99,7 @@ public class RepositoryTargetPlexusResource
         {
             RepositoryTargetResource resource = requestResource.getData();
 
-            CRepositoryTarget target = getNexusConfiguration().readRepositoryTarget( this.getRepoTargetId( request ) );
+            Target target = getTargetRegistry().getRepositoryTarget( getRepoTargetId( request ) );
 
             if ( target != null )
             {
@@ -110,7 +110,9 @@ public class RepositoryTargetPlexusResource
                         target = getRestToNexusResource( resource );
 
                         // update
-                        getNexusConfiguration().updateRepositoryTarget( target );
+                        getTargetRegistry().addRepositoryTarget( target );
+
+                        getNexusConfiguration().saveConfiguration();
 
                         // response
                         resultResource = new RepositoryTargetResourceResponse();
@@ -127,9 +129,8 @@ public class RepositoryTargetPlexusResource
                     {
                         getLogger().warn( "Got IOException during creation of repository target!", e );
 
-                        throw new ResourceException(
-                            Status.SERVER_ERROR_INTERNAL,
-                            "Got IOException during creation of repository target!" );
+                        throw new ResourceException( Status.SERVER_ERROR_INTERNAL,
+                                                     "Got IOException during creation of repository target!" );
                     }
                 }
             }
@@ -146,21 +147,22 @@ public class RepositoryTargetPlexusResource
     public void delete( Context context, Request request, Response response )
         throws ResourceException
     {
-        CRepositoryTarget target = getNexusConfiguration().readRepositoryTarget( getRepoTargetId( request ) );
+        Target target = getTargetRegistry().getRepositoryTarget( getRepoTargetId( request ) );
 
         if ( target != null )
         {
             try
             {
-                getNexusConfiguration().deleteRepositoryTarget( getRepoTargetId( request ) );
+                getTargetRegistry().removeRepositoryTarget( getRepoTargetId( request ) );
+                
+                getNexusConfiguration().saveConfiguration();
             }
             catch ( IOException e )
             {
                 getLogger().warn( "Got IOException during removal of repository target!", e );
 
-                throw new ResourceException(
-                    Status.SERVER_ERROR_INTERNAL,
-                    "Got IOException during removal of repository target!" );
+                throw new ResourceException( Status.SERVER_ERROR_INTERNAL,
+                                             "Got IOException during removal of repository target!" );
             }
         }
         else

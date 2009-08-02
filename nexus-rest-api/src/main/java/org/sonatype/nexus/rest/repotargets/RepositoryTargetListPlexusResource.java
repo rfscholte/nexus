@@ -24,7 +24,7 @@ import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sonatype.nexus.configuration.ConfigurationException;
-import org.sonatype.nexus.configuration.model.CRepositoryTarget;
+import org.sonatype.nexus.proxy.target.Target;
 import org.sonatype.nexus.rest.model.RepositoryTargetListResource;
 import org.sonatype.nexus.rest.model.RepositoryTargetListResourceResponse;
 import org.sonatype.nexus.rest.model.RepositoryTargetResource;
@@ -69,11 +69,11 @@ public class RepositoryTargetListPlexusResource
     {
         RepositoryTargetListResourceResponse result = new RepositoryTargetListResourceResponse();
 
-        Collection<CRepositoryTarget> targets = getNexusConfiguration().listRepositoryTargets();
+        Collection<Target> targets = getTargetRegistry().getRepositoryTargets();
 
         RepositoryTargetListResource res = null;
 
-        for ( CRepositoryTarget target : targets )
+        for ( Target target : targets )
         {
             res = new RepositoryTargetListResource();
 
@@ -81,7 +81,7 @@ public class RepositoryTargetListPlexusResource
 
             res.setName( target.getName() );
 
-            res.setContentClass( target.getContentClass() );
+            res.setContentClass( target.getContentClass().getId() );
 
             res.setResourceURI( this.createChildReference( request, this, target.getId() ).toString() );
 
@@ -106,11 +106,13 @@ public class RepositoryTargetListPlexusResource
             {
                 try
                 {
-                    CRepositoryTarget target = getRestToNexusResource( resource );
-
                     // create
-                    getNexusConfiguration().createRepositoryTarget( target );
-
+                    Target target = getRestToNexusResource( resource );
+                    
+                    getTargetRegistry().addRepositoryTarget( target );
+                    
+                    getNexusConfiguration().saveConfiguration();
+                    
                     // response
                     resourceResponse = new RepositoryTargetResourceResponse();
 

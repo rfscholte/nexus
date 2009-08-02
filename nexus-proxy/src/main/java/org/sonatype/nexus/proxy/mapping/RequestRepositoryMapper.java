@@ -14,7 +14,9 @@
 package org.sonatype.nexus.proxy.mapping;
 
 import java.util.List;
+import java.util.Map;
 
+import org.sonatype.nexus.configuration.Configurable;
 import org.sonatype.nexus.proxy.NoSuchResourceStoreException;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
 import org.sonatype.nexus.proxy.repository.Repository;
@@ -24,7 +26,29 @@ import org.sonatype.nexus.proxy.repository.Repository;
  * repositories using some technique.
  */
 public interface RequestRepositoryMapper
+    extends Configurable
 {
+    /**
+     * Returns an unmodifiable Map of mappings.
+     * 
+     * @return
+     */
+    Map<String, RepositoryPathMapping> getMappings();
+
+    /**
+     * Adds new mapping.
+     * 
+     * @param mapping
+     */
+    boolean addMapping( RepositoryPathMapping mapping );
+
+    /**
+     * Removes mapping.
+     * 
+     * @param id
+     */
+    boolean removeMapping( String id );
+
     /**
      * Gets the mapped repositories.
      * 
@@ -33,7 +57,6 @@ public interface RequestRepositoryMapper
      * @return the mapped repositories repoIds
      */
     List<Repository> getMappedRepositories( Repository repository, ResourceStoreRequest request,
-        List<Repository> resolvedRepositories )
+                                            List<Repository> resolvedRepositories )
         throws NoSuchResourceStoreException;
-
 }
