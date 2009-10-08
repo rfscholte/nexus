@@ -3,8 +3,8 @@
 
   <parent>
     <groupId>org.sonatype.nexus</groupId>
-    <artifactId>nexus-parent</artifactId>
-    <version>10</version>
+    <artifactId>nexus-luceneindexer-aggregator</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.sonatype.nexus</groupId>
@@ -12,5 +12,17 @@
   <version>0.1.0-SNAPSHOT</version>
 
   <name>Sonatype Nexus: Lucene Indexer - Plugin</name>
+  <packaging>nexus-plugin</packaging>
 
- </project>
+  <description>Wrapped nexus-indexer as a plugin</description>
+ 
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>app-lifecycle-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

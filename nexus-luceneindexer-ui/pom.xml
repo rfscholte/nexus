@@ -3,8 +3,8 @@
 
   <parent>
     <groupId>org.sonatype.nexus</groupId>
-    <artifactId>nexus-parent</artifactId>
-    <version>10</version>
+    <artifactId>nexus-luceneindexer-aggregator</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.sonatype.nexus</groupId>
@@ -12,5 +12,90 @@
   <version>0.1.0-SNAPSHOT</version>
 
   <name>Sonatype Nexus: Lucene Indexer - UI</name>
+  <dependencies>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-api</artifactId>
+      <version>${dependency-sonatype-nexus}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-proxy</artifactId>
+      <version>${dependency-sonatype-nexus}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-app</artifactId>
+      <version>${dependency-sonatype-nexus}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-rest-api</artifactId>
+      <version>${dependency-sonatype-nexus}</version>
+      <scope>provided</scope>
+    </dependency>
 
- </project>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-model</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>app-lifecycle-maven-plugin</artifactId>
+      </plugin>
+      <!--
+       <plugin>
+        <groupId>net.sf.alchim</groupId>
+        <artifactId>yuicompressor-maven-plugin</artifactId>
+        <version>0.7.1</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-utils</artifactId>
+            <version>1.1</version>
+          </dependency>
+        </dependencies>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compress</goal>
+            </goals>
+            <configuration>
+              <aggregations>
+                <aggregation>
+                  <removeIncluded>true</removeIncluded>
+                  <output>${project.build.directory}/classes/static/js/nexus-indexer-m2-all.js</output>
+                  <includes>
+                    <include>${project.build.directory}/classes/static/js/repoServer.m2InformationPanel.js</include>
+                    <include>${project.build.directory}/classes/static/js/repoServer.m2SearchPanelClass.js</include>
+                    <include>${project.build.directory}/classes/static/js/repoServer.m2SearchPanelFreeForm.js</include>
+                    <include>${project.build.directory}/classes/static/js/repoServer.m2SearchPanelGAV.js</include>
+                    <include>${project.build.directory}/classes/static/js/repoServer.m2SearchResultGrid.js</include>
+                  </includes>
+                </aggregation>
+              </aggregations>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <nosuffix>true</nosuffix>
+          <nomunge>true</nomunge>
+          <jswarn>false</jswarn>
+          <aggregations>
+            <aggregation>
+              <insertNewLine>true</insertNewLine>
+            </aggregation>
+          </aggregations>
+        </configuration>
+      </plugin>
+      -->
+    </plugins>
+  </build>
+</project>
