@@ -10,8 +10,10 @@
   <groupId>org.sonatype.nexus</groupId>
   <artifactId>nexus-luceneindexer-ui</artifactId>
   <version>0.1.0-SNAPSHOT</version>
+  <packaging>nexus-plugin</packaging>
 
   <name>Sonatype Nexus: Lucene Indexer - UI</name>
+  
   <dependencies>
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
@@ -50,7 +52,6 @@
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>app-lifecycle-maven-plugin</artifactId>
       </plugin>
-      <!--
        <plugin>
         <groupId>net.sf.alchim</groupId>
         <artifactId>yuicompressor-maven-plugin</artifactId>
@@ -71,13 +72,9 @@
               <aggregations>
                 <aggregation>
                   <removeIncluded>true</removeIncluded>
-                  <output>${project.build.directory}/classes/static/js/nexus-indexer-m2-all.js</output>
+                  <output>${project.build.directory}/classes/static/js/nexus-luceneindexer-all.js</output>
                   <includes>
-                    <include>${project.build.directory}/classes/static/js/repoServer.m2InformationPanel.js</include>
-                    <include>${project.build.directory}/classes/static/js/repoServer.m2SearchPanelClass.js</include>
-                    <include>${project.build.directory}/classes/static/js/repoServer.m2SearchPanelFreeForm.js</include>
-                    <include>${project.build.directory}/classes/static/js/repoServer.m2SearchPanelGAV.js</include>
-                    <include>${project.build.directory}/classes/static/js/repoServer.m2SearchResultGrid.js</include>
+                    <include>${project.build.directory}/classes/static/js/repoServer.luceneSearchPanel.js</include>
                   </includes>
                 </aggregation>
               </aggregations>
@@ -95,7 +92,6 @@
           </aggregations>
         </configuration>
       </plugin>
-      -->
     </plugins>
   </build>
 </project>
