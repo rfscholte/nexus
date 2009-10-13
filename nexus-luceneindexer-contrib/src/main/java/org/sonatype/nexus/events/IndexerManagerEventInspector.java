@@ -33,9 +33,8 @@ import org.sonatype.plugin.Managed;
  * @author cstamas
  */
 @Component( role = EventInspector.class, hint = "IndexerManagerEventInspector" )
-@Managed
 public class IndexerManagerEventInspector
-    extends AbstractEventInspector
+    extends AbstractEventInspector implements EventInspector
 {
 
     @Requirement

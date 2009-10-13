@@ -39,7 +39,7 @@ import org.sonatype.plexus.appevents.Event;
  * @author Toni Menzel
  */
 @Component( role = EventInspector.class, hint = "IndexingRepositoryRegistryRepositoryEventInspector" )
-public class IndexingRepositoryRegistryRepositoryEventInspector extends AbstractEventInspector
+public class IndexingRepositoryRegistryRepositoryEventInspector extends AbstractEventInspector implements EventInspector
 {
 
     @Requirement
