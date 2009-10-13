@@ -15,6 +15,7 @@ package org.sonatype.nexus.index;
 
 import java.util.Map;
 import org.sonatype.nexus.proxy.NoSuchRepositoryException;
+import org.sonatype.plugin.Managed;
 
 /**
  * A searcher is able to perform artifact info searches based on key/value search terms. Note thts this is an
@@ -22,6 +23,7 @@ import org.sonatype.nexus.proxy.NoSuchRepositoryException;
  *
  * @author Alin Dreghiciu
  */
+@Managed
 public interface Searcher
 {
 

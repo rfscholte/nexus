@@ -13,11 +13,15 @@
  */
 package org.sonatype.nexus.index;
 
+import org.sonatype.plugin.ExtensionPoint;
+import org.sonatype.plugin.Managed;
+
 /**
  * Marker for {@link IndexerManager}s that support composition.
  *
  * @author Alin Dreghiciu
  */
+@Managed
 public interface ComposableIndexerManager
     extends IndexerManager
 {

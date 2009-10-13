@@ -5,13 +5,15 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Collection;
 import org.apache.lucene.search.Query;
+import org.codehaus.plexus.ContainerConfiguration;
+import org.sonatype.nexus.AbstractMavenRepoContentPluginTest;
 import org.sonatype.nexus.AbstractMavenRepoContentTests;
 import org.sonatype.nexus.index.context.IndexingContext;
 import org.sonatype.nexus.proxy.repository.Repository;
 import org.sonatype.nexus.scheduling.NexusScheduler;
 
 public abstract class AbstractIndexerManagerTest
-    extends AbstractMavenRepoContentTests
+    extends AbstractMavenRepoContentPluginTest
 {
 
     protected IndexerManager indexerManager;
@@ -28,7 +30,7 @@ public abstract class AbstractIndexerManagerTest
         throws Exception
     {
         super.setUp();
-
+        
         nexusConfiguration.setSecurityEnabled( false );
 
         nexusConfiguration.saveConfiguration();
@@ -38,6 +40,7 @@ public abstract class AbstractIndexerManagerTest
         nexusScheduler = lookup( NexusScheduler.class );
     }
 
+   
     @Override
     protected void tearDown()
         throws Exception

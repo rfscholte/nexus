@@ -14,12 +14,16 @@
 package org.sonatype.nexus.index;
 
 import java.io.IOException;
+import javax.inject.Singleton;
 import org.apache.lucene.search.Query;
 import org.sonatype.nexus.index.context.IndexingContext;
 import org.sonatype.nexus.proxy.NoSuchRepositoryException;
 import org.sonatype.nexus.proxy.item.StorageItem;
 import org.sonatype.nexus.proxy.repository.Repository;
+import org.sonatype.plugin.Managed;
 
+@Managed
+@Singleton
 public interface IndexerManager
 {
     // ----------------------------------------------------------------------------

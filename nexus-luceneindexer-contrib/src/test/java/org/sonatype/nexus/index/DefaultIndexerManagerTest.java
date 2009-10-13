@@ -32,6 +32,9 @@ public class DefaultIndexerManagerTest
         nexus = lookup( Nexus.class );
     }
 
+    
+
+
     @Override
     protected void tearDown()
         throws Exception
@@ -52,6 +55,8 @@ public class DefaultIndexerManagerTest
 
         assertTemporatyContexts( releases );
     }
+
+
 
     public void testInvalidRemoteUrl()
         throws Exception

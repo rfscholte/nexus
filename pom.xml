@@ -22,9 +22,6 @@
     <module>nexus-luceneindexer-contrib</module>
     <module>nexus-luceneindexer-ui</module>
     <module>nexus-luceneindexer-it</module>
-
-
-    <!--    <module>nexus-luceneindexer-plugin</module>-->
   </modules>
 
   <dependencyManagement>
@@ -32,7 +29,7 @@
       <dependency>
         <groupId>org.sonatype.nexus</groupId>
         <artifactId>nexus-indexer</artifactId>
-        <version>2.0.2-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
         <!--
         <type>nexus-plugin</type>
         <scope>provided</scope>

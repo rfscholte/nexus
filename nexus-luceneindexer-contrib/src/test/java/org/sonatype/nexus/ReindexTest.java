@@ -35,7 +35,7 @@ import org.sonatype.nexus.index.packer.IndexPackingRequest;
 import org.sonatype.nexus.proxy.maven.MavenProxyRepository;
 
 public class ReindexTest
-    extends AbstractMavenRepoContentTests
+    extends AbstractMavenRepoContentPluginTest
 {
     public static final long A_DAY_MILLIS = 24 * 60 * 60 * 1000;
 
