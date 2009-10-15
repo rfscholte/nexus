@@ -33,7 +33,11 @@
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
       <artifactId>nexus-app</artifactId>
-      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-app</artifactId>
+      <classifier>tests</classifier>
     </dependency>
     <dependency>
       <groupId>org.sonatype.plexus</groupId>

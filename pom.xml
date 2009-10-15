@@ -15,13 +15,12 @@
   <name>Sonatype Nexus: Lucene Indexer - Aggregator</name>
 
   <properties>
-    <dependency-sonatype-nexus>1.4.1-SNAPSHOT</dependency-sonatype-nexus>
+    <dependency-sonatype-nexus>2.0.0-SNAPSHOT</dependency-sonatype-nexus>
   </properties>
 
   <modules>
     <module>nexus-luceneindexer-contrib</module>
     <module>nexus-luceneindexer-ui</module>
-    <module>nexus-luceneindexer-it</module>
   </modules>
 
   <dependencyManagement>
@@ -75,6 +74,14 @@
         <groupId>org.sonatype.nexus</groupId>
         <artifactId>nexus-app</artifactId>
         <version>2.0.0-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.nexus</groupId>
+        <artifactId>nexus-app</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+        <classifier>tests</classifier>
+        <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>org.sonatype.nexus</groupId>
