@@ -13,8 +13,17 @@
   <packaging>nexus-plugin</packaging>
 
   <name>Sonatype Nexus: Lucene Indexer - UI</name>
-  
+
   <dependencies>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-luceneindexer-contrib</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-indexer</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
       <artifactId>nexus-api</artifactId>
@@ -52,7 +61,7 @@
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>app-lifecycle-maven-plugin</artifactId>
       </plugin>
-       <plugin>
+      <plugin>
         <groupId>net.sf.alchim</groupId>
         <artifactId>yuicompressor-maven-plugin</artifactId>
         <version>0.7.1</version>

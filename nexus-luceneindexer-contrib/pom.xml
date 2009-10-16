@@ -44,7 +44,11 @@
       <artifactId>plexus-jetty-testsuite</artifactId>
       <scope>test</scope>
     </dependency>
-    
+    <dependency>
+      <groupId>org.sonatype.nexus.plugins</groupId>
+      <artifactId>nexus-lvo-plugin</artifactId>
+    </dependency>
+
   </dependencies>
 
   <build>
