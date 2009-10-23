@@ -28,7 +28,6 @@ import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.tasks.descriptors.ReindexTaskDescriptor;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
-import sun.jvm.hotspot.utilities.Assert;
 
 public class Nexus810PackageNamesInNexusConf
     extends AbstractNexusIntegrationTest
