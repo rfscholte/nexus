@@ -21,12 +21,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-import junit.framework.Assert;
-
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.proxy.item.DefaultStorageCollectionItem;
 import org.sonatype.nexus.proxy.item.DefaultStorageFileItem;
@@ -36,6 +31,9 @@ import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.tasks.descriptors.EvictUnusedItemsTaskDescriptor;
 import org.sonatype.nexus.tasks.descriptors.RebuildAttributesTaskDescriptor;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -62,7 +60,7 @@ public class Nexus636EvictUnusedProxiedTaskIT
         super( REPO_RELEASE_PROXY_REPO1 );
     }
 
-    @Before
+    @BeforeClass
     public void deployOldArtifacts()
         throws Exception
     {
@@ -82,8 +80,8 @@ public class Nexus636EvictUnusedProxiedTaskIT
         prop.setId( "repositoryOrGroupId" );
         prop.setValue( "repo_" + this.getTestRepositoryId() );
         ScheduledServiceListResource task = TaskScheduleUtil.runTask( RebuildAttributesTaskDescriptor.ID, prop );
-        Assert.assertNotNull( task );
-        Assert.assertEquals( "SUBMITTED", task.getStatus() );
+        AssertJUnit.assertNotNull( task );
+        AssertJUnit.assertEquals( "SUBMITTED", task.getStatus() );
 
     }
 
@@ -97,10 +95,10 @@ public class Nexus636EvictUnusedProxiedTaskIT
 
         if ( files.length != 0 )
         {
-            Assert.assertEquals( "All files should be delete from repository except the index:\n"
+            AssertJUnit.assertEquals( "All files should be delete from repository except the index:\n"
                 + Arrays.asList( files ), 1, files.length );
-            Assert.assertTrue( "The only file left should be the index.\n" + Arrays.asList( files ),
-                               files[0].getAbsolutePath().endsWith( ".index" ) );
+            AssertJUnit.assertTrue( "The only file left should be the index.\n" + Arrays.asList( files ),
+                                    files[0].getAbsolutePath().endsWith( ".index" ) );
         }
     }
 
@@ -111,7 +109,7 @@ public class Nexus636EvictUnusedProxiedTaskIT
         executeTask( "keepTestDeployedFiles", "repo_release-proxy-repo-1", 2 );
 
         File artifact = new File( repositoryPath, "nexus636/artifact-new/1.0/artifact-new-1.0.jar" );
-        Assert.assertTrue( "The files deployed by this test should be young enought to be kept", artifact.exists() );
+        AssertJUnit.assertTrue( "The files deployed by this test should be young enought to be kept", artifact.exists() );
 
     }
 
@@ -124,7 +122,7 @@ public class Nexus636EvictUnusedProxiedTaskIT
         // expect 3 files in repo
         File groupDirectory = new File( repositoryPath, this.getTestId() );
         File[] files = groupDirectory.listFiles();
-        Assert.assertEquals( "Expected 3 artifacts in repo:\n" + Arrays.asList( files ), 3, files.length );
+        AssertJUnit.assertEquals( "Expected 3 artifacts in repo:\n" + Arrays.asList( files ), 3, files.length );
 
         // edit dates on files
         File oldJar = new File( this.attributesPath, "nexus636/artifact-old/2.1/artifact-old-2.1.jar" );
@@ -139,7 +137,7 @@ public class Nexus636EvictUnusedProxiedTaskIT
 
         // check file list
         files = groupDirectory.listFiles();
-        Assert.assertEquals( "Expected 2 artifacts in repo:\n" + Arrays.asList( files ), 2, files.length );
+        AssertJUnit.assertEquals( "Expected 2 artifacts in repo:\n" + Arrays.asList( files ), 2, files.length );
     }
 
     private void executeTask( String taskName, String repository, int cacheAge )
@@ -155,8 +153,8 @@ public class Nexus636EvictUnusedProxiedTaskIT
         // clean unused
         ScheduledServiceListResource task =
             TaskScheduleUtil.runTask( taskName, EvictUnusedItemsTaskDescriptor.ID, repo, age );
-        Assert.assertNotNull( "Task '" + taskName + "' didn't execute!", task );
-        Assert.assertEquals( "SUBMITTED", task.getStatus() );
+        AssertJUnit.assertNotNull( "Task '" + taskName + "' didn't execute!", task );
+        AssertJUnit.assertEquals( "SUBMITTED", task.getStatus() );
     }
 
     private XStream getXStream()

@@ -13,13 +13,12 @@
  */
 package org.sonatype.nexus.integrationtests.client.nexus758;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.client.NexusClient;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.integrationtests.TestContext;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Tests the Soft Start, Stop, Restart, and isNexusStarted methods in the rest-client.
@@ -48,11 +47,11 @@ public class Nexus758StatusService
     //
     // // stop Nexus
     // client.stopNexus(); // blocking
-    // Assert.assertTrue( "Expected Nexus to be Stopped", NexusStatusUtil.waitForStop() );
+    // AssertJUnit.assertTrue( "Expected Nexus to be Stopped", NexusStatusUtil.waitForStop() );
     //
     // // start Nexus
     // client.startNexus(); // blocking
-    // Assert.assertTrue( "Expected Nexus to be Started", NexusStatusUtil.waitForStart() );
+    // AssertJUnit.assertTrue( "Expected Nexus to be Started", NexusStatusUtil.waitForStart() );
     //
     // client.disconnect();
     // }
@@ -65,7 +64,7 @@ public class Nexus758StatusService
 
         // restart Nexus
         client.restartNexus(); // this is blocking
-        Assert.assertTrue( "Expected Nexus to be Started", client.isNexusStarted( false ) );
+        AssertJUnit.assertTrue( "Expected Nexus to be Started", client.isNexusStarted( false ) );
 
         client.disconnect();
     }
@@ -83,12 +82,12 @@ public class Nexus758StatusService
     // client = this.getConnectedNexusClient();
     // // turn down the timeout to speed up the tests
     //
-    // Assert.assertTrue( "Wait for start, timed out.", NexusStatusUtil.waitForStop( client ) );
+    // AssertJUnit.assertTrue( "Wait for start, timed out.", NexusStatusUtil.waitForStop( client ) );
     //
     // appBooter.setSleepAfterStart( 0 );
     // appBooter.start();
     // // set the timeout back to 16 sec
-    // Assert.assertTrue( "Wait for start, timed out.", NexusStatusUtil.waitForStart( client ) );
+    // AssertJUnit.assertTrue( "Wait for start, timed out.", NexusStatusUtil.waitForStart( client ) );
     //
     // }
     // finally

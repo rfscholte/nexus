@@ -19,9 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -38,6 +35,8 @@ import org.sonatype.security.realms.tools.dao.SecurityPrivilege;
 import org.sonatype.security.rest.model.AuthenticationLoginResource;
 import org.sonatype.security.rest.model.AuthenticationLoginResourceResponse;
 import org.sonatype.security.rest.model.ClientPermission;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1170ReducePermissionCheckingIT
     extends AbstractNexusIntegrationTest
@@ -77,11 +76,11 @@ public class Nexus1170ReducePermissionCheckingIT
 
         List<ClientPermission> permissions = this.getPermissions();
 
-        Assert.assertEquals( this.getExpectedPrivilegeCount(), permissions.size() );
+        AssertJUnit.assertEquals( this.getExpectedPrivilegeCount(), permissions.size() );
 
         for ( ClientPermission clientPermission : permissions )
         {
-            Assert.assertEquals( 15, clientPermission.getValue() );
+            AssertJUnit.assertEquals( 15, clientPermission.getValue() );
         }
     }
 
@@ -94,7 +93,7 @@ public class Nexus1170ReducePermissionCheckingIT
 
         List<ClientPermission> permissions = this.getPermissions();
 
-        Assert.assertEquals( this.getExpectedPrivilegeCount(), permissions.size() );
+        AssertJUnit.assertEquals( this.getExpectedPrivilegeCount(), permissions.size() );
         this.checkPermission( permissions, "nexus:*", 0 );
         this.checkPermission( permissions, "nexus:status", 1 );
         this.checkPermission( permissions, "nexus:authentication", 1 );
@@ -148,7 +147,7 @@ public class Nexus1170ReducePermissionCheckingIT
               }
               if(count > 1)
               {
-                  Assert.fail( "Duplicate privilege: "+ outPermission.getId() +" found count: "+ count);
+                  AssertJUnit.fail( "Duplicate privilege: "+ outPermission.getId() +" found count: "+ count);
               }
             }
 
@@ -164,12 +163,12 @@ public class Nexus1170ReducePermissionCheckingIT
 
             if ( clientPermission.getId().equals( permission ) )
             {
-                Assert.assertEquals( expectedValue, clientPermission.getValue() );
+                AssertJUnit.assertEquals( expectedValue, clientPermission.getValue() );
                 return;
             }
 
         }
-        Assert.fail( "Did not find permission: " + permissions );
+        AssertJUnit.fail( "Did not find permission: " + permissions );
     }
 
     private List<ClientPermission> getPermissions()

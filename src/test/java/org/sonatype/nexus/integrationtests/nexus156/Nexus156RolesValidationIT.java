@@ -15,9 +15,6 @@ package org.sonatype.nexus.integrationtests.nexus156;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -25,6 +22,8 @@ import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.RoleMessageUtil;
 import org.sonatype.nexus.test.utils.SecurityConfigUtil;
 import org.sonatype.security.rest.model.RoleResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Extra CRUD validation tests.
@@ -56,9 +55,9 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "Role should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -77,9 +76,9 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "Role should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -98,7 +97,7 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Response: "+ response.getEntity().getText() +"Role should have been created: " + response.getStatus() );
+            AssertJUnit.fail( "Response: "+ response.getEntity().getText() +"Role should have been created: " + response.getStatus() );
         }
     }
 
@@ -117,16 +116,16 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         // create
         resource = this.messageUtil.createRole( resource );
-        Assert.assertEquals( "duplicateIdTest", resource.getId() );
+        AssertJUnit.assertEquals( "duplicateIdTest", resource.getId() );
 
         // update
         Response response = this.messageUtil.sendMessage( Method.POST, resource );
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been updated: " + response.getStatus() +"New Id: "+ this.messageUtil.getResourceFromResponse( response ).getId() );
+            AssertJUnit.fail( "Role should not have been updated: " + response.getStatus() +"New Id: "+ this.messageUtil.getResourceFromResponse( response ).getId() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -145,9 +144,9 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "Role should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -163,7 +162,7 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should have been created: " + response.getStatus() );
+            AssertJUnit.fail( "Role should have been created: " + response.getStatus() );
         }
 
         // get the Resource object
@@ -179,7 +178,7 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should have been created: " + response.getStatus() );
+            AssertJUnit.fail( "Role should have been created: " + response.getStatus() );
         }
 
         // get the Resource object
@@ -195,7 +194,7 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should have been created: " + response.getStatus() );
+            AssertJUnit.fail( "Role should have been created: " + response.getStatus() );
         }
 
         // get the Resource object
@@ -209,10 +208,10 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been updated: " + response.getStatus() );
+            AssertJUnit.fail( "Role should not have been updated: " + response.getStatus() );
         }
 
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -230,22 +229,22 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not create role: " + response.getStatus() );
+            AssertJUnit.fail( "Could not create role: " + response.getStatus() );
         }
 
         // get the Resource object
         RoleResource responseResource = this.messageUtil.getResourceFromResponse( response );
 
         // make sure the id != null
-        Assert.assertNotNull( responseResource.getId() );
+        AssertJUnit.assertNotNull( responseResource.getId() );
 
         resource.setId( responseResource.getId() );
 
-        Assert.assertEquals( resource.getDescription(), responseResource.getDescription() );
-        Assert.assertEquals( resource.getName(), responseResource.getName() );
-        Assert.assertEquals( resource.getSessionTimeout(), responseResource.getSessionTimeout() );
-        Assert.assertEquals( resource.getPrivileges(), responseResource.getPrivileges() );
-        Assert.assertEquals( resource.getRoles(), responseResource.getRoles() );
+        AssertJUnit.assertEquals( resource.getDescription(), responseResource.getDescription() );
+        AssertJUnit.assertEquals( resource.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( resource.getSessionTimeout(), responseResource.getSessionTimeout() );
+        AssertJUnit.assertEquals( resource.getPrivileges(), responseResource.getPrivileges() );
+        AssertJUnit.assertEquals( resource.getRoles(), responseResource.getRoles() );
 
         SecurityConfigUtil.verifyRole( resource );
 
@@ -264,9 +263,9 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been updated: " + response.getStatus() );
+            AssertJUnit.fail( "Role should not have been updated: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
 
 
 
@@ -283,9 +282,9 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been updated: " + response.getStatus() );
+            AssertJUnit.fail( "Role should not have been updated: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
 
         /*
          * INVALID Privs
@@ -300,9 +299,9 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been updated: " + response.getStatus() );
+            AssertJUnit.fail( "Role should not have been updated: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
 
         /*
          * Update Id
@@ -319,10 +318,10 @@ public class Nexus156RolesValidationIT extends AbstractNexusIntegrationTest
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "Role should not have been updated: " + response.getStatus() );
+            AssertJUnit.fail( "Role should not have been updated: " + response.getStatus() );
         }
         // expect a 404
-        Assert.assertEquals( 404, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( 404, response.getStatus().getCode() );
 
 
     }

@@ -16,9 +16,6 @@ package org.sonatype.nexus.integrationtests.nexus156;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -26,6 +23,8 @@ import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.RoleMessageUtil;
 import org.sonatype.nexus.test.utils.SecurityConfigUtil;
 import org.sonatype.security.rest.model.RoleResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * CRUD tests for JSON request/response.
@@ -114,12 +113,12 @@ public class Nexus156RolesCrudJsonIT
         // get the Resource object
         RoleResource responseResource = this.messageUtil.getRole( resource.getId() );
 
-        Assert.assertEquals( resource.getId(), responseResource.getId() );
-        Assert.assertEquals( resource.getDescription(), responseResource.getDescription() );
-        Assert.assertEquals( resource.getName(), responseResource.getName() );
-        Assert.assertEquals( resource.getSessionTimeout(), responseResource.getSessionTimeout() );
-        Assert.assertEquals( resource.getPrivileges(), responseResource.getPrivileges() );
-        Assert.assertEquals( resource.getRoles(), responseResource.getRoles() );
+        AssertJUnit.assertEquals( resource.getId(), responseResource.getId() );
+        AssertJUnit.assertEquals( resource.getDescription(), responseResource.getDescription() );
+        AssertJUnit.assertEquals( resource.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( resource.getSessionTimeout(), responseResource.getSessionTimeout() );
+        AssertJUnit.assertEquals( resource.getPrivileges(), responseResource.getPrivileges() );
+        AssertJUnit.assertEquals( resource.getRoles(), responseResource.getRoles() );
     }
 
     @Test
@@ -150,18 +149,18 @@ public class Nexus156RolesCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not update Role: " + response.getStatus() );
+            AssertJUnit.fail( "Could not update Role: " + response.getStatus() );
         }
 
         // get the Resource object
         responseResource = this.messageUtil.getResourceFromResponse( response );
 
-        Assert.assertEquals( resource.getId(), responseResource.getId() );
-        Assert.assertEquals( resource.getDescription(), responseResource.getDescription() );
-        Assert.assertEquals( resource.getName(), responseResource.getName() );
-        Assert.assertEquals( resource.getSessionTimeout(), responseResource.getSessionTimeout() );
-        Assert.assertEquals( resource.getPrivileges(), responseResource.getPrivileges() );
-        Assert.assertEquals( resource.getRoles(), responseResource.getRoles() );
+        AssertJUnit.assertEquals( resource.getId(), responseResource.getId() );
+        AssertJUnit.assertEquals( resource.getDescription(), responseResource.getDescription() );
+        AssertJUnit.assertEquals( resource.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( resource.getSessionTimeout(), responseResource.getSessionTimeout() );
+        AssertJUnit.assertEquals( resource.getPrivileges(), responseResource.getPrivileges() );
+        AssertJUnit.assertEquals( resource.getRoles(), responseResource.getRoles() );
 
         SecurityConfigUtil.verifyRole( resource );
     }
@@ -186,11 +185,11 @@ public class Nexus156RolesCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not delete Role: " + response.getStatus() );
+            AssertJUnit.fail( "Could not delete Role: " + response.getStatus() );
         }
 
         // TODO: check if deleted
-        Assert.assertNull( SecurityConfigUtil.getCRole( responseResource.getId() ) );
+        AssertJUnit.assertNull( SecurityConfigUtil.getCRole( responseResource.getId() ) );
     }
 
 }

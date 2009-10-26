@@ -17,9 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Response;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
@@ -28,6 +25,8 @@ import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.UserMessageUtil;
 import org.sonatype.security.rest.model.PlexusRoleResource;
 import org.sonatype.security.rest.model.PlexusUserResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1239UserSearchPermissionIT extends AbstractPrivilegeTest
 {
@@ -43,20 +42,20 @@ public class Nexus1239UserSearchPermissionIT extends AbstractPrivilegeTest
         UserMessageUtil userUtil = new UserMessageUtil(this.getJsonXStream(), MediaType.APPLICATION_JSON);
         List<PlexusUserResource> users = userUtil.searchPlexusUsers( "default", "admin" );
         
-        Assert.assertEquals( 1, users.size() );
+        AssertJUnit.assertEquals( 1, users.size() );
         PlexusUserResource user = users.get( 0 );
-        Assert.assertEquals( "admin", user.getUserId() );
-        Assert.assertEquals( "changeme@yourcompany.com", user.getEmail() );
-        Assert.assertEquals( "Administrator", user.getName() );
-        Assert.assertEquals( "default", user.getSource() );
+        AssertJUnit.assertEquals( "admin", user.getUserId() );
+        AssertJUnit.assertEquals( "changeme@yourcompany.com", user.getEmail() );
+        AssertJUnit.assertEquals( "Administrator", user.getName() );
+        AssertJUnit.assertEquals( "default", user.getSource() );
         
         List<PlexusRoleResource> roles = user.getRoles();
-        Assert.assertEquals( 1, roles.size() );
+        AssertJUnit.assertEquals( 1, roles.size() );
         
         PlexusRoleResource role = roles.get( 0 );
-        Assert.assertEquals( "Nexus Administrator Role", role.getName() );
-        Assert.assertEquals( "admin", role.getRoleId() );
-        Assert.assertEquals( "default", role.getSource() );
+        AssertJUnit.assertEquals( "Nexus Administrator Role", role.getName() );
+        AssertJUnit.assertEquals( "admin", role.getRoleId() );
+        AssertJUnit.assertEquals( "default", role.getSource() );
     }
     
     @Test
@@ -78,9 +77,9 @@ public class Nexus1239UserSearchPermissionIT extends AbstractPrivilegeTest
             userIds.add( plexusUserResource.getUserId() );
         }
         
-        Assert.assertEquals( 2, users.size() );
-        Assert.assertTrue( userIds.contains( "admin" ) );
-        Assert.assertTrue( userIds.contains( "anonymous" ) );
+        AssertJUnit.assertEquals( 2, users.size() );
+        AssertJUnit.assertTrue( userIds.contains( "admin" ) );
+        AssertJUnit.assertTrue( userIds.contains( "anonymous" ) );
     }
     
     @Test
@@ -93,7 +92,7 @@ public class Nexus1239UserSearchPermissionIT extends AbstractPrivilegeTest
         
         UserMessageUtil userUtil = new UserMessageUtil(this.getJsonXStream(), MediaType.APPLICATION_JSON);
         List<PlexusUserResource> users = userUtil.searchPlexusUsers( "default", "VOID" );
-        Assert.assertEquals( 0, users.size() );
+        AssertJUnit.assertEquals( 0, users.size() );
     }
     
     public void noAccessTest() throws IOException
@@ -106,7 +105,7 @@ public class Nexus1239UserSearchPermissionIT extends AbstractPrivilegeTest
 
         Response response = RequestFacade.doGetRequest( uriPart );
         
-        Assert.assertEquals( 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( 403, response.getStatus().getCode() );
         
     }
     

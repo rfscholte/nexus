@@ -1,13 +1,12 @@
 package org.sonatype.nexus.integrationtests.nexus2178;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.AbstractNexusPlexusResource;
 import org.sonatype.nexus.rest.model.ErrorReportingSettings;
 import org.sonatype.nexus.rest.model.GlobalConfigurationResource;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus2178ErrorReportingConfigRestIT
     extends AbstractNexusIntegrationTest
@@ -19,7 +18,7 @@ public class Nexus2178ErrorReportingConfigRestIT
         // Default config
         GlobalConfigurationResource resource = SettingsMessageUtil.getCurrentSettings();
         
-        Assert.assertNull( "Error reporting should be null by default", resource.getErrorReportingSettings() );
+        AssertJUnit.assertNull( "Error reporting should be null by default", resource.getErrorReportingSettings() );
         
         // Set some values
         ErrorReportingSettings settings = new ErrorReportingSettings();
@@ -32,9 +31,9 @@ public class Nexus2178ErrorReportingConfigRestIT
         
         resource = SettingsMessageUtil.getCurrentSettings();
         
-        Assert.assertNotNull( "Error reporting should not be null", resource.getErrorReportingSettings() );
-        Assert.assertEquals( "someusername", resource.getErrorReportingSettings().getJiraUsername() );
-        Assert.assertEquals( AbstractNexusPlexusResource.PASSWORD_PLACE_HOLDER, resource.getErrorReportingSettings().getJiraPassword() );
+        AssertJUnit.assertNotNull( "Error reporting should not be null", resource.getErrorReportingSettings() );
+        AssertJUnit.assertEquals( "someusername", resource.getErrorReportingSettings().getJiraUsername() );
+        AssertJUnit.assertEquals( AbstractNexusPlexusResource.PASSWORD_PLACE_HOLDER, resource.getErrorReportingSettings().getJiraPassword() );
         
         // Clear them again
         resource.setErrorReportingSettings( null );
@@ -43,6 +42,6 @@ public class Nexus2178ErrorReportingConfigRestIT
         
         resource = SettingsMessageUtil.getCurrentSettings();
         
-        Assert.assertNull( "Error reporting should be null", resource.getErrorReportingSettings() );
+        AssertJUnit.assertNull( "Error reporting should be null", resource.getErrorReportingSettings() );
     }
 }

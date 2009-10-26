@@ -1,14 +1,7 @@
 package org.sonatype.nexus.integrationtests.runner;
 
-import java.lang.reflect.Method;
 
-import org.junit.runner.notification.Failure;
-import org.junit.runner.notification.RunListener;
-import org.junit.runner.notification.RunNotifier;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.InitializationError;
-
-public class ConsoleLoggingRunner extends org.junit.runners.BlockJUnit4ClassRunner
+public class ConsoleLoggingRunner {/*extends org.junit.runners.BlockJUnit4ClassRunner
 {
 
     public ConsoleLoggingRunner( Class<?> klass )
@@ -62,6 +55,6 @@ public class ConsoleLoggingRunner extends org.junit.runners.BlockJUnit4ClassRunn
         {
             System.out.println( description + ": Failed");
         }        
-    }
+    }*/
     
 }

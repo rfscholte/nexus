@@ -15,14 +15,13 @@ package org.sonatype.nexus.integrationtests.nexus1375;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.rest.model.LogConfigResource;
 import org.sonatype.nexus.test.utils.LogConfigMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * @author juven
@@ -48,17 +47,17 @@ public class Nexus1375LogConfigIT
     {
         LogConfigResource resource = messageUtil.getLogConfig();
 
-        Assert.assertEquals( "DEBUG", resource.getRootLoggerLevel() );
+        AssertJUnit.assertEquals( "DEBUG", resource.getRootLoggerLevel() );
 
-        Assert.assertEquals( "logfile, record", resource.getRootLoggerAppenders() );
+        AssertJUnit.assertEquals( "logfile, record", resource.getRootLoggerAppenders() );
 
-        Assert.assertEquals( "%4d{yyyy-MM-dd HH:mm:ss} %-5p [%-15.15t] - %c - %m%n", resource.getFileAppenderPattern() );
+        AssertJUnit.assertEquals( "%4d{yyyy-MM-dd HH:mm:ss} %-5p [%-15.15t] - %c - %m%n", resource.getFileAppenderPattern() );
 
         File expectedLoggerLocation = new File( "target/logs/nexus.log" ).getCanonicalFile();
 
         File actualLoggerLocation = new File( resource.getFileAppenderLocation() ).getCanonicalFile();
 
-        Assert.assertEquals( expectedLoggerLocation.getAbsolutePath(), actualLoggerLocation.getAbsolutePath() );
+        AssertJUnit.assertEquals( expectedLoggerLocation.getAbsolutePath(), actualLoggerLocation.getAbsolutePath() );
     }
 
     @Test
@@ -67,19 +66,19 @@ public class Nexus1375LogConfigIT
     {
         LogConfigResource resource = messageUtil.getLogConfig();
 
-        Assert.assertEquals( "DEBUG", resource.getRootLoggerLevel() );
-        Assert.assertEquals( "logfile, record", resource.getRootLoggerAppenders() );
+        AssertJUnit.assertEquals( "DEBUG", resource.getRootLoggerLevel() );
+        AssertJUnit.assertEquals( "logfile, record", resource.getRootLoggerAppenders() );
 
         resource.setRootLoggerLevel( "ERROR" );
 
         messageUtil.updateLogConfig( resource );
 
-        Assert.assertEquals( "ERROR", resource.getRootLoggerLevel() );
+        AssertJUnit.assertEquals( "ERROR", resource.getRootLoggerLevel() );
 
         resource.setRootLoggerLevel( "DEBUG");
 
         messageUtil.updateLogConfig( resource );
 
-        Assert.assertEquals( "DEBUG", resource.getRootLoggerLevel() );
+        AssertJUnit.assertEquals( "DEBUG", resource.getRootLoggerLevel() );
     }
 }

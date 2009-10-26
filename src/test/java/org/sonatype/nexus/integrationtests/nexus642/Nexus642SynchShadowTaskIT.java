@@ -16,10 +16,6 @@ package org.sonatype.nexus.integrationtests.nexus642;
 import java.io.File;
 import java.net.URL;
 
-import junit.framework.Assert;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.RepositoryShadowResource;
@@ -29,6 +25,9 @@ import org.sonatype.nexus.tasks.descriptors.SynchronizeShadowTaskDescriptor;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus642SynchShadowTaskIT
     extends AbstractNexusIntegrationTest
@@ -70,15 +69,15 @@ public class Nexus642SynchShadowTaskIT
         ScheduledServiceListResource task = this.executeTask( taskName, repo.getId() );
 
         // check the status:
-        Assert.assertNotNull( task );
-        Assert.assertEquals( "SUBMITTED", task.getStatus() );
+        AssertJUnit.assertNotNull( task );
+        AssertJUnit.assertEquals( "SUBMITTED", task.getStatus() );
 
         // download the file using the shadow repo
         File actualFile =
             this.downloadFile( new URL( this.getBaseNexusUrl() + "content/repositories/" + shadowRepoId + "/"
                 + this.getTestId() + "/jars/artifact-5.4.3.jar" ), "target/downloads/nexus642.jar" );
         File expectedFile = this.getTestResourceAsFile( "projects/artifact/artifact.jar" );
-        Assert.assertTrue( FileTestingUtils.compareFileSHA1s( expectedFile, actualFile ) );
+        AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( expectedFile, actualFile ) );
 
     }
 

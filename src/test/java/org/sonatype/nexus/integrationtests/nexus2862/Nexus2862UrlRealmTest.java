@@ -2,11 +2,6 @@ package org.sonatype.nexus.integrationtests.nexus2862;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
@@ -14,6 +9,12 @@ import org.sonatype.nexus.rest.model.GlobalConfigurationResource;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.UserCreationUtil;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus2862UrlRealmTest
     extends AbstractNexusIntegrationTest
@@ -62,7 +63,7 @@ public class Nexus2862UrlRealmTest
         Assert.assertTrue( status.isSuccess() );
     }
 
-    @After
+    @AfterMethod
     public void cleanAccessedUris()
     {
         server.getAccessedUri().clear();
@@ -84,7 +85,7 @@ public class Nexus2862UrlRealmTest
         throws IOException
     {
         Status status = UserCreationUtil.login( "juka", "juka" );
-        Assert.assertFalse( status + "", status.isSuccess() );
+        AssertJUnit.assertFalse( status + "", status.isSuccess() );
 
         Assert.assertTrue( UserCreationUtil.logout().isSuccess() );
     }
@@ -94,7 +95,7 @@ public class Nexus2862UrlRealmTest
         throws IOException
     {
         Status status = UserCreationUtil.login( "anuser", "juka" );
-        Assert.assertFalse( status + "", status.isSuccess() );
+        AssertJUnit.assertFalse( status + "", status.isSuccess() );
 
         Assert.assertTrue( UserCreationUtil.logout().isSuccess() );
     }

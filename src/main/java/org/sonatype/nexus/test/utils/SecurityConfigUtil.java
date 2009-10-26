@@ -21,13 +21,9 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
-
-import junit.framework.Assert;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
-import org.sonatype.security.configuration.model.SecurityConfiguration;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CProperty;
 import org.sonatype.security.model.CRole;
@@ -38,6 +34,7 @@ import org.sonatype.security.rest.model.PrivilegeProperty;
 import org.sonatype.security.rest.model.PrivilegeStatusResource;
 import org.sonatype.security.rest.model.RoleResource;
 import org.sonatype.security.rest.model.UserResource;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -61,7 +58,7 @@ public class SecurityConfigUtil
             RoleResource roleResource = outterIter.next();
 
             CRole secRole = getCRole( roleResource.getId() );
-            Assert.assertNotNull( secRole );
+            AssertJUnit.assertNotNull( secRole );
             CRole role = RoleConverter.toCRole( roleResource );
 
             XStream xStream = new XStream();
@@ -69,7 +66,7 @@ public class SecurityConfigUtil
             String roleDebugString = xStream.toXML( role );
             
             
-            Assert.assertTrue("Role:\n"+ roleDebugString +"\nsecRole:\n"+ secRoleDebugString, new RoleComparator().compare( role, secRole ) == 0 );
+            AssertJUnit.assertTrue("Role:\n"+ roleDebugString +"\nsecRole:\n"+ secRoleDebugString, new RoleComparator().compare( role, secRole ) == 0 );
 
         }
     }
@@ -93,11 +90,11 @@ public class SecurityConfigUtil
             
             CUser secUser = getCUser( userResource.getUserId() );
 
-            Assert.assertNotNull( "Cannot find user: "+ userResource.getUserId(), secUser );
+            AssertJUnit.assertNotNull( "Cannot find user: "+ userResource.getUserId(), secUser );
 
             CUser user = UserConverter.toCUser( userResource );
 
-            Assert.assertTrue( new UserComparator().compare( user, secUser ) == 0 );
+            AssertJUnit.assertTrue( new UserComparator().compare( user, secUser ) == 0 );
 
         }
     }
@@ -125,15 +122,15 @@ public class SecurityConfigUtil
 
             CPrivilege secPriv = getCPrivilege( privResource.getId() );
 
-            Assert.assertNotNull( secPriv );
+            AssertJUnit.assertNotNull( secPriv );
 
-            Assert.assertEquals( privResource.getId(), secPriv.getId() );
-            Assert.assertEquals( privResource.getName(), secPriv.getName() );
-            Assert.assertEquals( privResource.getDescription(), secPriv.getDescription() );
+            AssertJUnit.assertEquals( privResource.getId(), secPriv.getId() );
+            AssertJUnit.assertEquals( privResource.getName(), secPriv.getName() );
+            AssertJUnit.assertEquals( privResource.getDescription(), secPriv.getDescription() );
 
             for ( CProperty prop : (List<CProperty>) secPriv.getProperties() )
             {
-                Assert.assertEquals( getPrivilegeProperty( privResource, prop.getKey() ), prop.getValue() );
+                AssertJUnit.assertEquals( getPrivilegeProperty( privResource, prop.getKey() ), prop.getValue() );
             }
         }
     }
@@ -268,7 +265,7 @@ public class SecurityConfigUtil
         }
         catch ( XmlPullParserException e )
         {
-            Assert.fail( "could not parse nexus.xml: " + e.getMessage() );
+            AssertJUnit.fail( "could not parse nexus.xml: " + e.getMessage() );
         }
         return configuration;
     }

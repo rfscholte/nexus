@@ -2,9 +2,6 @@ package org.sonatype.nexus.integrationtests.nexus1961;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -15,6 +12,9 @@ import org.sonatype.nexus.rest.model.ContentListResourceResponse;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus1961IndexContentIT
     extends AbstractNexusIntegrationTest
@@ -46,7 +46,7 @@ public class Nexus1961IndexContentIT
         Response response = RequestFacade.doGetRequest( serviceURI );
         String responseText = response.getEntity().getText();
         Status status = response.getStatus();
-        Assert.assertTrue( responseText + status, status.isSuccess() );
+        AssertJUnit.assertTrue( responseText + status, status.isSuccess() );
 
         XStreamRepresentation re =
             new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );
@@ -56,7 +56,7 @@ public class Nexus1961IndexContentIT
         List<ContentListResource> content = resourceResponse.getData();
         for ( ContentListResource contentListResource : content )
         {
-            Assert.assertEquals( "nexus1961", contentListResource.getText() );
+            AssertJUnit.assertEquals( "nexus1961", contentListResource.getText() );
         }
 
     }

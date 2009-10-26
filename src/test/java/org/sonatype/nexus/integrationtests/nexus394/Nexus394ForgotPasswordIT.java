@@ -15,11 +15,11 @@ package org.sonatype.nexus.integrationtests.nexus394;
 
 import javax.mail.internet.MimeMessage;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Response;
 import org.sonatype.nexus.integrationtests.AbstractEmailServerNexusIT;
 import org.sonatype.nexus.test.utils.ForgotPasswordUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 import com.icegreen.greenmail.util.GreenMailUtil;
 
@@ -35,7 +35,7 @@ public class Nexus394ForgotPasswordIT
         throws Exception
     {
         Response response = ForgotPasswordUtils.recoverUserPassword( "test-user", "nexus-dev2@sonatype.org" );
-        Assert.assertEquals( "Status: "+response.getStatus() +"\n"+ response.getEntity().getText(), 202, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: "+response.getStatus() +"\n"+ response.getEntity().getText(), 202, response.getStatus().getCode() );
         
         // Need 1 message
         server.waitForIncomingEmail( 1000, 1 );
@@ -54,7 +54,7 @@ public class Nexus394ForgotPasswordIT
             log.debug( "New password:\n" + password );
         }
 
-        Assert.assertNotNull( password );
+        AssertJUnit.assertNotNull( password );
     }
 
 }

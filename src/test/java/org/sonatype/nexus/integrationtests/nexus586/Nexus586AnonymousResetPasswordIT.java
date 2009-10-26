@@ -13,11 +13,11 @@
  */
 package org.sonatype.nexus.integrationtests.nexus586;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Response;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.ResetPasswordUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 
 /**
@@ -33,6 +33,6 @@ public class Nexus586AnonymousResetPasswordIT
     {
         String username = "anonymous";
         Response response = ResetPasswordUtils.resetPassword( username );
-        Assert.assertEquals( 400, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( 400, response.getStatus().getCode() );
     }
 }

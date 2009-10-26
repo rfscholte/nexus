@@ -15,9 +15,6 @@ package org.sonatype.nexus.integrationtests.nexus1240;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -29,6 +26,8 @@ import org.sonatype.plexus.rest.representation.XStreamRepresentation;
 import org.sonatype.security.rest.model.AuthenticationClientPermissions;
 import org.sonatype.security.rest.model.AuthenticationLoginResource;
 import org.sonatype.security.rest.model.AuthenticationLoginResourceResponse;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1240SourceInLoginResourceIT
     extends AbstractNexusIntegrationTest
@@ -43,7 +42,7 @@ public class Nexus1240SourceInLoginResourceIT
     {     
         AuthenticationClientPermissions clientPermissions = this.getPermissions();
         
-        Assert.assertEquals( "default", clientPermissions.getLoggedInUserSource() );
+        AssertJUnit.assertEquals( "default", clientPermissions.getLoggedInUserSource() );
     }
 
     private AuthenticationClientPermissions getPermissions()
@@ -52,7 +51,7 @@ public class Nexus1240SourceInLoginResourceIT
         Response response = RequestFacade
             .sendMessage( RequestFacade.SERVICE_LOCAL + "authentication/login", Method.GET );
 
-        Assert.assertTrue( "Status: "+ response.getStatus(), response.getStatus().isSuccess()  );
+        AssertJUnit.assertTrue( "Status: "+ response.getStatus(), response.getStatus().isSuccess()  );
         
         String responseText = response.getEntity().getText();
 

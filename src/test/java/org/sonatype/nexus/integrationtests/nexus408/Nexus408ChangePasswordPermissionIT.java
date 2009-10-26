@@ -13,12 +13,12 @@
  */
 package org.sonatype.nexus.integrationtests.nexus408;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.ChangePasswordUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Test the privilege for changing a users password..
@@ -39,11 +39,11 @@ public class Nexus408ChangePasswordPermissionIT
 
         // Should be able to change my own password
         Status status = ChangePasswordUtils.changePassword( "test-user", "admin123", "123admin" );
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
         // NOT Should be able to change my own password
         status = ChangePasswordUtils.changePassword( "admin", "admin123", "123admin" );
-        Assert.assertEquals( 401, status.getCode() );
+        AssertJUnit.assertEquals( 401, status.getCode() );
 
     }
 
@@ -59,11 +59,11 @@ public class Nexus408ChangePasswordPermissionIT
 
         // NOT Should be able to forgot my own username
         Status status = ChangePasswordUtils.changePassword( "test-user", "admin123", "123admin" );
-        Assert.assertEquals( 401, status.getCode() );
+        AssertJUnit.assertEquals( 401, status.getCode() );
 
         // NOT Should be able to forgot anyone username
         status = ChangePasswordUtils.changePassword( "admin", "admin123", "123admin" );
-        Assert.assertEquals( 401, status.getCode() );
+        AssertJUnit.assertEquals( 401, status.getCode() );
     }
 
 }

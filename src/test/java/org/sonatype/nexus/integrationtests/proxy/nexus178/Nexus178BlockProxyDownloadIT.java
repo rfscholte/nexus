@@ -19,13 +19,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Create an http server. Create a proxy repo to http server. Test if connection works. block proxy, change file on http
@@ -70,10 +69,10 @@ public class Nexus178BlockProxyDownloadIT
             File newFile = this.downloadArtifact( gav, "target/downloads/new" );
 
             // check to see if file matches original file
-            Assert.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, newFile ) );
+            AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, newFile ) );
 
             // check to see if file does match new file.
-            Assert.assertFalse( FileTestingUtils.compareFileSHA1s( originalFile, localFile ) );
+            AssertJUnit.assertFalse( FileTestingUtils.compareFileSHA1s( originalFile, localFile ) );
 
             // if we don't unblock the proxy the other tests will be mad
             this.setBlockProxy( this.getBaseNexusUrl(), TEST_RELEASE_REPO, false );

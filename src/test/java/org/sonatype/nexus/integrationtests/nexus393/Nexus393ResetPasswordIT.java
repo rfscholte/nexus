@@ -15,11 +15,11 @@ package org.sonatype.nexus.integrationtests.nexus393;
 
 import javax.mail.internet.MimeMessage;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Response;
 import org.sonatype.nexus.integrationtests.AbstractEmailServerNexusIT;
 import org.sonatype.nexus.test.utils.ResetPasswordUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 import com.icegreen.greenmail.util.GreenMailUtil;
 
@@ -37,13 +37,13 @@ public class Nexus393ResetPasswordIT
     {
         String username = "test-user";
         Response response = ResetPasswordUtils.resetPassword( username );
-        Assert.assertTrue( "Status: "+ response.getStatus() +"\n"+ response.getEntity().getText(), response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Status: "+ response.getStatus() +"\n"+ response.getEntity().getText(), response.getStatus().isSuccess() );
 
         // Need 1 message
         server.waitForIncomingEmail( 1000, 1 );
 
         MimeMessage[] msgs = server.getReceivedMessages();
-        Assert.assertTrue( "Expected email.", msgs != null && msgs.length > 0 );
+        AssertJUnit.assertTrue( "Expected email.", msgs != null && msgs.length > 0 );
         MimeMessage msg = msgs[0];
 
         String password = null;
@@ -58,7 +58,7 @@ public class Nexus393ResetPasswordIT
             log.debug( "New password:\n" + password );
         }
 
-        Assert.assertNotNull( password );
+        AssertJUnit.assertNotNull( password );
     }
 
 }

@@ -13,10 +13,10 @@
  */
 package org.sonatype.nexus.integrationtests.nexus395;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.test.utils.ForgotUsernameUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Test forgot username system. Check if nexus is sending the e-mail.
@@ -31,7 +31,7 @@ public class Nexus395ForgotUsernameIT
     {
         Status status = ForgotUsernameUtils.recoverUsername( "nexus-dev2@sonatype.org" );
 
-        Assert.assertEquals( Status.SUCCESS_ACCEPTED.getCode(), status.getCode() );
+        AssertJUnit.assertEquals( Status.SUCCESS_ACCEPTED.getCode(), status.getCode() );
 
         assertRecoveredUserName( "test-user" );
     }
@@ -44,6 +44,6 @@ public class Nexus395ForgotUsernameIT
 
         Status status = ForgotUsernameUtils.recoverUsername( anonymousEmail );
 
-        Assert.assertEquals( Status.CLIENT_ERROR_BAD_REQUEST.getCode(), status.getCode() );
+        AssertJUnit.assertEquals( Status.CLIENT_ERROR_BAD_REQUEST.getCode(), status.getCode() );
     }
 }

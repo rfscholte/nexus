@@ -2,11 +2,10 @@ package org.sonatype.nexus.integrationtests.nexus1923;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.Test;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1923HostedIncrementalIndexIT
     extends AbstractNexus1923
@@ -39,9 +38,9 @@ public class Nexus1923HostedIncrementalIndexIT
         reindexHostedRepository( reindexId );
         
         //Now make sure there is an index file, and no incremental files
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "2" ).exists() );
         validateCurrentHostedIncrementalCounter( 1 );
         
         //Now make sure that the search is properly working
@@ -59,10 +58,10 @@ public class Nexus1923HostedIncrementalIndexIT
         reindexHostedRepository( reindexId );
         
         //Now make sure there is an index file, and 1 incremental file
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "3" ).exists() );
         validateCurrentHostedIncrementalCounter( 2 );
         
         //Now make sure that the search is properly working
@@ -80,11 +79,11 @@ public class Nexus1923HostedIncrementalIndexIT
         reindexHostedRepository( reindexId );
         
         //Now make sure there is an index file, and 2 incremental file
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "4" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "4" ).exists() );
         validateCurrentHostedIncrementalCounter( 3 );
         
         //Now make sure that the search is properly working
@@ -102,12 +101,12 @@ public class Nexus1923HostedIncrementalIndexIT
         reindexHostedRepository( reindexId );
         
         //Now make sure there is an index file, and 3 incremental file
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "5" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "5" ).exists() );
         validateCurrentHostedIncrementalCounter( 4 );
         
         //Now make sure that the search is properly working
@@ -125,13 +124,13 @@ public class Nexus1923HostedIncrementalIndexIT
         reindexHostedRepository( reindexId );
         
         //Now make sure there is an index file, and 4 incremental file
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "5" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "6" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "5" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "6" ).exists() );
         validateCurrentHostedIncrementalCounter( 5 );
         
         //Now make sure that the search is properly working
@@ -145,13 +144,13 @@ public class Nexus1923HostedIncrementalIndexIT
         reindexHostedRepository( reindexId );
         
         //Now make sure there is an index file, and 4 incremental file
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "5" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "6" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "5" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "6" ).exists() );
         validateCurrentHostedIncrementalCounter( 5 );
         
         //Now make sure that the search is properly working
@@ -172,14 +171,14 @@ public class Nexus1923HostedIncrementalIndexIT
         reindexHostedRepository( reindexId );
         
         //Now make sure there is an index file, and 5 incremental file
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "5" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "6" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "7" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "5" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "6" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "7" ).exists() );
         validateCurrentHostedIncrementalCounter( 6 );
         
         //Now make sure that the search is properly working

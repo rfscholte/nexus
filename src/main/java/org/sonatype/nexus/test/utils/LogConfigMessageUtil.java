@@ -15,8 +15,6 @@ package org.sonatype.nexus.test.utils;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -25,6 +23,7 @@ import org.sonatype.nexus.integrationtests.RequestFacade;
 import org.sonatype.nexus.rest.model.LogConfigResource;
 import org.sonatype.nexus.rest.model.LogConfigResourceResponse;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -82,7 +81,7 @@ public class LogConfigMessageUtil
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not update log config: " + response.getStatus() + "\n" + responseText );
+            AssertJUnit.fail( "Could not update log config: " + response.getStatus() + "\n" + responseText );
         }
     }
 }

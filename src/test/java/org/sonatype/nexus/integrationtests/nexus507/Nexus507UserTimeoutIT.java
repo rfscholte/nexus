@@ -13,13 +13,12 @@
  */
 package org.sonatype.nexus.integrationtests.nexus507;
 
-import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.security.rest.model.RoleResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.meterware.httpunit.GetMethodWebRequest;
 import com.meterware.httpunit.WebConversation;
@@ -30,13 +29,13 @@ public class Nexus507UserTimeoutIT
     extends AbstractPrivilegeTest
 {
 
-    @Before
+    @BeforeClass
     public void reduceAdminRoleTimeout()
         throws Exception
     {
         TestContainer.getInstance().getTestContext().useAdminForRequests();
         RoleResource role = roleUtil.getRole( "test-admin" );
-        Assert.assertEquals( "Invalid test-admin role timeout", 1, role.getSessionTimeout() );
+        AssertJUnit.assertEquals( "Invalid test-admin role timeout", 1, role.getSessionTimeout() );
     }
 
     @Test
@@ -51,22 +50,23 @@ public class Nexus507UserTimeoutIT
         wc.setAuthorization( "test-admin", "admin123" );
         WebRequest req = new GetMethodWebRequest( loginURI );
         WebResponse resp = wc.getResponse( req );
-        Assert.assertEquals( "Unable to login " + resp.getResponseMessage(), 200, resp.getResponseCode() );
+        AssertJUnit.assertEquals( "Unable to login " + resp.getResponseMessage(), 200, resp.getResponseCode() );
 
         String userURI = baseNexusUrl + "service/local/users/admin";
         req = new GetMethodWebRequest( userURI );
         resp = wc.getResponse( req );
-        Assert.assertEquals( "Unable to access users " + resp.getResponseMessage(), 200, resp.getResponseCode() );
+        AssertJUnit.assertEquals( "Unable to access users " + resp.getResponseMessage(), 200, resp.getResponseCode() );
 
         this.printKnownErrorButDoNotFail( this.getClass(), "checkHtmlRequest" );
-        //FIXME: the timeout was never configurable, this the below is going to fail.
-//        // W8 2' minutes to get timeout
-//        Thread.sleep( ( 2 * 60 * 1000 ) );
-//
-//        req = new GetMethodWebRequest( userURI );
-//        resp = wc.getResponse( req );
-//        Assert.assertEquals( "The session didn't expire " + resp.getResponseCode() + ":" + resp.getResponseMessage(),
-//                             401, resp.getResponseCode() );
+        // FIXME: the timeout was never configurable, this the below is going to fail.
+        // // W8 2' minutes to get timeout
+        // Thread.sleep( ( 2 * 60 * 1000 ) );
+        //
+        // req = new GetMethodWebRequest( userURI );
+        // resp = wc.getResponse( req );
+        // AssertJUnit.assertEquals( "The session didn't expire " + resp.getResponseCode() + ":" +
+        // resp.getResponseMessage(),
+        // 401, resp.getResponseCode() );
     }
 
     // private void accessUrl( String serviceURI )
@@ -75,20 +75,20 @@ public class Nexus507UserTimeoutIT
     // TestContext testContext = TestContainer.getInstance().getTestContext();
     // testContext.useAdminForRequests();
     // Status status = UserCreationUtil.login();
-    // Assert.assertTrue( "Unable to make login as test-admin", status.isSuccess() );
+    // AssertJUnit.assertTrue( "Unable to make login as test-admin", status.isSuccess() );
     //
     // Response response = doGetRequest( serviceURI );
-    // Assert.assertTrue( "Unable to access " + serviceURI, response.getStatus().isSuccess() );
+    // AssertJUnit.assertTrue( "Unable to access " + serviceURI, response.getStatus().isSuccess() );
     //
     // // W8 1'10" minute to get timeout
     // Thread.sleep( (long) ( 1.15 * 60 * 1000 ) );
     //
     // response = doGetRequest( serviceURI );
-    // Assert.assertEquals( "The session didn't expire, still with access to: " + serviceURI, 301,
+    // AssertJUnit.assertEquals( "The session didn't expire, still with access to: " + serviceURI, 301,
     // response.getStatus().getCode() );
 
     // Reference redirectRef = response.getRedirectRef();
-    // Assert.assertNotNull( "Snapshot download should redirect to a new file "
+    // AssertJUnit.assertNotNull( "Snapshot download should redirect to a new file "
     // + response.getRequest().getResourceRef().toString(), redirectRef );
     //
     // serviceURI = redirectRef.toString();

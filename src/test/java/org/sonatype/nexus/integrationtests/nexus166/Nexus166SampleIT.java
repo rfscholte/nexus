@@ -18,10 +18,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
-import org.sonatype.nexus.integrationtests.runner.ConsoleLoggingRunner;
+import org.testng.annotations.Test;
 
 
 /**

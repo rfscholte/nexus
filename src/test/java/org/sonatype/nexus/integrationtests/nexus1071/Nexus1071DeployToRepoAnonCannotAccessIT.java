@@ -15,13 +15,12 @@ package org.sonatype.nexus.integrationtests.nexus1071;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractMavenNexusIT;
 import org.sonatype.nexus.integrationtests.TestContainer;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  *
@@ -66,7 +65,7 @@ public class Nexus1071DeployToRepoAnonCannotAccessIT
 
             verifier1.verifyErrorFreeLog();
 
-            Assert.fail( "Should return 401 error" );
+            AssertJUnit.fail( "Should return 401 error" );
         }
         catch ( VerificationException e )
         {
@@ -141,7 +140,7 @@ public class Nexus1071DeployToRepoAnonCannotAccessIT
 
             verifierAnon.verifyErrorFreeLog();
 
-            Assert.fail( "Should return 401 error" );
+            AssertJUnit.fail( "Should return 401 error" );
         }
         catch ( VerificationException e )
         {

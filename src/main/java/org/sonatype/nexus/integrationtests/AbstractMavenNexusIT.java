@@ -18,12 +18,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.sonatype.nexus.test.utils.TestProperties;
+import org.testng.AssertJUnit;
 
 public class AbstractMavenNexusIT
     extends AbstractNexusIntegrationTest
@@ -107,6 +106,6 @@ public class AbstractMavenNexusIT
     {
         File logFile = new File( verifier.getBasedir(), "log.txt" );
         String log = FileUtils.readFileToString( logFile );
-        Assert.fail( log );
+        AssertJUnit.fail( log );
     }
 }

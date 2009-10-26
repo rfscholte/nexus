@@ -14,16 +14,14 @@
 package org.sonatype.nexus.integrationtests.nexus175;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.util.cli.CommandLineException;
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.MavenDeployer;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Test to make sure invalid password do not allow artifacts to be deployed.
@@ -62,7 +60,7 @@ public class Nexus175SnapshotDeployWrongPasswordIT
             String consoleOutput =
                 MavenDeployer.deploy( gav, this.getNexusTestRepoUrl(), fileToDeploy,
                                       this.getOverridableFile( "settings.xml" ) );
-            Assert.fail( "File should NOT have been deployed " + consoleOutput );
+            AssertJUnit.fail( "File should NOT have been deployed " + consoleOutput );
         }
         // catch ( TransferFailedException e )
         // {

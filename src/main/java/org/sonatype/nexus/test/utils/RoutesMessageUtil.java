@@ -19,8 +19,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.restlet.data.MediaType;
@@ -37,6 +35,7 @@ import org.sonatype.nexus.rest.model.RepositoryRouteResourceResponse;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
 import org.sonatype.plexus.rest.resource.error.ErrorMessage;
 import org.sonatype.plexus.rest.resource.error.ErrorResponse;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -91,7 +90,7 @@ public class RoutesMessageUtil
         String responseString = response.getEntity().getText();
         LOG.debug( "responseText: " + responseString );
 
-        Assert.assertFalse( "Response text was empty.", StringUtils.isEmpty( responseString ) );
+        AssertJUnit.assertFalse( "Response text was empty.", StringUtils.isEmpty( responseString ) );
 
         XStreamRepresentation representation = new XStreamRepresentation( xstream, responseString, mediaType );
 
@@ -103,7 +102,7 @@ public class RoutesMessageUtil
 
     public void validateSame( List<RepositoryRouteMemberRepository> repos1, List<RepositoryRouteMemberRepository> repos2 )
     {
-        Assert.assertEquals( repos1.size(), repos2.size() );
+        AssertJUnit.assertEquals( repos1.size(), repos2.size() );
 
         for ( int ii = 0; ii < repos1.size(); ii++ )
         {
@@ -115,21 +114,21 @@ public class RoutesMessageUtil
 
     public void validateSameRepoIds( List<RepositoryRouteMemberRepository> repos1, List<String> repos2 )
     {
-        Assert.assertEquals( repos1.size(), repos2.size() );
+        AssertJUnit.assertEquals( repos1.size(), repos2.size() );
 
         // this is ordered
         for ( int ii = 0; ii < repos1.size(); ii++ )
         {
             RepositoryRouteMemberRepository repo1 = repos1.get( ii );
             String repo2 = repos2.get( ii );
-            Assert.assertEquals( repo1.getId(), repo2 );
+            AssertJUnit.assertEquals( repo1.getId(), repo2 );
         }
     }
 
     public void validateSame( RepositoryRouteMemberRepository repo1, RepositoryRouteMemberRepository repo2 )
     {
         // we only care about the Id field
-        Assert.assertEquals( repo1.getId(), repo2.getId() );
+        AssertJUnit.assertEquals( repo1.getId(), repo2.getId() );
     }
 
     public void validateRoutesConfig( RepositoryRouteResource resource )
@@ -142,10 +141,10 @@ public class RoutesMessageUtil
             "Should be the same route. \n Expected:\n" + new XStream().toXML( resource ) + " \n \n Got: \n"
                 + new XStream().toXML( cRoute );
 
-        Assert.assertEquals( msg, resource.getId(), cRoute.getId() );
-        Assert.assertEquals( msg, resource.getGroupId(), cRoute.getGroupId() );
-        Assert.assertEquals( msg, Collections.singletonList( resource.getPattern() ), cRoute.getRoutePatterns() );
-        Assert.assertEquals( msg, resource.getRuleType(), cRoute.getRouteType() );
+        AssertJUnit.assertEquals( msg, resource.getId(), cRoute.getId() );
+        AssertJUnit.assertEquals( msg, resource.getGroupId(), cRoute.getGroupId() );
+        AssertJUnit.assertEquals( msg, Collections.singletonList( resource.getPattern() ), cRoute.getRoutePatterns() );
+        AssertJUnit.assertEquals( msg, resource.getRuleType(), cRoute.getRouteType() );
 
         this.validateSameRepoIds( resource.getRepositories(), cRoute.getRepositories() );
 
@@ -156,12 +155,12 @@ public class RoutesMessageUtil
 
         ErrorResponse errorResponse = (ErrorResponse) xstream.fromXML( xml, new ErrorResponse() );
 
-        Assert.assertTrue( "Error response is empty.", errorResponse.getErrors().size() > 0 );
+        AssertJUnit.assertTrue( "Error response is empty.", errorResponse.getErrors().size() > 0 );
 
         for ( Iterator<ErrorMessage> iter = errorResponse.getErrors().iterator(); iter.hasNext(); )
         {
             ErrorMessage error = iter.next();
-            Assert.assertFalse( "Response Error message is empty.", StringUtils.isEmpty( error.getMsg() ) );
+            AssertJUnit.assertFalse( "Response Error message is empty.", StringUtils.isEmpty( error.getMsg() ) );
 
         }
 
@@ -175,7 +174,7 @@ public class RoutesMessageUtil
 
         Response response = RequestFacade.doGetRequest( serviceURI );
         Status status = response.getStatus();
-        Assert.assertTrue( "Unable to get routes: " + status.getDescription(), status.isSuccess() );
+        AssertJUnit.assertTrue( "Unable to get routes: " + status.getDescription(), status.isSuccess() );
 
         XStreamRepresentation representation =
             new XStreamRepresentation( XStreamFactory.getXmlXStream(), response.getEntity().getText(),
@@ -194,7 +193,7 @@ public class RoutesMessageUtil
         for ( RepositoryRouteListResource route : routes )
         {
             Status status = delete( route.getResourceURI() ).getStatus();
-            Assert.assertTrue( "Unable to delete route: '" + route.getResourceURI() + "', due to: "
+            AssertJUnit.assertTrue( "Unable to delete route: '" + route.getResourceURI() + "', due to: "
                 + status.getDescription(), status.isSuccess() );
         }
     }

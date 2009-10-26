@@ -16,10 +16,6 @@ import java.util.Map.Entry;
 import org.apache.maven.it.Verifier;
 import org.codehaus.plexus.archiver.zip.ZipEntry;
 import org.codehaus.plexus.archiver.zip.ZipOutputStream;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.maven.tasks.RebuildMavenMetadataTask;
 import org.sonatype.nexus.maven.tasks.descriptors.RebuildMavenMetadataTaskDescriptor;
@@ -27,6 +23,10 @@ import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.test.utils.GavUtil;
 import org.sonatype.nexus.test.utils.MavenDeployer;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.SkipException;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus2497ConcurrentRepoAccessIT
     extends AbstractNexusIntegrationTest
@@ -74,11 +74,14 @@ public class Nexus2497ConcurrentRepoAccessIT
         return file;
     }
 
-    @Ignore
     @Test
     public void doConcurrence()
         throws Exception
     {
+        if ( true )
+        {
+            throw new SkipException( "" );
+        }
         List<Thread> threads = new ArrayList<Thread>();
         final Map<Thread, Throwable> errors = new LinkedHashMap<Thread, Throwable>();
         for ( final File f : files )
@@ -149,8 +152,8 @@ public class Nexus2497ConcurrentRepoAccessIT
                 s.append( "\n" );
             }
 
-            Assert.fail( "Found some errors deploying:\n" + str.toString() );
+            AssertJUnit.fail( "Found some errors deploying:\n" + str.toString() );
         }
-        Assert.assertEquals( "Ok", TaskScheduleUtil.getStatus( TASK_NAME ) );
+        AssertJUnit.assertEquals( "Ok", TaskScheduleUtil.getStatus( TASK_NAME ) );
     }
 }

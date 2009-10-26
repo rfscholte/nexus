@@ -15,15 +15,14 @@ package org.sonatype.nexus.integrationtests.nexus1022;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.maven.tasks.descriptors.RebuildMavenMetadataTaskDescriptor;
 import org.sonatype.nexus.rest.model.ScheduledServiceListResource;
 import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus1022RebuildRepositoryMavenMetadataTaskIT
     extends AbstractNexusIntegrationTest
@@ -32,10 +31,6 @@ public class Nexus1022RebuildRepositoryMavenMetadataTaskIT
     public void rebuildMavenMetadata()
         throws Exception
     {
-/*        if(true) {
-            printKnownErrorButDoNotFail( getClass(), "rebuildMavenMetadata" );
-            return;
-        }*/
         String releaseRepoPath = "storage/nexus-test-harness-repo/";
 
         ScheduledServicePropertyResource repo = new ScheduledServicePropertyResource();
@@ -44,19 +39,22 @@ public class Nexus1022RebuildRepositoryMavenMetadataTaskIT
 
         repo.setValue( "repo_" + REPO_TEST_HARNESS_REPO );
 
-        ScheduledServiceListResource task = TaskScheduleUtil.runTask("RebuildMavenMetadata-Nexus1022", RebuildMavenMetadataTaskDescriptor.ID, repo );
-        Assert.assertNotNull( "The ScheduledServicePropertyResource task didn't run", task );
+        ScheduledServiceListResource task =
+            TaskScheduleUtil.runTask( "RebuildMavenMetadata-Nexus1022", RebuildMavenMetadataTaskDescriptor.ID, repo );
+        AssertJUnit.assertNotNull( "The ScheduledServicePropertyResource task didn't run", task );
 
         File artifactDirMd = new File( nexusWorkDir, releaseRepoPath + "nexus1022/foo/bar/artifact/maven-metadata.xml" );
-        Assert.assertTrue( "Maven metadata file should be generated after rebuild", artifactDirMd.exists() );
+        AssertJUnit.assertTrue( "Maven metadata file should be generated after rebuild", artifactDirMd.exists() );
 
         File groupPluginMd = new File( nexusWorkDir, releaseRepoPath + "nexus1022/foo/bar/plugins/maven-metadata.xml" );
-        Assert.assertTrue( "Maven metadata file should be generated after rebuild", groupPluginMd.exists() );
+        AssertJUnit.assertTrue( "Maven metadata file should be generated after rebuild", groupPluginMd.exists() );
 
     }
 
     @BeforeClass
-    public static void cleanWorkFolder() throws Exception {
+    public static void cleanWorkFolder()
+        throws Exception
+    {
         cleanWorkDir();
     }
 

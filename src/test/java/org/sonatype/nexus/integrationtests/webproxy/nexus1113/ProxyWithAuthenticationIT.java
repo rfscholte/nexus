@@ -22,12 +22,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.util.Base64;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.webproxy.AbstractNexusWebProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.TestProperties;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class ProxyWithAuthenticationIT
     extends AbstractNexusWebProxyIntegrationTest
@@ -39,8 +38,8 @@ public class ProxyWithAuthenticationIT
     {
         super.startWebProxy();
 
-        Assert.assertNotNull( server );
-        Assert.assertNotNull( server.getProxyServlet() );
+        AssertJUnit.assertNotNull( server );
+        AssertJUnit.assertNotNull( server.getProxyServlet() );
         server.getProxyServlet().setUseAuthentication( true );
         server.getProxyServlet().getAuthentications().put( "admin", "123" );
     }
@@ -73,10 +72,10 @@ public class ProxyWithAuthenticationIT
             }
         }
 
-        Assert.fail( "Proxy was not able to access google.com" );
+        AssertJUnit.fail( "Proxy was not able to access google.com" );
     }
 
-    @Test( expected = IOException.class )
+    @Test( expectedExceptions = { IOException.class } )
     public void invalidUser()
         throws Exception
     {
@@ -90,10 +89,10 @@ public class ProxyWithAuthenticationIT
         con.setRequestProperty( "Proxy-Authorization", "Basic " + new String( encodedUserPwd ) );
         con.getInputStream();
 
-        Assert.fail( "Proxy was not able to access google.com" );
+        AssertJUnit.fail( "Proxy was not able to access google.com" );
     }
 
-    @Test( expected = IOException.class )
+    @Test( expectedExceptions = { IOException.class } )
     public void withoutUser()
         throws Exception
     {
@@ -105,7 +104,7 @@ public class ProxyWithAuthenticationIT
 
         con.getInputStream();
 
-        Assert.fail( "Proxy was not able to access google.com" );
+        AssertJUnit.fail( "Proxy was not able to access google.com" );
     }
 
     @Override

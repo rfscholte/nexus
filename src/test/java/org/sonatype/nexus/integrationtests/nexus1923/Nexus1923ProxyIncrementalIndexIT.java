@@ -2,11 +2,10 @@ package org.sonatype.nexus.integrationtests.nexus1923;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.Test;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1923ProxyIncrementalIndexIT
     extends AbstractNexus1923
@@ -38,9 +37,9 @@ public class Nexus1923ProxyIncrementalIndexIT
         TaskScheduleUtil.waitForAllTasksToStop();
         
         //validate that after reindex is done we have an incremental chunk in the hosted repo
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "2" ).exists() );
         
         //Now create our proxy repository
         createProxyRepository();
@@ -54,8 +53,8 @@ public class Nexus1923ProxyIncrementalIndexIT
         
         TaskScheduleUtil.waitForAllTasksToStop();
         
-        Assert.assertTrue( getProxyRepositoryIndex().exists() );
-        Assert.assertFalse( getProxyRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getProxyRepositoryIndex().exists() );
+        AssertJUnit.assertFalse( getProxyRepositoryIndexIncrement( "1" ).exists() );
         
         //Now make sure that the search is properly working
         searchForArtifactInProxyIndex( FIRST_ARTIFACT, true );
@@ -72,10 +71,10 @@ public class Nexus1923ProxyIncrementalIndexIT
         TaskScheduleUtil.waitForAllTasksToStop();
         
         //validate that after reindex is done we have an incremental chunk in the hosted repo
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "3" ).exists() );
         
         //now download via the proxy repo
         reindexProxyRepository( proxyReindexId );
@@ -83,9 +82,9 @@ public class Nexus1923ProxyIncrementalIndexIT
         TaskScheduleUtil.waitForAllTasksToStop();
         
         //validate that after reindex is done we have an incremental chunk of our own in the proxy repo
-        Assert.assertTrue( getProxyRepositoryIndex().exists() );
-        Assert.assertTrue( getProxyRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertFalse( getProxyRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getProxyRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getProxyRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertFalse( getProxyRepositoryIndexIncrement( "2" ).exists() );
         
         //Now make sure that the search is properly working
         searchForArtifactInProxyIndex( FIRST_ARTIFACT, true );
@@ -102,11 +101,11 @@ public class Nexus1923ProxyIncrementalIndexIT
         TaskScheduleUtil.waitForAllTasksToStop();
         
         //validate that after reindex is done we have an incremental chunk in the hosted repo
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "4" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "4" ).exists() );
         
         FileUtils.copyDirectoryStructure( getTestFile( FOURTH_ARTIFACT ), 
             hostedRepoStorageDirectory );
@@ -115,12 +114,12 @@ public class Nexus1923ProxyIncrementalIndexIT
         TaskScheduleUtil.waitForAllTasksToStop();
         
         //validate that after reindex is done we have an incremental chunk in the hosted repo
-        Assert.assertTrue( getHostedRepositoryIndex().exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
-        Assert.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
-        Assert.assertFalse( getHostedRepositoryIndexIncrement( "5" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertTrue( getHostedRepositoryIndexIncrement( "4" ).exists() );
+        AssertJUnit.assertFalse( getHostedRepositoryIndexIncrement( "5" ).exists() );
         
         reindexProxyRepository( proxyReindexId );
         
@@ -128,10 +127,10 @@ public class Nexus1923ProxyIncrementalIndexIT
         
         //validate that after reindex is done we have an incremental chunk of our own in the proxy repo
         //of course only 2 indexes, as these published indexes should NOT line up 1 to 1 with the hosted repo
-        Assert.assertTrue( getProxyRepositoryIndex().exists() );
-        Assert.assertTrue( getProxyRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertTrue( getProxyRepositoryIndexIncrement( "2" ).exists() );
-        Assert.assertFalse( getProxyRepositoryIndexIncrement( "3" ).exists() );
+        AssertJUnit.assertTrue( getProxyRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getProxyRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertTrue( getProxyRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertFalse( getProxyRepositoryIndexIncrement( "3" ).exists() );
         
         //Now make sure that the search is properly working
         searchForArtifactInProxyIndex( FIRST_ARTIFACT, true );

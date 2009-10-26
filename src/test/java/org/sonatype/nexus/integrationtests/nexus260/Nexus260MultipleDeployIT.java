@@ -13,18 +13,18 @@
  */
 package org.sonatype.nexus.integrationtests.nexus260;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.DeployUtils;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.testng.annotations.Test;
 
 /**
- * Deploys an artifact multiple times. (this is allowed)  
+ * Deploys an artifact multiple times. (this is allowed)
  */
 public class Nexus260MultipleDeployIT
     extends AbstractNexusIntegrationTest
@@ -35,20 +35,21 @@ public class Nexus260MultipleDeployIT
         super( "nexus-test-harness-repo" );
     }
 
-
     @Test
     public void singleDeployTest()
         throws Exception
-    {   
+    {
         // file to deploy
         File fileToDeploy = this.getTestFile( "singleDeployTest.xml" );
 
         // deploy it
-        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(),
-                                     fileToDeploy, "org/sonatype/nexus-integration-tests/multiple-deploy-test/singleDeployTest/1/singleDeployTest-1.xml" );
+        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(), fileToDeploy,
+                                     "org/sonatype/nexus-integration-tests/multiple-deploy-test/singleDeployTest/1/singleDeployTest-1.xml" );
 
         // download it
-        File artifact = downloadArtifact( "org.sonatype.nexus-integration-tests.multiple-deploy-test", "singleDeployTest", "1", "xml", null, "./target/downloaded-jars" );
+        File artifact =
+            downloadArtifact( "org.sonatype.nexus-integration-tests.multiple-deploy-test", "singleDeployTest", "1",
+                              "xml", null, "./target/downloaded-jars" );
 
         // make sure its here
         assertTrue( artifact.exists() );
@@ -62,23 +63,23 @@ public class Nexus260MultipleDeployIT
         throws Exception
     {
         // file to deploy
-        File fileToDeploy = this.getTestFile("deploySameFileMultipleTimesTest.xml" );
+        File fileToDeploy = this.getTestFile( "deploySameFileMultipleTimesTest.xml" );
 
-        String deployPath = "org/sonatype/nexus-integration-tests/multiple-deploy-test/deploySameFileMultipleTimesTest/1/deploySameFileMultipleTimesTest-1.xml";
-
-        // deploy it
-        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(),
-                                     fileToDeploy, deployPath );
+        String deployPath =
+            "org/sonatype/nexus-integration-tests/multiple-deploy-test/deploySameFileMultipleTimesTest/1/deploySameFileMultipleTimesTest-1.xml";
 
         // deploy it
-        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(),
-                                     fileToDeploy, deployPath );
+        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(), fileToDeploy, deployPath );
+
         // deploy it
-        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(),
-                                     fileToDeploy, deployPath );
+        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(), fileToDeploy, deployPath );
+        // deploy it
+        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(), fileToDeploy, deployPath );
 
         // download it
-        File artifact = downloadArtifact( "org.sonatype.nexus-integration-tests.multiple-deploy-test", "deploySameFileMultipleTimesTest", "1", "xml", null, "./target/downloaded-jars" );
+        File artifact =
+            downloadArtifact( "org.sonatype.nexus-integration-tests.multiple-deploy-test",
+                              "deploySameFileMultipleTimesTest", "1", "xml", null, "./target/downloaded-jars" );
 
         // make sure its here
         assertTrue( artifact.exists() );
@@ -94,24 +95,24 @@ public class Nexus260MultipleDeployIT
     {
         // files to deploy
         File fileToDeploy1 = this.getTestFile( "deployChangedFileMultipleTimesTest1.xml" );
-        File fileToDeploy2 = this.getTestFile(  "deployChangedFileMultipleTimesTest2.xml" );
-        File fileToDeploy3 = this.getTestFile(  "deployChangedFileMultipleTimesTest3.xml" );
+        File fileToDeploy2 = this.getTestFile( "deployChangedFileMultipleTimesTest2.xml" );
+        File fileToDeploy3 = this.getTestFile( "deployChangedFileMultipleTimesTest3.xml" );
 
-        String deployPath = "org/sonatype/nexus-integration-tests/multiple-deploy-test/deployChangedFileMultipleTimesTest/1/deployChangedFileMultipleTimesTest-1.xml";
-
-        // deploy it
-        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(),
-                                     fileToDeploy1, deployPath );
+        String deployPath =
+            "org/sonatype/nexus-integration-tests/multiple-deploy-test/deployChangedFileMultipleTimesTest/1/deployChangedFileMultipleTimesTest-1.xml";
 
         // deploy it
-        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(),
-                                     fileToDeploy2, deployPath );
+        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(), fileToDeploy1, deployPath );
+
         // deploy it
-        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(),
-                                     fileToDeploy3, deployPath );
+        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(), fileToDeploy2, deployPath );
+        // deploy it
+        DeployUtils.deployWithWagon( this.getContainer(), "http", this.getNexusTestRepoUrl(), fileToDeploy3, deployPath );
 
         // download it
-        File artifact = downloadArtifact( "org.sonatype.nexus-integration-tests.multiple-deploy-test", "deployChangedFileMultipleTimesTest", "1", "xml", null, "./target/downloaded-jars" );
+        File artifact =
+            downloadArtifact( "org.sonatype.nexus-integration-tests.multiple-deploy-test",
+                              "deployChangedFileMultipleTimesTest", "1", "xml", null, "./target/downloaded-jars" );
 
         // make sure its here
         assertTrue( artifact.exists() );
@@ -122,6 +123,5 @@ public class Nexus260MultipleDeployIT
         // this should pass if the above passed
         assertFalse( FileTestingUtils.compareFileSHA1s( fileToDeploy2, artifact ) );
 
-    }    
+    }
 }
-

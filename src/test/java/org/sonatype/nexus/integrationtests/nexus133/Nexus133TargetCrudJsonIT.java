@@ -17,10 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.util.StringUtils;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -28,6 +25,8 @@ import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.RepositoryTargetListResource;
 import org.sonatype.nexus.rest.model.RepositoryTargetResource;
 import org.sonatype.nexus.test.utils.TargetMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * CRUD tests for JSON request/response.
@@ -82,14 +81,14 @@ public class Nexus133TargetCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not create Repository Target: " + response.getStatus() );
+            AssertJUnit.fail( "Could not create Repository Target: " + response.getStatus() );
         }
 
         // get the Resource object
         RepositoryTargetResource responseResource = this.messageUtil.getResourceFromResponse( response );
 
         // make sure the id != null
-        Assert.assertTrue( StringUtils.isNotEmpty( responseResource.getId() ) );
+        AssertJUnit.assertTrue( StringUtils.isNotEmpty( responseResource.getId() ) );
 
         // make sure it was added
         this.messageUtil.verifyTargetsConfig( responseResource );
@@ -101,7 +100,7 @@ public class Nexus133TargetCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not GET Repository Target: " + response.getStatus() );
+            AssertJUnit.fail( "Could not GET Repository Target: " + response.getStatus() );
         }
 
         // get the Resource object
@@ -129,14 +128,14 @@ public class Nexus133TargetCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not create Repository Target: " + response.getStatus() );
+            AssertJUnit.fail( "Could not create Repository Target: " + response.getStatus() );
         }
 
         // get the Resource object
         RepositoryTargetResource responseResource = this.messageUtil.getResourceFromResponse( response );
 
         // make sure the id != null
-        Assert.assertTrue( StringUtils.isNotEmpty( responseResource.getId() ) );
+        AssertJUnit.assertTrue( StringUtils.isNotEmpty( responseResource.getId() ) );
 
         // make sure it was added
         this.messageUtil.verifyTargetsConfig( responseResource );
@@ -180,7 +179,7 @@ public class Nexus133TargetCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not create Repository Target: " + response.getStatus() );
+            AssertJUnit.fail( "Could not create Repository Target: " + response.getStatus() );
         }
 
         // get the Resource object
@@ -211,14 +210,14 @@ public class Nexus133TargetCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not create Repository Target: " + response.getStatus() );
+            AssertJUnit.fail( "Could not create Repository Target: " + response.getStatus() );
         }
 
         // get the Resource object
         RepositoryTargetResource responseResource = this.messageUtil.getResourceFromResponse( response );
 
         // make sure the id != null
-        Assert.assertTrue( StringUtils.isNotEmpty( responseResource.getId() ) );
+        AssertJUnit.assertTrue( StringUtils.isNotEmpty( responseResource.getId() ) );
 
         // make sure it was added so we know if it was removed
         this.messageUtil.verifyTargetsConfig( responseResource );
@@ -230,7 +229,7 @@ public class Nexus133TargetCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not delete Repository Target: " + response.getStatus() );
+            AssertJUnit.fail( "Could not delete Repository Target: " + response.getStatus() );
         }
 
         this.messageUtil.verifyTargetsConfig( new ArrayList<RepositoryTargetResource>() );

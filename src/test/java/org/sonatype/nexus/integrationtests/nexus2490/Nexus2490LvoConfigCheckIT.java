@@ -1,8 +1,5 @@
 package org.sonatype.nexus.integrationtests.nexus2490;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -12,6 +9,8 @@ import org.sonatype.nexus.plugins.lvo.api.dto.LvoConfigDTO;
 import org.sonatype.nexus.plugins.lvo.api.dto.LvoConfigRequest;
 import org.sonatype.nexus.plugins.lvo.api.dto.LvoConfigResponse;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus2490LvoConfigCheckIT
     extends AbstractNexusIntegrationTest
@@ -21,13 +20,13 @@ public class Nexus2490LvoConfigCheckIT
         throws Exception
     {
         updateConfig( true );
-        Assert.assertTrue( isEnabled() );
+        AssertJUnit.assertTrue( isEnabled() );
         updateConfig( false );
-        Assert.assertFalse( isEnabled() );
+        AssertJUnit.assertFalse( isEnabled() );
         updateConfig( true );
-        Assert.assertTrue( isEnabled() );
+        AssertJUnit.assertTrue( isEnabled() );
         updateConfig( false );
-        Assert.assertFalse( isEnabled() );
+        AssertJUnit.assertFalse( isEnabled() );
     }
 
     private void updateConfig( boolean enabled )
@@ -46,7 +45,7 @@ public class Nexus2490LvoConfigCheckIT
 
         representation.setPayload( request );
 
-        Assert.assertTrue( RequestFacade
+        AssertJUnit.assertTrue( RequestFacade
             .sendMessage( "service/local/lvo_config", Method.PUT, representation ).getStatus().isSuccess() );
     }
 
@@ -65,7 +64,7 @@ public class Nexus2490LvoConfigCheckIT
             return resp.getData().isEnabled();
         }
         
-        Assert.fail( "Message not handles properly" );
+        AssertJUnit.fail( "Message not handles properly" );
         return false;
     }
 }

@@ -15,14 +15,13 @@ package org.sonatype.nexus.integrationtests.nexus1197;
 
 import java.io.FileNotFoundException;
 
-import junit.framework.Assert;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.mortbay.jetty.Server;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.TestProperties;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus1197CheckUserAgentIT
     extends AbstractNexusIntegrationTest
@@ -73,9 +72,9 @@ public class Nexus1197CheckUserAgentIT
         // apacheHttpClient3x/1.2.0-beta-2-SNAPSHOT Nexus/1.0
         String userAgent = handler.getUserAgent();
 
-        Assert.assertNotNull( userAgent );
-        Assert.assertTrue( userAgent.startsWith( "Nexus/" ) );
-        Assert.assertTrue( userAgent.contains( "(OSS;" ) );
+        AssertJUnit.assertNotNull( userAgent );
+        AssertJUnit.assertTrue( userAgent.startsWith( "Nexus/" ) );
+        AssertJUnit.assertTrue( userAgent.contains( "(OSS;" ) );
 
     }
 

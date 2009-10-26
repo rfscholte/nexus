@@ -13,11 +13,8 @@
  */
 package org.sonatype.nexus.integrationtests.nexus412;
 
-import junit.framework.Assert;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
-import org.junit.Test;
 import org.sonatype.nexus.configuration.model.CRepository;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
@@ -31,6 +28,8 @@ import org.sonatype.nexus.proxy.storage.remote.DefaultRemoteStorageContext;
 import org.sonatype.nexus.proxy.storage.remote.RemoteStorageContext;
 import org.sonatype.nexus.proxy.storage.remote.commonshttpclient.CommonsHttpClientRemoteStorage;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus412RemoteLeakIT
     extends AbstractNexusIntegrationTest
@@ -76,7 +75,7 @@ public class Nexus412RemoteLeakIT
             (MultiThreadedHttpConnectionManager) ( (HttpClient) ctx
                 .getRemoteConnectionContextObject( CommonsHttpClientRemoteStorage.CTX_KEY_CLIENT ) )
                 .getHttpConnectionManager();
-        Assert.assertEquals( 2, cm.getConnectionsInPool() );
+        AssertJUnit.assertEquals( 2, cm.getConnectionsInPool() );
 
     }
 

@@ -18,12 +18,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.After;
-import org.junit.Before;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.test.utils.GroupMessageUtil;
 import org.sonatype.nexus.test.utils.PrivilegesMessageUtil;
@@ -38,10 +34,12 @@ import org.sonatype.security.rest.model.PrivilegeResource;
 import org.sonatype.security.rest.model.PrivilegeStatusResource;
 import org.sonatype.security.rest.model.RoleResource;
 import org.sonatype.security.rest.model.UserResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
 
 import com.thoughtworks.xstream.XStream;
 
-public abstract class AbstractPrivilegeTest
+public class AbstractPrivilegeTest
     extends AbstractNexusIntegrationTest
 {
     protected static Logger LOG = Logger.getLogger( AbstractPrivilegeTest.class );
@@ -74,7 +72,7 @@ public abstract class AbstractPrivilegeTest
         }
         catch ( ComponentLookupException e )
         {
-            Assert.fail( e.getMessage() );
+            AssertJUnit.fail( e.getMessage() );
         }
     }
 
@@ -86,7 +84,7 @@ public abstract class AbstractPrivilegeTest
         }
         catch ( ComponentLookupException e )
         {
-            Assert.fail( e.getMessage() );
+            AssertJUnit.fail( e.getMessage() );
         }
     }
 
@@ -108,7 +106,7 @@ public abstract class AbstractPrivilegeTest
         this.groupUtil = new GroupMessageUtil( xstream, MediaType.APPLICATION_XML );
     }
 
-    @Before
+    @BeforeMethod
     public void resetTestUserPrivs()
         throws Exception
     {
@@ -198,12 +196,12 @@ public abstract class AbstractPrivilegeTest
         // add it
         this.giveUserRole( userId, role.getId() );
     }
-    
+
     protected void giveUserRoleByName( String userId, String roleName )
         throws IOException
     {
         TestContainer.getInstance().getTestContext().useAdminForRequests();
-        
+
         for ( RoleResource roleResource : roleUtil.getList() )
         {
             if ( roleResource.getName().equals( roleName ) )
@@ -276,15 +274,6 @@ public abstract class AbstractPrivilegeTest
         this.userUtil.updateUser( testUser );
     }
 
-    @Override
-    @After
-    public void afterTest()
-        throws Exception
-    {
-        // reset any password
-        TestContainer.getInstance().getTestContext().useAdminForRequests();
-    }
-
     protected void addPrivilege( String userId, String privilege, String... privs )
         throws IOException
     {
@@ -331,7 +320,8 @@ public abstract class AbstractPrivilegeTest
     }
 
     protected void addPriv( String userName, String privId, String type, String repoTargetId, String repositoryId,
-                          String repositoryGroupId, String... methods  ) throws IOException
+                            String repositoryGroupId, String... methods )
+        throws IOException
     {
         TestContainer.getInstance().getTestContext().useAdminForRequests();
 
@@ -347,7 +337,7 @@ public abstract class AbstractPrivilegeTest
             priv.addMethod( method );
         }
 
-        List<PrivilegeStatusResource> stat= privUtil.createPrivileges( priv );
+        List<PrivilegeStatusResource> stat = privUtil.createPrivileges( priv );
         addPrivilege( userName, stat.get( 0 ).getId() );
     }
 }

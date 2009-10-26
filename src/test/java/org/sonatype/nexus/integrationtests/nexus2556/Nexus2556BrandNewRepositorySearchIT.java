@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
@@ -20,6 +18,8 @@ import org.sonatype.nexus.test.utils.GavUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.SearchMessageUtil;
 import org.sonatype.nexus.test.utils.XStreamFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus2556BrandNewRepositorySearchIT
     extends AbstractNexusIntegrationTest
@@ -60,16 +60,16 @@ public class Nexus2556BrandNewRepositorySearchIT
         repoUtil.createRepository( repo );
 
         repo = (RepositoryResource) repoUtil.getRepository( repoId );
-        Assert.assertTrue( repo.isIndexable() );
+        AssertJUnit.assertTrue( repo.isIndexable() );
 
         Gav gav = GavUtil.newGav( "nexus2556", "artifact", "1.0" );
         DeployUtils.deployUsingGavWithRest( repoId, gav, getTestFile( "artifact.jar" ) );
 
         List<NexusArtifact> result = SearchMessageUtil.searchFor( gav, repoId );
-        Assert.assertEquals( "Results: \n" + XStreamFactory.getXmlXStream().toXML( result ), 1, result.size() );
+        AssertJUnit.assertEquals( "Results: \n" + XStreamFactory.getXmlXStream().toXML( result ), 1, result.size() );
 
         result = SearchMessageUtil.searchFor( Collections.singletonMap( "q", "nexus2556" ), repoId );
-        Assert.assertEquals( "Results: \n" + XStreamFactory.getXmlXStream().toXML( result ), 1, result.size() );
+        AssertJUnit.assertEquals( "Results: \n" + XStreamFactory.getXmlXStream().toXML( result ), 1, result.size() );
     }
 
 }

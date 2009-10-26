@@ -19,11 +19,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Blocking, Exclusive, Inclusive Routes Tests
@@ -45,24 +44,24 @@ public class Nexus387RoutesIT
         {
             // should fail
             this.downloadArtifactFromGroup( "exclusive-single", gav, "target/downloads/exclude" );
-            Assert.fail( "Resource should not have been found." );
+            AssertJUnit.fail( "Resource should not have been found." );
         }
         catch ( IOException e )
         {
         }
 
         File artifact = this.downloadArtifactFromGroup( "exclusive-group", gav, "target/downloads/exclude" );
-        Assert.assertNotNull( artifact );
+        AssertJUnit.assertNotNull( artifact );
 
         String line = this.getFirstLineOfFile( artifact );
-        Assert.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: exclusive2",
+        AssertJUnit.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: exclusive2",
                              "exclusive2", line );
 
         artifact = this.downloadArtifactFromGroup( "other-group", gav, "target/downloads/exclude" );
-        Assert.assertNotNull( artifact );
+        AssertJUnit.assertNotNull( artifact );
 
         line = this.getFirstLineOfFile( artifact );
-        Assert.assertEquals( "Jar contained: " + line + ", expected: exclusive1", "exclusive1", line );
+        AssertJUnit.assertEquals( "Jar contained: " + line + ", expected: exclusive1", "exclusive1", line );
 
     }
 
@@ -78,19 +77,19 @@ public class Nexus387RoutesIT
         File artifact = this.downloadArtifactFromGroup( "inclusive-single", gav, "target/downloads/include" );
 
         String line = this.getFirstLineOfFile( artifact );
-        Assert.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: inclusive1",
+        AssertJUnit.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: inclusive1",
                              "inclusive1", line );
 
         artifact = this.downloadArtifactFromGroup( "inclusive-group", gav, "target/downloads/include" );
 
         line = this.getFirstLineOfFile( artifact );
-        Assert.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: inclusive2",
+        AssertJUnit.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: inclusive2",
                              "inclusive2", line );
 
         artifact = this.downloadArtifactFromGroup( "other-group", gav, "target/downloads/include" );
 
         line = this.getFirstLineOfFile( artifact );
-        Assert.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: inclusive1",
+        AssertJUnit.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: inclusive1",
                              "inclusive1", line );
 
     }
@@ -108,7 +107,7 @@ public class Nexus387RoutesIT
         {
 
             this.downloadArtifactFromGroup( "blocking-group", gav, "target/downloads/blocking" );
-            Assert.fail( "This file should not have been found." );
+            AssertJUnit.fail( "This file should not have been found." );
 
         }
         catch ( IOException e )
@@ -117,7 +116,7 @@ public class Nexus387RoutesIT
         File artifact = this.downloadArtifactFromGroup( "other-group", gav, "target/downloads/blocking" );
 
         String line = this.getFirstLineOfFile( artifact );
-        Assert.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: blocking1",
+        AssertJUnit.assertEquals( "Jar contained: " + this.getFirstLineOfFile( artifact ) + ", expected: blocking1",
                              "blocking1", line );
 
     }

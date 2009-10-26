@@ -15,11 +15,11 @@ package org.sonatype.nexus.integrationtests;
 
 import java.io.File;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.sonatype.nexus.test.utils.NexusStatusUtil;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 
 public abstract class AbstractNexusTestSuite
 {
@@ -34,11 +34,10 @@ public abstract class AbstractNexusTestSuite
 
         // copy default nexus.xml
         File testConfigFile = AbstractNexusIntegrationTest.getResource( "default-config/nexus.xml" );
-        File outputFile =
-            new File( AbstractNexusIntegrationTest.WORK_CONF_DIR, "nexus.xml" );
+        File outputFile = new File( AbstractNexusIntegrationTest.WORK_CONF_DIR, "nexus.xml" );
         FileTestingUtils.fileCopy( testConfigFile, outputFile );
 
-       NexusStatusUtil.doHardStart();
+        NexusStatusUtil.doHardStart();
 
         // enable security
         TestContainer.getInstance().getTestContext().setSecureTest( true );

@@ -13,12 +13,12 @@
  */
 package org.sonatype.nexus.integrationtests.nexus999;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.ChangePasswordUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus999SetUsersPasswordIT
     extends AbstractPrivilegeTest
@@ -30,11 +30,11 @@ public class Nexus999SetUsersPasswordIT
     {
 
         Status status = ChangePasswordUtils.changePassword( "test-user", "newPassword" );
-        Assert.assertEquals( "Status", 204, status.getCode() );
+        AssertJUnit.assertEquals( "Status", 204, status.getCode() );
 
         // we need to change the password around for this
         status = ChangePasswordUtils.changePassword( "test-user", TEST_USER_PASSWORD );
-        Assert.assertEquals( "Status", 204, status.getCode() );
+        AssertJUnit.assertEquals( "Status", 204, status.getCode() );
     }
 
     @Test
@@ -65,15 +65,15 @@ public class Nexus999SetUsersPasswordIT
 
         // Should be able to change my own password
         Status status = ChangePasswordUtils.changePassword( "test-user", "newPassword" );
-        Assert.assertEquals( "Status", 204, status.getCode() );
+        AssertJUnit.assertEquals( "Status", 204, status.getCode() );
 
         // we need to change the password around for this
         TestContainer.getInstance().getTestContext().setPassword( "newPassword" );
         status = ChangePasswordUtils.changePassword( "test-user", "newPassword" );
-        Assert.assertEquals( "Status", 204, status.getCode() );
+        AssertJUnit.assertEquals( "Status", 204, status.getCode() );
 
         status = ChangePasswordUtils.changePassword( "test-user", TEST_USER_PASSWORD );
-        Assert.assertEquals( "Status", 204, status.getCode() );
+        AssertJUnit.assertEquals( "Status", 204, status.getCode() );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
     }
 
@@ -104,11 +104,11 @@ public class Nexus999SetUsersPasswordIT
 
         // NOT Should be able to forgot my own username
         Status status = ChangePasswordUtils.changePassword( "test-user", "123admin" );
-        Assert.assertEquals( 403, status.getCode() );
+        AssertJUnit.assertEquals( 403, status.getCode() );
 
         // NOT Should be able to forgot anyone username
         status = ChangePasswordUtils.changePassword( "admin", "123admin" );
-        Assert.assertEquals( 403, status.getCode() );
+        AssertJUnit.assertEquals( 403, status.getCode() );
     }
 
 }

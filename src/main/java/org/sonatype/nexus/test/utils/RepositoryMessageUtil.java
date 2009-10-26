@@ -16,8 +16,6 @@ package org.sonatype.nexus.test.utils;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -41,6 +39,7 @@ import org.sonatype.nexus.rest.model.RepositoryShadowResource;
 import org.sonatype.nexus.rest.model.RepositoryStatusResource;
 import org.sonatype.nexus.rest.model.RepositoryStatusResourceResponse;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -73,7 +72,7 @@ public class RepositoryMessageUtil
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not create Repository: " + response.getStatus() + ":\n" + responseText );
+            AssertJUnit.fail( "Could not create Repository: " + response.getStatus() + ":\n" + responseText );
         }
 
         // // get the Resource object
@@ -92,14 +91,14 @@ public class RepositoryMessageUtil
     public void validateResourceResponse( RepositoryBaseResource repo, RepositoryBaseResource responseResource )
         throws IOException
     {
-        Assert.assertEquals( repo.getId(), responseResource.getId() );
-        Assert.assertEquals( repo.getName(), responseResource.getName() );
-        // Assert.assertEquals( repo.getDefaultLocalStorageUrl(), responseResource.getDefaultLocalStorageUrl() ); //
+        AssertJUnit.assertEquals( repo.getId(), responseResource.getId() );
+        AssertJUnit.assertEquals( repo.getName(), responseResource.getName() );
+        // AssertJUnit.assertEquals( repo.getDefaultLocalStorageUrl(), responseResource.getDefaultLocalStorageUrl() ); //
         // TODO: add check for this
 
         // format is not used anymore, removing the check
-//        Assert.assertEquals( repo.getFormat(), responseResource.getFormat() );
-        Assert.assertEquals( repo.getRepoType(), responseResource.getRepoType() );
+//        AssertJUnit.assertEquals( repo.getFormat(), responseResource.getFormat() );
+        AssertJUnit.assertEquals( repo.getRepoType(), responseResource.getRepoType() );
 
         if ( repo.getRepoType().equals( "virtual" ) )
         {
@@ -107,44 +106,44 @@ public class RepositoryMessageUtil
             RepositoryShadowResource expected = (RepositoryShadowResource) repo;
             RepositoryShadowResource actual = (RepositoryShadowResource) responseResource;
 
-            Assert.assertEquals( expected.getShadowOf(), actual.getShadowOf() );
+            AssertJUnit.assertEquals( expected.getShadowOf(), actual.getShadowOf() );
         }
         else
         {
             RepositoryResource expected = (RepositoryResource) repo;
             RepositoryResource actual = (RepositoryResource) responseResource;
 
-            // Assert.assertEquals( expected.getChecksumPolicy(), actual.getChecksumPolicy() );
+            // AssertJUnit.assertEquals( expected.getChecksumPolicy(), actual.getChecksumPolicy() );
 
             // TODO: sometimes the storage dir ends with a '/' SEE: NEXUS-542
             if ( actual.getDefaultLocalStorageUrl().endsWith( "/" ) )
             {
-                Assert.assertTrue( "Unexpected defaultLocalStorage: <expected to end with> " + "/storage/"
+                AssertJUnit.assertTrue( "Unexpected defaultLocalStorage: <expected to end with> " + "/storage/"
                     + repo.getId() + "/  <actual>" + actual.getDefaultLocalStorageUrl(),
                                    actual.getDefaultLocalStorageUrl().endsWith( "/storage/" + repo.getId() + "/" ) );
             }
             // NOTE one of these blocks should be removed
             else
             {
-                Assert.assertTrue( "Unexpected defaultLocalStorage: <expected to end with> " + "/storage/"
+                AssertJUnit.assertTrue( "Unexpected defaultLocalStorage: <expected to end with> " + "/storage/"
                     + repo.getId() + "  <actual>" + actual.getDefaultLocalStorageUrl(),
                                    actual.getDefaultLocalStorageUrl().endsWith( "/storage/" + repo.getId() ) );
             }
 
-            Assert.assertEquals( expected.getNotFoundCacheTTL(), actual.getNotFoundCacheTTL() );
-            // Assert.assertEquals( expected.getOverrideLocalStorageUrl(), actual.getOverrideLocalStorageUrl() );
+            AssertJUnit.assertEquals( expected.getNotFoundCacheTTL(), actual.getNotFoundCacheTTL() );
+            // AssertJUnit.assertEquals( expected.getOverrideLocalStorageUrl(), actual.getOverrideLocalStorageUrl() );
 
             if ( expected.getRemoteStorage() == null )
             {
-                Assert.assertNull( actual.getRemoteStorage() );
+                AssertJUnit.assertNull( actual.getRemoteStorage() );
             }
             else
             {
-                Assert.assertEquals( expected.getRemoteStorage().getRemoteStorageUrl(),
+                AssertJUnit.assertEquals( expected.getRemoteStorage().getRemoteStorageUrl(),
                                      actual.getRemoteStorage().getRemoteStorageUrl() );
             }
 
-            Assert.assertEquals( expected.getRepoPolicy(), actual.getRepoPolicy() );
+            AssertJUnit.assertEquals( expected.getRepoPolicy(), actual.getRepoPolicy() );
         }
 
         // check nexus.xml
@@ -159,7 +158,7 @@ public class RepositoryMessageUtil
         String responseText = response.getEntity().getText();
         if ( response.getStatus().isError() )
         {
-            Assert.fail( "Error on request: " + response.getStatus() + "\n" + responseText );
+            AssertJUnit.fail( "Error on request: " + response.getStatus() + "\n" + responseText );
         }
 
         LOG.debug( "responseText: \n" + responseText );
@@ -182,7 +181,7 @@ public class RepositoryMessageUtil
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not update user: " + response.getStatus() + "\n" + responseText );
+            AssertJUnit.fail( "Could not update user: " + response.getStatus() + "\n" + responseText );
         }
 
         // this doesn't return any objects, it should....
@@ -282,15 +281,15 @@ public class RepositoryMessageUtil
             CRepository cRepo = NexusConfigUtil.getRepo( repo.getId() );
             M2LayoutedM1ShadowRepositoryConfiguration cShadowRepo = NexusConfigUtil.getRepoShadow( repo.getId() );
 
-            Assert.assertEquals( expected.getShadowOf(), cShadowRepo.getMasterRepositoryId() );
-            Assert.assertEquals( expected.getId(), cRepo.getId() );
-            Assert.assertEquals( expected.getName(), cRepo.getName() );
+            AssertJUnit.assertEquals( expected.getShadowOf(), cShadowRepo.getMasterRepositoryId() );
+            AssertJUnit.assertEquals( expected.getId(), cRepo.getId() );
+            AssertJUnit.assertEquals( expected.getName(), cRepo.getName() );
 
             ContentClass expectedCc =
                 repositoryTypeRegistry.getRepositoryContentClass( cRepo.getProviderRole(), cRepo.getProviderHint() );
-            Assert.assertNotNull( "Unknown shadow repo type='" + cRepo.getProviderRole() + cRepo.getProviderHint()
+            AssertJUnit.assertNotNull( "Unknown shadow repo type='" + cRepo.getProviderRole() + cRepo.getProviderHint()
                 + "'!", expectedCc );
-            Assert.assertEquals( expected.getFormat(), expectedCc.getId() );
+            AssertJUnit.assertEquals( expected.getFormat(), expectedCc.getId() );
         }
         else
         {
@@ -298,21 +297,21 @@ public class RepositoryMessageUtil
             CRepository cRepo = NexusConfigUtil.getRepo( repo.getId() );
             
 
-            Assert.assertEquals( expected.getId(), cRepo.getId() );
+            AssertJUnit.assertEquals( expected.getId(), cRepo.getId() );
             
-            Assert.assertEquals( expected.getName(), cRepo.getName() );
+            AssertJUnit.assertEquals( expected.getName(), cRepo.getName() );
 
             ContentClass expectedCc =
                 repositoryTypeRegistry.getRepositoryContentClass( cRepo.getProviderRole(), cRepo.getProviderHint() );
-            Assert.assertNotNull( "Unknown repo type='" + cRepo.getProviderRole() + cRepo.getProviderHint() + "'!",
+            AssertJUnit.assertNotNull( "Unknown repo type='" + cRepo.getProviderRole() + cRepo.getProviderHint() + "'!",
                                   expectedCc );
-            Assert.assertEquals( expected.getFormat(), expectedCc.getId() );
+            AssertJUnit.assertEquals( expected.getFormat(), expectedCc.getId() );
 
-            Assert.assertEquals( expected.getNotFoundCacheTTL(), cRepo.getNotFoundCacheTTL() );
+            AssertJUnit.assertEquals( expected.getNotFoundCacheTTL(), cRepo.getNotFoundCacheTTL() );
 
             if ( expected.getOverrideLocalStorageUrl() == null )
             {
-                Assert.assertNull( "Expected CRepo localstorage url not be set, because it is the default.",
+                AssertJUnit.assertNull( "Expected CRepo localstorage url not be set, because it is the default.",
                                    cRepo.getLocalStorage().getUrl() );
             }
             else
@@ -323,16 +322,16 @@ public class RepositoryMessageUtil
                 String overridLocalStorage =
                     expected.getOverrideLocalStorageUrl().endsWith( "/" ) ? expected.getOverrideLocalStorageUrl()
                                     : expected.getOverrideLocalStorageUrl() + "/";
-                Assert.assertEquals( overridLocalStorage, actualLocalStorage );
+                AssertJUnit.assertEquals( overridLocalStorage, actualLocalStorage );
             }
 
             if ( expected.getRemoteStorage() == null )
             {
-                Assert.assertNull( cRepo.getRemoteStorage() );
+                AssertJUnit.assertNull( cRepo.getRemoteStorage() );
             }
             else
             {
-                Assert.assertEquals( expected.getRemoteStorage().getRemoteStorageUrl(),
+                AssertJUnit.assertEquals( expected.getRemoteStorage().getRemoteStorageUrl(),
                                      cRepo.getRemoteStorage().getUrl() );
             }
 
@@ -343,10 +342,10 @@ public class RepositoryMessageUtil
                 
                 if ( expected.getChecksumPolicy() != null )
                 {
-                    Assert.assertEquals( expected.getChecksumPolicy(), cM2Repo.getChecksumPolicy().name() );
+                    AssertJUnit.assertEquals( expected.getChecksumPolicy(), cM2Repo.getChecksumPolicy().name() );
                 }
                 
-                Assert.assertEquals( expected.getRepoPolicy(), cM2Repo.getRepositoryPolicy().name() );    
+                AssertJUnit.assertEquals( expected.getRepoPolicy(), cM2Repo.getRepositoryPolicy().name() );    
             }
         }
 
@@ -375,7 +374,7 @@ public class RepositoryMessageUtil
 
             Response response = RequestFacade.sendMessage( serviceURI, Method.DELETE );
             Status status = response.getStatus();
-            Assert.assertTrue( "Fail to update " + repo + " repository index " + status, status.isSuccess() );
+            AssertJUnit.assertTrue( "Fail to update " + repo + " repository index " + status, status.isSuccess() );
         }
 
         // let s w8 a few time for indexes
@@ -394,7 +393,7 @@ public class RepositoryMessageUtil
 
         Response response = RequestFacade.sendMessage( SERVICE_PART + "/" + repoId + "/status", Method.GET );
         Status status = response.getStatus();
-        Assert.assertTrue( "Fail to getStatus for '" + repoId + "' repository" + status, status.isSuccess() );
+        AssertJUnit.assertTrue( "Fail to getStatus for '" + repoId + "' repository" + status, status.isSuccess() );
 
         XStreamRepresentation representation =
             new XStreamRepresentation( this.xstream, response.getEntity().getText(), MediaType.APPLICATION_XML );
@@ -417,7 +416,7 @@ public class RepositoryMessageUtil
 
         Response response = RequestFacade.sendMessage( uriPart, Method.PUT, representation );
         Status status = response.getStatus();
-        Assert.assertTrue( "Fail to update '" + repoStatus.getId() + "' repository status " + status + "\nResponse:\n"
+        AssertJUnit.assertTrue( "Fail to update '" + repoStatus.getId() + "' repository status " + status + "\nResponse:\n"
             + response.getEntity().getText() + "\nrepresentation:\n" + representation.getText(), status.isSuccess() );
 
     }
@@ -430,7 +429,7 @@ public class RepositoryMessageUtil
         Response response = RequestFacade.doGetRequest( serviceURI );
         String responseText = response.getEntity().getText();
         Status status = response.getStatus();
-        Assert.assertTrue( responseText + status, status.isSuccess() );
+        AssertJUnit.assertTrue( responseText + status, status.isSuccess() );
 
         XStreamRepresentation re =
             new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );

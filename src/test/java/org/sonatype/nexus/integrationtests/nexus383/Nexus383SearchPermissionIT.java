@@ -15,13 +15,13 @@ package org.sonatype.nexus.integrationtests.nexus383;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.rest.model.NexusArtifact;
 import org.sonatype.nexus.test.utils.SearchMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Test the privilege for search operations.
@@ -53,7 +53,7 @@ public class Nexus383SearchPermissionIT
 
         // Should be able to find artifacts
         List<NexusArtifact> results = messageUtil.searchFor( "nexus383" );
-        Assert.assertEquals( 2, results.size() );
+        AssertJUnit.assertEquals( 2, results.size() );
     }
 
     @Test
@@ -73,7 +73,7 @@ public class Nexus383SearchPermissionIT
 
         // NOT Should be able to find artifacts
         Status status = messageUtil.doSearchFor( "nexus383" ).getStatus();
-        Assert.assertEquals( 401, status.getCode() );
+        AssertJUnit.assertEquals( 401, status.getCode() );
 
     }
 
@@ -89,7 +89,7 @@ public class Nexus383SearchPermissionIT
     //
     // // Should found nothing
     // List<NexusArtifact> results = messageUtil.searchFor( "nexus383" );
-    // Assert.assertEquals( 0, results.size() );
+    // AssertJUnit.assertEquals( 0, results.size() );
     //
     // }
 }

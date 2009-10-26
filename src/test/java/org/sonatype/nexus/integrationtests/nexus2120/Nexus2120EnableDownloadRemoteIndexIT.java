@@ -3,11 +3,6 @@ package org.sonatype.nexus.integrationtests.nexus2120;
 import java.io.File;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Response;
 import org.sonatype.jettytestsuite.ControlledServer;
@@ -19,6 +14,10 @@ import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.XStreamFactory;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus2120EnableDownloadRemoteIndexIT
     extends AbstractNexusIntegrationTest
@@ -44,7 +43,7 @@ public class Nexus2120EnableDownloadRemoteIndexIT
 
     private RepositoryMessageUtil repoUtil;
 
-    @Before
+    @BeforeClass
     public void start()
         throws Exception
     {
@@ -54,7 +53,7 @@ public class Nexus2120EnableDownloadRemoteIndexIT
                                        getRepositoryTypeRegistry() );
     }
 
-    @After
+    @AfterClass
     public void stop()
         throws Exception
     {
@@ -69,10 +68,10 @@ public class Nexus2120EnableDownloadRemoteIndexIT
     {
         RepositoryResource basic = (RepositoryResource) repoUtil.getRepository( "basic" );
         // ensure URL
-        Assert.assertEquals( "http://localhost:" + webProxyPort + "/repository",
-                             basic.getRemoteStorage().getRemoteStorageUrl() );
+        AssertJUnit.assertEquals( "http://localhost:" + webProxyPort + "/repository",
+                                  basic.getRemoteStorage().getRemoteStorageUrl() );
         // ensure is not downloading index
-        Assert.assertFalse( basic.isDownloadRemoteIndexes() );
+        AssertJUnit.assertFalse( basic.isDownloadRemoteIndexes() );
 
         File basicRemoteRepo = getTestFile( "basic" );
         List<String> repoUrls = server.addServer( "repository", basicRemoteRepo );
@@ -84,8 +83,8 @@ public class Nexus2120EnableDownloadRemoteIndexIT
         TaskScheduleUtil.waitForAllTasksToStop( ReindexTask.class );
 
         // first try, download remote index set to false
-        Assert.assertTrue( "nexus should not download remote indexes!!! " + repoUrls, repoUrls.isEmpty() );
-        Assert.assertEquals( 404, RequestFacade.doGetRequest( URI ).getStatus().getCode() );
+        AssertJUnit.assertTrue( "nexus should not download remote indexes!!! " + repoUrls, repoUrls.isEmpty() );
+        AssertJUnit.assertEquals( 404, RequestFacade.doGetRequest( URI ).getStatus().getCode() );
 
         // I changed my mind, I do wanna remote index
         basic.setDownloadRemoteIndexes( true );
@@ -96,9 +95,10 @@ public class Nexus2120EnableDownloadRemoteIndexIT
         TaskScheduleUtil.waitForAllTasksToStop( ReindexTask.class );
 
         // did nexus downloaded indexes?
-        Assert.assertTrue( "nexus should download remote indexes!!! " + repoUrls,
-                           repoUrls.contains( "/repository/.index/nexus-maven-repository-index.gz" ) );
+        AssertJUnit.assertTrue( "nexus should download remote indexes!!! " + repoUrls,
+                                repoUrls.contains( "/repository/.index/nexus-maven-repository-index.gz" ) );
         Response response = RequestFacade.doGetRequest( URI );
-        Assert.assertTrue( "Error downloading index content\n" + response.getStatus(), response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Error downloading index content\n" + response.getStatus(),
+                                response.getStatus().isSuccess() );
     }
 }

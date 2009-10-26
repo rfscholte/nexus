@@ -3,10 +3,6 @@ package org.sonatype.nexus.integrationtests.nexus1696;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
@@ -39,6 +35,10 @@ import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.sonatype.security.rest.model.PrivilegeStatusResource;
 import org.sonatype.security.rest.model.RoleResource;
 import org.sonatype.security.rest.model.UserResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus1696ValidateBaseUrlIT
     extends AbstractNexusIntegrationTest
@@ -46,7 +46,7 @@ public class Nexus1696ValidateBaseUrlIT
 
     private String baseUrl;
 
-    @Before
+    @BeforeClass
     public void init()
         throws Exception
     {
@@ -70,18 +70,18 @@ public class Nexus1696ValidateBaseUrlIT
             new ContentListMessageUtil( this.getXMLXStream(), MediaType.APPLICATION_XML );
 
         List<RepositoryGroupListResource> groups = groupUtil.getList();
-        Assert.assertFalse( "No itens to be tested", groups.isEmpty() );
+        AssertJUnit.assertFalse( "No itens to be tested", groups.isEmpty() );
 
         for ( RepositoryGroupListResource group : groups )
         {
-            Assert.assertTrue( "Repository '" + group.getId() + "' uri do not start with baseUrl.  Expected: "
+            AssertJUnit.assertTrue( "Repository '" + group.getId() + "' uri do not start with baseUrl.  Expected: "
                 + baseUrl + ", but got: " + group.getResourceURI(), group.getResourceURI().startsWith( baseUrl ) );
 
             List<ContentListResource> contents = contentUtil.getContentListResource( group.getId(), "/", true );
 
             for ( ContentListResource content : contents )
             {
-                Assert.assertTrue( "Group content '" + content.getText()
+                AssertJUnit.assertTrue( "Group content '" + content.getText()
                     + "' uri do not start with baseUrl.  Expected: " + baseUrl + ", but got: "
                     + content.getResourceURI(), content.getResourceURI().startsWith( baseUrl ) );
             }
@@ -99,18 +99,18 @@ public class Nexus1696ValidateBaseUrlIT
             new ContentListMessageUtil( this.getXMLXStream(), MediaType.APPLICATION_XML );
 
         List<RepositoryListResource> repositories = repoUtil.getList();
-        Assert.assertFalse( "No itens to be tested", repositories.isEmpty() );
+        AssertJUnit.assertFalse( "No itens to be tested", repositories.isEmpty() );
 
         for ( RepositoryListResource repo : repositories )
         {
-            Assert.assertTrue( "Repository '" + repo.getId() + "' uri do not start with baseUrl.  Expected: " + baseUrl
-                + ", but got: " + repo.getResourceURI(), repo.getResourceURI().startsWith( baseUrl ) );
+            AssertJUnit.assertTrue( "Repository '" + repo.getId() + "' uri do not start with baseUrl.  Expected: "
+                + baseUrl + ", but got: " + repo.getResourceURI(), repo.getResourceURI().startsWith( baseUrl ) );
 
             List<ContentListResource> contents = contentUtil.getContentListResource( repo.getId(), "/", false );
 
             for ( ContentListResource content : contents )
             {
-                Assert.assertTrue( "Repository content '" + content.getText()
+                AssertJUnit.assertTrue( "Repository content '" + content.getText()
                     + "' uri do not start with baseUrl.  Expected: " + baseUrl + ", but got: "
                     + content.getResourceURI(), content.getResourceURI().startsWith( baseUrl ) );
             }
@@ -123,12 +123,12 @@ public class Nexus1696ValidateBaseUrlIT
     {
         List<PrivilegeStatusResource> privs =
             new PrivilegesMessageUtil( XStreamFactory.getXmlXStream(), MediaType.APPLICATION_XML ).getList();
-        Assert.assertFalse( "No itens to be tested", privs.isEmpty() );
+        AssertJUnit.assertFalse( "No itens to be tested", privs.isEmpty() );
 
         for ( PrivilegeStatusResource priv : privs )
         {
-            Assert.assertTrue( "Privilege '" + priv.getId() + "' uri do not start with baseUrl.  Expected: " + baseUrl
-                + ", but got: " + priv.getResourceURI(), priv.getResourceURI().startsWith( baseUrl ) );
+            AssertJUnit.assertTrue( "Privilege '" + priv.getId() + "' uri do not start with baseUrl.  Expected: "
+                + baseUrl + ", but got: " + priv.getResourceURI(), priv.getResourceURI().startsWith( baseUrl ) );
         }
     }
 
@@ -137,11 +137,11 @@ public class Nexus1696ValidateBaseUrlIT
         throws Exception
     {
         List<RoleResource> roles = new RoleMessageUtil( null, null ).getList();
-        Assert.assertFalse( "No itens to be tested", roles.isEmpty() );
+        AssertJUnit.assertFalse( "No itens to be tested", roles.isEmpty() );
 
         for ( RoleResource role : roles )
         {
-            Assert.assertTrue( "Role '" + role.getId() + "' uri do not start with baseUrl.  Expected: " + baseUrl
+            AssertJUnit.assertTrue( "Role '" + role.getId() + "' uri do not start with baseUrl.  Expected: " + baseUrl
                 + ", but got: " + role.getResourceURI(), role.getResourceURI().startsWith( baseUrl ) );
         }
     }
@@ -151,12 +151,12 @@ public class Nexus1696ValidateBaseUrlIT
         throws Exception
     {
         List<UserResource> users = new UserMessageUtil( null, null ).getList();
-        Assert.assertFalse( "No itens to be tested", users.isEmpty() );
+        AssertJUnit.assertFalse( "No itens to be tested", users.isEmpty() );
 
         for ( UserResource user : users )
         {
-            Assert.assertTrue( "User '" + user.getUserId() + "' uri do not start with baseUrl.  Expected: " + baseUrl
-                + ", but got: " + user.getResourceURI(), user.getResourceURI().startsWith( baseUrl ) );
+            AssertJUnit.assertTrue( "User '" + user.getUserId() + "' uri do not start with baseUrl.  Expected: "
+                + baseUrl + ", but got: " + user.getResourceURI(), user.getResourceURI().startsWith( baseUrl ) );
         }
     }
 
@@ -174,14 +174,14 @@ public class Nexus1696ValidateBaseUrlIT
 
         RoutesMessageUtil routesUtil = new RoutesMessageUtil( this.getXMLXStream(), MediaType.APPLICATION_XML );
         Status status = routesUtil.sendMessage( Method.POST, resource ).getStatus();
-        Assert.assertTrue( "Unable to create a route " + status, status.isSuccess() );
+        AssertJUnit.assertTrue( "Unable to create a route " + status, status.isSuccess() );
 
         List<RepositoryRouteListResource> routes = RoutesMessageUtil.getList();
-        Assert.assertFalse( "No itens to be tested", routes.isEmpty() );
+        AssertJUnit.assertFalse( "No itens to be tested", routes.isEmpty() );
 
         for ( RepositoryRouteListResource route : routes )
         {
-            Assert.assertTrue( "Route '" + route.getGroupId() + "' uri do not start with baseUrl.  Expected: "
+            AssertJUnit.assertTrue( "Route '" + route.getGroupId() + "' uri do not start with baseUrl.  Expected: "
                 + baseUrl + ", but got: " + route.getResourceURI(), route.getResourceURI().startsWith( baseUrl ) );
         }
     }
@@ -203,15 +203,15 @@ public class Nexus1696ValidateBaseUrlIT
         scheduledTask.addProperty( prop );
 
         Status status = TaskScheduleUtil.create( scheduledTask );
-        Assert.assertTrue( "Unable to create a task " + status, status.isSuccess() );
+        AssertJUnit.assertTrue( "Unable to create a task " + status, status.isSuccess() );
 
         List<ScheduledServiceListResource> tasks = TaskScheduleUtil.getTasks();
-        Assert.assertFalse( "No itens to be tested", tasks.isEmpty() );
+        AssertJUnit.assertFalse( "No itens to be tested", tasks.isEmpty() );
 
         for ( ScheduledServiceListResource task : tasks )
         {
-            Assert.assertTrue( "Task '" + task.getName() + "' uri do not start with baseUrl.  Expected: " + baseUrl
-                + ", but got: " + task.getResourceURI(), task.getResourceURI().startsWith( baseUrl ) );
+            AssertJUnit.assertTrue( "Task '" + task.getName() + "' uri do not start with baseUrl.  Expected: "
+                + baseUrl + ", but got: " + task.getResourceURI(), task.getResourceURI().startsWith( baseUrl ) );
         }
     }
 
@@ -234,16 +234,16 @@ public class Nexus1696ValidateBaseUrlIT
         targetUtil.createTarget( resource );
 
         List<RepositoryTargetListResource> targets = TargetMessageUtil.getList();
-        Assert.assertFalse( "No itens to be tested", targets.isEmpty() );
+        AssertJUnit.assertFalse( "No itens to be tested", targets.isEmpty() );
 
         for ( RepositoryTargetListResource target : targets )
         {
-            Assert.assertTrue( "Target '" + target.getName() + "' uri do not start with baseUrl.  Expected: " + baseUrl
-                + ", but got: " + target.getResourceURI(), target.getResourceURI().startsWith( baseUrl ) );
+            AssertJUnit.assertTrue( "Target '" + target.getName() + "' uri do not start with baseUrl.  Expected: "
+                + baseUrl + ", but got: " + target.getResourceURI(), target.getResourceURI().startsWith( baseUrl ) );
         }
     }
 
-    @After
+    @AfterClass
     public void resetBaseUrl()
         throws Exception
     {

@@ -17,9 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.jsecurity.realms.TargetPrivilegeDescriptor;
 import org.sonatype.nexus.rest.model.RepositoryTargetResource;
@@ -27,6 +24,8 @@ import org.sonatype.security.rest.model.PrivilegeResource;
 import org.sonatype.security.rest.model.PrivilegeStatusResource;
 import org.sonatype.security.rest.model.RoleResource;
 import org.sonatype.security.rest.model.UserResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Test filtering search results based upon security
@@ -71,10 +70,10 @@ public class Nexus779RssFeedFilteringIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         // Should be able to see only test1 artifacts
-        Assert.assertTrue( "Feed should contain entry for nexus779:test1:1.0.0.\nEntries: " + this.entriesToString(),
+        AssertJUnit.assertTrue( "Feed should contain entry for nexus779:test1:1.0.0.\nEntries: " + this.entriesToString(),
                            feedListContainsArtifact( "nexus779", "test1", "1.0.0" ) );
 
-        Assert.assertFalse( "Feed should not contain entry for nexus779:test2:1.0.0\nEntries: "
+        AssertJUnit.assertFalse( "Feed should not contain entry for nexus779:test2:1.0.0\nEntries: "
             + this.entriesToString(), feedListContainsArtifact( "nexus779", "test2", "1.0.0" ) );
 
         // Now update the test user so that the user can only access test2
@@ -84,10 +83,10 @@ public class Nexus779RssFeedFilteringIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         // Should be able to see only test2 artifacts
-        Assert.assertFalse( "Feed should not contain entry for nexus779:test1:1.0.0.\nEntries: "
+        AssertJUnit.assertFalse( "Feed should not contain entry for nexus779:test1:1.0.0.\nEntries: "
             + this.entriesToString(), feedListContainsArtifact( "nexus779", "test1", "1.0.0" ) );
 
-        Assert.assertTrue( "Feed should contain entry for nexus779:test2:1.0.0\nEntries: " + this.entriesToString(),
+        AssertJUnit.assertTrue( "Feed should contain entry for nexus779:test2:1.0.0\nEntries: " + this.entriesToString(),
                            feedListContainsArtifact( "nexus779", "test2", "1.0.0" ) );
 
         // Now update the test user to find both
@@ -97,10 +96,10 @@ public class Nexus779RssFeedFilteringIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         // Should be able to see both test1 & test2 artifacts
-        Assert.assertTrue( "Feed should contain entry for nexus779:test1:1.0.0.\nEntries: " + this.entriesToString(),
+        AssertJUnit.assertTrue( "Feed should contain entry for nexus779:test1:1.0.0.\nEntries: " + this.entriesToString(),
                            feedListContainsArtifact( "nexus779", "test1", "1.0.0" ) );
 
-        Assert.assertTrue( "Feed should contain entry for nexus779:test2:1.0.0\nEntries: " + this.entriesToString(),
+        AssertJUnit.assertTrue( "Feed should contain entry for nexus779:test2:1.0.0\nEntries: " + this.entriesToString(),
                            feedListContainsArtifact( "nexus779", "test2", "1.0.0" ) );
     }
 

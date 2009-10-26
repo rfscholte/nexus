@@ -17,10 +17,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -34,6 +31,8 @@ import org.sonatype.nexus.rest.model.RepositoryResource;
 import org.sonatype.nexus.rest.repositories.AbstractRepositoryPlexusResource;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * CRUD tests for JSON request/response.
@@ -183,9 +182,9 @@ public class Nexus531RepositoryCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not delete Repository: " + response.getStatus() );
+            AssertJUnit.fail( "Could not delete Repository: " + response.getStatus() );
         }
-        Assert.assertNull( NexusConfigUtil.getRepo( resource.getId() ) );
+        AssertJUnit.assertNull( NexusConfigUtil.getRepo( resource.getId() ) );
     }
 
     @Test
@@ -216,12 +215,12 @@ public class Nexus531RepositoryCrudJsonIT
 
             if ( listRepo.getId().equals( repo.getId() ) )
             {
-                Assert.assertEquals( repo.getId(), listRepo.getId() );
-                Assert.assertEquals( repo.getName(), listRepo.getName() );
-                Assert.assertEquals( repo.getFormat(), listRepo.getFormat() );
-                Assert.assertEquals( repo.getRepoPolicy(), listRepo.getRepoPolicy() );
-                Assert.assertEquals( repo.getRepoType(), listRepo.getRepoType() );
-                Assert.assertEquals( repo.getRemoteStorage(), listRepo.getRemoteUri() );
+                AssertJUnit.assertEquals( repo.getId(), listRepo.getId() );
+                AssertJUnit.assertEquals( repo.getName(), listRepo.getName() );
+                AssertJUnit.assertEquals( repo.getFormat(), listRepo.getFormat() );
+                AssertJUnit.assertEquals( repo.getRepoPolicy(), listRepo.getRepoPolicy() );
+                AssertJUnit.assertEquals( repo.getRepoType(), listRepo.getRepoType() );
+                AssertJUnit.assertEquals( repo.getRemoteStorage(), listRepo.getRemoteUri() );
 
                 String storageURL =
                     repo.getDefaultLocalStorageUrl() != null ? repo.getDefaultLocalStorageUrl()
@@ -230,7 +229,7 @@ public class Nexus531RepositoryCrudJsonIT
                 storageURL = storageURL.endsWith( "/" ) ? storageURL : storageURL + "/";
                 String effectiveLocalStorage = listRepo.getEffectiveLocalStorageUrl().endsWith( "/" ) ? listRepo.getEffectiveLocalStorageUrl() : listRepo.getEffectiveLocalStorageUrl() + "/";
                     
-                Assert.assertEquals( storageURL, effectiveLocalStorage );
+                AssertJUnit.assertEquals( storageURL, effectiveLocalStorage );
             }
 
             // now check all agaist the the cRepo
@@ -239,25 +238,25 @@ public class Nexus531RepositoryCrudJsonIT
             if ( cRepo != null )
             {
                 M2RepositoryConfiguration cM2Repo = NexusConfigUtil.getM2Repo( listRepo.getId() );
-                Assert.assertEquals( cRepo.getId(), listRepo.getId() );
-                Assert.assertEquals( cRepo.getName(), listRepo.getName() );
-                // Assert.assertEquals( cM2Repo.getType(), listRepo.getFormat() );
-                Assert.assertEquals( cM2Repo.getRepositoryPolicy().name(), listRepo.getRepoPolicy() );
+                AssertJUnit.assertEquals( cRepo.getId(), listRepo.getId() );
+                AssertJUnit.assertEquals( cRepo.getName(), listRepo.getName() );
+                // AssertJUnit.assertEquals( cM2Repo.getType(), listRepo.getFormat() );
+                AssertJUnit.assertEquals( cM2Repo.getRepositoryPolicy().name(), listRepo.getRepoPolicy() );
 
                 log.debug( "cRepo.getRemoteStorage(): " + cRepo.getRemoteStorage() );
                 log.debug( "listRepo.getRemoteUri(): " + listRepo.getRemoteUri() );
 
-                Assert.assertTrue( ( cRepo.getRemoteStorage() == null && listRepo.getRemoteUri() == null )
+                AssertJUnit.assertTrue( ( cRepo.getRemoteStorage() == null && listRepo.getRemoteUri() == null )
                     || ( cRepo.getRemoteStorage().getUrl().equals( listRepo.getRemoteUri() ) ) );
             }
             else
             {
                 M2LayoutedM1ShadowRepositoryConfiguration cShadow = NexusConfigUtil.getRepoShadow( listRepo.getId() );
 
-                Assert.assertEquals( cRepo.getId(), listRepo.getId() );
-                Assert.assertEquals( cRepo.getName(), listRepo.getName() );
-                // Assert.assertEquals( cShadow.getType(), this.formatToType( listRepo.getFormat() ) );
-                Assert.assertEquals( AbstractRepositoryPlexusResource.REPO_TYPE_VIRTUAL, listRepo.getRepoType() );
+                AssertJUnit.assertEquals( cRepo.getId(), listRepo.getId() );
+                AssertJUnit.assertEquals( cRepo.getName(), listRepo.getName() );
+                // AssertJUnit.assertEquals( cShadow.getType(), this.formatToType( listRepo.getFormat() ) );
+                AssertJUnit.assertEquals( AbstractRepositoryPlexusResource.REPO_TYPE_VIRTUAL, listRepo.getRepoType() );
             }
 
         }

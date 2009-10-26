@@ -13,15 +13,14 @@
  */
 package org.sonatype.nexus.integrationtests.proxy.nexus1111;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.mortbay.jetty.Server;
 import org.sonatype.jettytestsuite.ServletServer;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
 import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.tasks.descriptors.ExpireCacheTaskDescriptor;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * @author Juven Xu
@@ -57,7 +56,7 @@ public class Nexus1111ProxyRemote500ErrorIT
         try
         {
             downloadArtifact( "nexus1111", "artifact", "1.1", "jar", null, "target/downloads" );
-            Assert.fail( "Should throw exception coz the remote is in a error status" );
+            AssertJUnit.fail( "Should throw exception coz the remote is in a error status" );
         }
         catch ( Exception e )
         {
@@ -71,7 +70,7 @@ public class Nexus1111ProxyRemote500ErrorIT
         try
         {
             downloadArtifact( "nexus1111", "artifact", "1.1", "jar", null, "target/downloads" );
-            Assert.fail( "Still fails before a clear cache." );
+            AssertJUnit.fail( "Still fails before a clear cache." );
         }
         catch ( Exception e )
         {

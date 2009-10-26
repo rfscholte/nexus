@@ -18,9 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Response;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
@@ -28,6 +25,8 @@ import org.sonatype.nexus.integrationtests.RequestFacade;
 import org.sonatype.nexus.test.utils.RoleMessageUtil;
 import org.sonatype.security.rest.model.ExternalRoleMappingResource;
 import org.sonatype.security.rest.model.PlexusRoleResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1286RoleListIT
     extends AbstractNexusIntegrationTest
@@ -41,7 +40,7 @@ public class Nexus1286RoleListIT
 
         Response response = RequestFacade.doGetRequest( uriPart );
 
-        Assert.assertEquals( 404, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( 404, response.getStatus().getCode() );
 
     }
 
@@ -53,8 +52,8 @@ public class Nexus1286RoleListIT
         List<PlexusRoleResource> roles = roleUtil.getRoles( "default" );
 
         Set<String> ids = this.getRoleIds( roles );
-        Assert.assertTrue( ids.contains( "admin" ) );
-        Assert.assertTrue( ids.contains( "anonymous" ) );
+        AssertJUnit.assertTrue( ids.contains( "admin" ) );
+        AssertJUnit.assertTrue( ids.contains( "anonymous" ) );
 
     }
 
@@ -66,8 +65,8 @@ public class Nexus1286RoleListIT
         List<PlexusRoleResource> roles = roleUtil.getRoles( "all" );
 
         Set<String> ids = this.getRoleIds( roles );
-        Assert.assertTrue( ids.contains( "admin" ) );
-        Assert.assertTrue( ids.contains( "anonymous" ) );
+        AssertJUnit.assertTrue( ids.contains( "admin" ) );
+        AssertJUnit.assertTrue( ids.contains( "anonymous" ) );
     }
 
     public void getdefaultExternalRoleMap()
@@ -75,10 +74,10 @@ public class Nexus1286RoleListIT
     {
         RoleMessageUtil roleUtil = new RoleMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
         List<ExternalRoleMappingResource> roles = roleUtil.getExternalRoleMap( "all" );
-        Assert.assertEquals( 0, roles.size() );
+        AssertJUnit.assertEquals( 0, roles.size() );
 
         roles = roleUtil.getExternalRoleMap( "default" );
-        Assert.assertEquals( 0, roles.size() );
+        AssertJUnit.assertEquals( 0, roles.size() );
     }
 
     private Set<String> getRoleIds( List<PlexusRoleResource> roles )

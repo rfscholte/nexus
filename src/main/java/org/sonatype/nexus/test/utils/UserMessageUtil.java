@@ -16,8 +16,6 @@ package org.sonatype.nexus.test.utils;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -32,6 +30,7 @@ import org.sonatype.security.rest.model.PlexusUserResourceResponse;
 import org.sonatype.security.rest.model.UserListResourceResponse;
 import org.sonatype.security.rest.model.UserResource;
 import org.sonatype.security.rest.model.UserResourceRequest;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -60,22 +59,22 @@ public class UserMessageUtil
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not create user: " + response.getStatus() + ":\n" + responseText );
+            AssertJUnit.fail( "Could not create user: " + response.getStatus() + ":\n" + responseText );
         }
 
         // get the Resource object
         UserResource responseResource = this.getResourceFromResponse( response );
 
         // make sure the id != null
-        Assert.assertNotNull( "User ID shouldn't be null: " + response.getEntity().getText(),
+        AssertJUnit.assertNotNull( "User ID shouldn't be null: " + response.getEntity().getText(),
                               responseResource.getUserId() );
         user.setUserId( responseResource.getUserId() );
 
-        Assert.assertEquals( user.getName(), responseResource.getName() );
-        Assert.assertEquals( user.getUserId(), responseResource.getUserId() );
-        Assert.assertEquals( user.getStatus(), responseResource.getStatus() );
-        Assert.assertEquals( user.getEmail(), responseResource.getEmail() );
-        Assert.assertEquals( user.getRoles(), responseResource.getRoles() );
+        AssertJUnit.assertEquals( user.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( user.getUserId(), responseResource.getUserId() );
+        AssertJUnit.assertEquals( user.getStatus(), responseResource.getStatus() );
+        AssertJUnit.assertEquals( user.getEmail(), responseResource.getEmail() );
+        AssertJUnit.assertEquals( user.getRoles(), responseResource.getRoles() );
 
         SecurityConfigUtil.verifyUser( user );
 
@@ -90,7 +89,7 @@ public class UserMessageUtil
         String responseText = response.getEntity().getText();
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Error retrieving user '" + userId + "' \n" + responseText );
+            AssertJUnit.fail( "Error retrieving user '" + userId + "' \n" + responseText );
         }
 
         XStreamRepresentation representation =
@@ -110,7 +109,7 @@ public class UserMessageUtil
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not update user: " + response.getStatus() + "\n" + responseText );
+            AssertJUnit.fail( "Could not update user: " + response.getStatus() + "\n" + responseText );
         }
 
         // get the Resource object
@@ -118,11 +117,11 @@ public class UserMessageUtil
 
         // make sure the id != null
 
-        Assert.assertEquals( user.getName(), responseResource.getName() );
-        Assert.assertEquals( user.getUserId(), responseResource.getUserId() );
-        Assert.assertEquals( user.getStatus(), responseResource.getStatus() );
-        Assert.assertEquals( user.getEmail(), responseResource.getEmail() );
-        Assert.assertEquals( user.getRoles(), responseResource.getRoles() );
+        AssertJUnit.assertEquals( user.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( user.getUserId(), responseResource.getUserId() );
+        AssertJUnit.assertEquals( user.getStatus(), responseResource.getStatus() );
+        AssertJUnit.assertEquals( user.getEmail(), responseResource.getEmail() );
+        AssertJUnit.assertEquals( user.getRoles(), responseResource.getRoles() );
 
         SecurityConfigUtil.verifyUser( user );
         return responseResource;
@@ -167,7 +166,7 @@ public class UserMessageUtil
             new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );
 
         // make sure we have a success
-        Assert.assertTrue( "Status: " + response.getStatus() + "\n" + responseText, response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Status: " + response.getStatus() + "\n" + responseText, response.getStatus().isSuccess() );
 
         UserListResourceResponse resourceResponse =
             (UserListResourceResponse) representation.getPayload( new UserListResourceResponse() );
@@ -209,7 +208,7 @@ public class UserMessageUtil
         Response response =
             RequestFacade.sendMessage( uriPart, Method.GET, new StringRepresentation( "", this.mediaType ) );
         String responseString = response.getEntity().getText();
-        Assert.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
+        AssertJUnit.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
                            response.getStatus().isSuccess() );
 
         PlexusUserListResourceResponse result =
@@ -230,7 +229,7 @@ public class UserMessageUtil
         Response response =
             RequestFacade.sendMessage( uriPart, Method.GET, new StringRepresentation( "", this.mediaType ) );
         String responseString = response.getEntity().getText();
-        Assert.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
+        AssertJUnit.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
                            response.getStatus().isSuccess() );
 
         PlexusUserResourceResponse result =
@@ -255,7 +254,7 @@ public class UserMessageUtil
         Response response =
             RequestFacade.sendMessage( uriPart, Method.GET, new StringRepresentation( "", this.mediaType ) );
         String responseString = response.getEntity().getText();
-        Assert.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
+        AssertJUnit.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
                            response.getStatus().isSuccess() );
 
         PlexusUserListResourceResponse result =

@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.restlet.data.MediaType;
@@ -33,6 +31,7 @@ import org.sonatype.security.rest.model.PrivilegeResource;
 import org.sonatype.security.rest.model.PrivilegeResourceRequest;
 import org.sonatype.security.rest.model.PrivilegeStatusResource;
 import org.sonatype.security.rest.model.PrivilegeStatusResourceResponse;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -58,7 +57,7 @@ public class PrivilegesMessageUtil
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not create privilege: " + response.getStatus() );
+            AssertJUnit.fail( "Could not create privilege: " + response.getStatus() );
         }
 
         // get the Resource object
@@ -73,7 +72,7 @@ public class PrivilegesMessageUtil
         Response response = this.sendMessage( Method.GET, null, id );
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not get Privilege: " + response.getStatus() +"\n" + response.getEntity().getText());
+            AssertJUnit.fail( "Could not get Privilege: " + response.getStatus() +"\n" + response.getEntity().getText());
         }
         return this.getResourceFromResponse( response );
     }
@@ -83,7 +82,7 @@ public class PrivilegesMessageUtil
         Response response = this.sendMessage( Method.GET, null );
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not get Privilege: " + response.getStatus() +"\n" + response.getEntity().getText());
+            AssertJUnit.fail( "Could not get Privilege: " + response.getStatus() +"\n" + response.getEntity().getText());
         }
         return this.getResourceListFromResponse( response );
     }
@@ -155,12 +154,12 @@ public class PrivilegesMessageUtil
 
         ErrorResponse errorResponse = (ErrorResponse) xstream.fromXML( xml, new ErrorResponse() );
 
-        Assert.assertTrue( "Error response is empty.", errorResponse.getErrors().size() > 0 );
+        AssertJUnit.assertTrue( "Error response is empty.", errorResponse.getErrors().size() > 0 );
 
         for ( Iterator<ErrorMessage> iter = errorResponse.getErrors().iterator(); iter.hasNext(); )
         {
             ErrorMessage error = iter.next();
-            Assert.assertFalse( "Response Error message is empty.", StringUtils.isEmpty( error.getMsg() ) );
+            AssertJUnit.assertFalse( "Response Error message is empty.", StringUtils.isEmpty( error.getMsg() ) );
 
         }
 

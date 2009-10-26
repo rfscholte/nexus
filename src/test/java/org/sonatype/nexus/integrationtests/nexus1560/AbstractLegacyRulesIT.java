@@ -2,8 +2,6 @@ package org.sonatype.nexus.integrationtests.nexus1560;
 
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Before;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.sonatype.nexus.artifact.Gav;
@@ -13,6 +11,8 @@ import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.maven.tasks.descriptors.RebuildMavenMetadataTaskDescriptor;
 import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
 
 public abstract class AbstractLegacyRulesIT
     extends AbstractPrivilegeTest
@@ -24,7 +24,7 @@ public abstract class AbstractLegacyRulesIT
 
     protected Gav gavArtifact2;
 
-    @Before
+    @BeforeClass
     public void createGav1()
         throws Exception
     {
@@ -64,16 +64,16 @@ public abstract class AbstractLegacyRulesIT
     {
         Response response = download( downloadUrl );
         Status status = response.getStatus();
-        Assert.assertTrue( "Unable to download artifact from repository: " + status, status.isError() );
+        AssertJUnit.assertTrue( "Unable to download artifact from repository: " + status, status.isError() );
         return response;
     }
 
     protected Response successDownload( String downloadUrl )
-    throws IOException
+        throws IOException
     {
         Response response = download( downloadUrl );
         Status status = response.getStatus();
-        Assert.assertTrue( "Unable to download artifact from repository: " + status, status.isSuccess() );
+        AssertJUnit.assertTrue( "Unable to download artifact from repository: " + status, status.isSuccess() );
         return response;
     }
 

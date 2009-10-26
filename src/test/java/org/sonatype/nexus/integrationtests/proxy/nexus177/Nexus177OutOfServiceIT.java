@@ -15,15 +15,13 @@ package org.sonatype.nexus.integrationtests.proxy.nexus177;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Date;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Create three repositories, deploys a different artifact with the same name in each repo. Add each repo to a group
@@ -61,7 +59,7 @@ public class Nexus177OutOfServiceIT
         {
             // download it
             downloadArtifact( gav, "./target/downloaded-jars" );
-            Assert.fail( "Out Of Service Command didn't do anything." );
+            AssertJUnit.fail( "Out Of Service Command didn't do anything." );
         }
         catch ( FileNotFoundException e )
         {
@@ -74,7 +72,7 @@ public class Nexus177OutOfServiceIT
         File newFile = this.downloadArtifact( gav, "target/downloads/original" );
 
         // compare the files just for kicks
-        Assert.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, newFile ) );
+        AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, newFile ) );
 
     }
 

@@ -13,11 +13,11 @@
  */
 package org.sonatype.nexus.integrationtests.webproxy;
 
-import org.junit.After;
-import org.junit.Before;
 import org.sonatype.jettytestsuite.ProxyServer;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.TestProperties;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 
 public abstract class AbstractNexusWebProxyIntegrationTest
     extends AbstractNexusProxyIntegrationTest
@@ -32,7 +32,7 @@ public abstract class AbstractNexusWebProxyIntegrationTest
         webProxyPort = TestProperties.getInteger( "webproxy.server.port" );
     }
 
-    @Before
+    @BeforeClass
     public void startWebProxy()
         throws Exception
     {
@@ -40,7 +40,7 @@ public abstract class AbstractNexusWebProxyIntegrationTest
         server.start();
     }
 
-    @After
+    @AfterClass
     public void stopWebProxy()
         throws Exception
     {

@@ -16,24 +16,23 @@ package org.sonatype.nexus.integrationtests.nexus748;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
-import org.junit.Test;
 import org.sonatype.nexus.client.NexusClient;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.integrationtests.TestContext;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.NexusStatusUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus748MultipleStartIT
 {
 
     protected static Logger logger = Logger.getLogger( Nexus748MultipleStartIT.class );
 
-    @Test
+    @Test( enabled = false )
     public void multipleStartTest()
         throws Exception
     {
@@ -59,7 +58,7 @@ public class Nexus748MultipleStartIT
             // start
             NexusStatusUtil.doHardStart();
 
-            Assert.assertTrue( client.isNexusStarted( true ) );
+            AssertJUnit.assertTrue( client.isNexusStarted( true ) );
 
             // get the time
             stopWatch.stop();

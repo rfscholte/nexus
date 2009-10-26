@@ -15,9 +15,6 @@ package org.sonatype.nexus.integrationtests.nexus142;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -25,6 +22,8 @@ import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.SecurityConfigUtil;
 import org.sonatype.nexus.test.utils.UserMessageUtil;
 import org.sonatype.security.rest.model.UserResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Extra CRUD validation tests.
@@ -58,10 +57,10 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         String responseText = response.getEntity().getText();
-        Assert.assertTrue( "Error message: "+ responseText, responseText.startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( "Error message: "+ responseText, responseText.startsWith( "{\"errors\":" ) );
         
     }
     
@@ -84,8 +83,8 @@ public class Nexus142UserValidationIT
         Response response = this.messageUtil.sendMessage( Method.PUT, resource );
         
         String responseText = response.getEntity().getText();
-        Assert.assertFalse( "Expected failure: Satus: "+ response.getStatus()+"\n Response Text:" + responseText, response.getStatus().isSuccess() );
-        Assert.assertTrue( "Error message: "+ responseText, responseText.startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertFalse( "Expected failure: Satus: "+ response.getStatus()+"\n Response Text:" + responseText, response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Error message: "+ responseText, responseText.startsWith( "{\"errors\":" ) );
         
     }
     
@@ -105,9 +104,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
         
     }
     
@@ -126,9 +125,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
         
     }
     
@@ -149,9 +148,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
     
     
@@ -171,9 +170,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
     
     @Test
@@ -191,7 +190,7 @@ public class Nexus142UserValidationIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should have been created: " + response.getStatus() );
         }
         
         resource = new UserResource();
@@ -206,9 +205,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
     
     public void createUserDuplicateEmail() throws IOException
@@ -225,7 +224,7 @@ public class Nexus142UserValidationIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should have been created: " + response.getStatus() );
         }
         
         resource = new UserResource();
@@ -240,9 +239,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
     
     
@@ -263,17 +262,17 @@ public class Nexus142UserValidationIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not create user: " + response.getStatus() );
+            AssertJUnit.fail( "Could not create user: " + response.getStatus() );
         }
 
         // get the Resource object
         UserResource responseResource = this.messageUtil.getResourceFromResponse( response );
 
-        Assert.assertEquals( resource.getName(), responseResource.getName() );
-        Assert.assertEquals( resource.getUserId(), responseResource.getUserId() );
-        Assert.assertEquals( resource.getStatus(), responseResource.getStatus() );
-        Assert.assertEquals( resource.getEmail(), responseResource.getEmail() );
-        Assert.assertEquals( resource.getRoles(), responseResource.getRoles() );
+        AssertJUnit.assertEquals( resource.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( resource.getUserId(), responseResource.getUserId() );
+        AssertJUnit.assertEquals( resource.getStatus(), responseResource.getStatus() );
+        AssertJUnit.assertEquals( resource.getEmail(), responseResource.getEmail() );
+        AssertJUnit.assertEquals( resource.getRoles(), responseResource.getRoles() );
 
         SecurityConfigUtil.verifyUser( resource );
         
@@ -290,9 +289,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
         
         
         /**
@@ -309,12 +308,12 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         
         String errorText = response.getEntity().getText();
         
-        Assert.assertTrue( "expected error, but was: "+errorText, errorText.startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( "expected error, but was: "+errorText, errorText.startsWith( "{\"errors\":" ) );
         
         
         // FIXME: should we keep supporting this?        
@@ -332,9 +331,9 @@ public class Nexus142UserValidationIT
 //
 //        if ( response.getStatus().isSuccess() )
 //        {
-//            Assert.fail( "User should not have been created: " + response.getStatus() );
+//            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
 //        }
-//        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+//        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
         
         
         
@@ -353,9 +352,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
         
         
         
@@ -375,9 +374,9 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
         
 
         
@@ -396,11 +395,11 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         
         // This is actually not a validation error, but a 'not found' error, so result will NOT contain the validation errors
-        // Assert.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+        // AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
         
         /**
          * DUPLICATE EMAIL
@@ -417,7 +416,7 @@ public class Nexus142UserValidationIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should have been created: " + response.getStatus() );
         }
         
         resource.setUserId( responseResource.getUserId() );
@@ -427,7 +426,7 @@ public class Nexus142UserValidationIT
 
         if ( response.getStatus().isSuccess() )
         {
-            Assert.fail( "User should not have been created: " + response.getStatus() );
+            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
     }
     

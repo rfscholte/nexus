@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.codehaus.plexus.util.StringUtils;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
 import com.thoughtworks.qdox.model.Annotation;
@@ -96,7 +96,7 @@ public class ReportWriter
 
             for ( Iterator<JavaClass> iter = classesWithoutDescriptions.iterator(); iter.hasNext(); )
             {
-                JavaClass javaClass = (JavaClass) iter.next();
+                JavaClass javaClass = iter.next();
                 System.err.println( javaClass.getName() + " is missing a javadoc comment." );
             }
         }
@@ -114,6 +114,7 @@ public class ReportWriter
 
     /**
      * Looks for any class that contains a Junit 4 annotation <code>@Test</code>.
+     * 
      * @param javaClass
      * @return
      */

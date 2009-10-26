@@ -15,9 +15,6 @@ package org.sonatype.nexus.integrationtests.nexus385;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -25,6 +22,8 @@ import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.RepositoryRouteMemberRepository;
 import org.sonatype.nexus.rest.model.RepositoryRouteResource;
 import org.sonatype.nexus.test.utils.RoutesMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Extra CRUD validation tests.
@@ -62,7 +61,7 @@ public class Nexus385RoutesValidationIT
         String responseText = response.getEntity().getText();
         if ( response.getStatus().getCode() != 201 || !responseText.contains( "<groupId>*</groupId>" ) )
         {
-            Assert.fail( "Should have returned a 201, but returned: " + response.getStatus() + "\nresponse:\n"
+            AssertJUnit.fail( "Should have returned a 201, but returned: " + response.getStatus() + "\nresponse:\n"
                 + responseText + ", and the omitted groupId should be defaulted with '*'" );
         }
     }
@@ -86,7 +85,7 @@ public class Nexus385RoutesValidationIT
         String responseText = response.getEntity().getText();
         if ( response.getStatus().getCode() != 400 )
         {
-            Assert.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
+            AssertJUnit.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
                 + responseText );
         }
 
@@ -112,7 +111,7 @@ public class Nexus385RoutesValidationIT
         String responseText = response.getEntity().getText();
         if ( response.getStatus().getCode() != 400 )
         {
-            Assert.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
+            AssertJUnit.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
                 + responseText );
         }
 
@@ -138,7 +137,7 @@ public class Nexus385RoutesValidationIT
         String responseText = response.getEntity().getText();
         if ( response.getStatus().getCode() != 400 )
         {
-            Assert.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
+            AssertJUnit.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
                 + responseText );
         }
 
@@ -164,7 +163,7 @@ public class Nexus385RoutesValidationIT
         String responseText = response.getEntity().getText();
         if ( response.getStatus().getCode() != 400 )
         {
-            Assert.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
+            AssertJUnit.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
                 + responseText );
         }
 
@@ -190,7 +189,7 @@ public class Nexus385RoutesValidationIT
         String responseText = response.getEntity().getText();
         if ( response.getStatus().getCode() != 400 )
         {
-            Assert.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
+            AssertJUnit.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
                 + responseText );
         }
 
@@ -215,7 +214,7 @@ public class Nexus385RoutesValidationIT
         String responseText = response.getEntity().getText();
         if ( response.getStatus().getCode() != 400 )
         {
-            Assert.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
+            AssertJUnit.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
                 + responseText );
         }
 
@@ -240,7 +239,7 @@ public class Nexus385RoutesValidationIT
         String responseText = response.getEntity().getText();
         if ( response.getStatus().getCode() != 400 )
         {
-            Assert.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
+            AssertJUnit.fail( "Should have returned a 400, but returned: " + response.getStatus() + "\nresponse:\n"
                 + responseText );
         }
 

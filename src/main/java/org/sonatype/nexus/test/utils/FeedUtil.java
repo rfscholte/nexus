@@ -19,11 +19,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-import junit.framework.Assert;
-
 import org.restlet.data.Method;
 import org.restlet.data.Response;
 import org.sonatype.nexus.integrationtests.RequestFacade;
+import org.testng.AssertJUnit;
 
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -44,7 +43,7 @@ public class FeedUtil
         SyndFeedInput input = new SyndFeedInput();
         
         Response response = RequestFacade.sendMessage( FEED_URL_PART + feedId + "?_dc=" + System.currentTimeMillis(), Method.GET );
-        Assert.assertTrue( "Expected content", response.getEntity().isAvailable());
+        AssertJUnit.assertTrue( "Expected content", response.getEntity().isAvailable());
         
         SyndFeed feed = input.build( new XmlReader( response.getEntity().getStream() ) );
 

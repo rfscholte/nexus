@@ -15,25 +15,22 @@ package org.sonatype.nexus.integrationtests.nexus688;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.proxy.maven.RepositoryPolicy;
+import org.sonatype.nexus.proxy.repository.RepositoryWritePolicy;
 import org.sonatype.nexus.rest.model.RepositoryProxyResource;
 import org.sonatype.nexus.rest.model.RepositoryResource;
 import org.sonatype.nexus.rest.model.RepositoryResourceRemoteStorage;
-import org.sonatype.nexus.proxy.repository.RepositoryWritePolicy;
 import org.sonatype.nexus.tasks.ReindexTask;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus688ReindexOnRepoAddIT
     extends AbstractNexusIntegrationTest
@@ -243,14 +240,14 @@ public class Nexus688ReindexOnRepoAddIT
             this.downloadFile( url, target );
             if ( !shouldSucceed )
             {
-                Assert.fail( "Expected 404, but file was downloaded" );
+                AssertJUnit.fail( "Expected 404, but file was downloaded" );
             }
         }
         catch ( FileNotFoundException e )
         {
             if ( shouldSucceed )
             {
-                Assert.fail( e.getMessage() + "\n Found files:\n"
+                AssertJUnit.fail( e.getMessage() + "\n Found files:\n"
                     + Arrays.toString( new File( nexusWorkDir, "storage/" + repoId + "/.index" ).listFiles() ) );
             }
         }    

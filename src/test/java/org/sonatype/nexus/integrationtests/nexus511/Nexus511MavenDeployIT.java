@@ -17,10 +17,10 @@ import java.io.File;
 
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Before;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractMavenNexusIT;
 import org.sonatype.nexus.integrationtests.TestContainer;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 
 /**
  * Tests deploy to nexus using mvn deploy
@@ -36,7 +36,7 @@ public class Nexus511MavenDeployIT
 
     private Verifier verifier;
 
-    @Before
+    @BeforeMethod
     public void createVerifier()
         throws Exception
     {

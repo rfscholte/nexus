@@ -8,16 +8,16 @@ import java.io.IOException;
 
 import javax.mail.internet.MimeMessage;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.SmtpSettingsResource;
 import org.sonatype.nexus.test.utils.EmailUtil;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
@@ -74,7 +74,7 @@ public class Nexus1806ValidateSmtpConfigurationIT
         smtpSettings.setSystemEmailAddress( EmailUtil.USER_EMAIL );
         smtpSettings.setTestEmail( "test_user@sonatype.org" );
         Status status = SettingsMessageUtil.validateSmtp( smtpSettings );
-        Assert.assertEquals( "Unable to validate e-mail " + status, 400, status.getCode() );
+        AssertJUnit.assertEquals( "Unable to validate e-mail " + status, 400, status.getCode() );
     }
 
     @Test
@@ -100,7 +100,7 @@ public class Nexus1806ValidateSmtpConfigurationIT
         smtpSettings.setSystemEmailAddress( email );
         smtpSettings.setTestEmail( "test_user@sonatype.org" );
         Status status = SettingsMessageUtil.validateSmtp( smtpSettings );
-        Assert.assertEquals( "Unable to validate e-mail " + status, 400, status.getCode() );
+        AssertJUnit.assertEquals( "Unable to validate e-mail " + status, 400, status.getCode() );
     }
 
     private void run( int port, GreenMail server )
@@ -114,18 +114,18 @@ public class Nexus1806ValidateSmtpConfigurationIT
         smtpSettings.setSystemEmailAddress( EmailUtil.USER_EMAIL );
         smtpSettings.setTestEmail( "test_user@sonatype.org" );
         Status status = SettingsMessageUtil.validateSmtp( smtpSettings );
-        Assert.assertTrue( "Unable to validate e-mail " + status, status.isSuccess() );
+        AssertJUnit.assertTrue( "Unable to validate e-mail " + status, status.isSuccess() );
 
         server.waitForIncomingEmail( 2000, 1 );
 
         MimeMessage[] msgs = server.getReceivedMessages();
-        Assert.assertEquals( 1, msgs.length );
+        AssertJUnit.assertEquals( 1, msgs.length );
 
         MimeMessage msg = msgs[0];
         String body = GreenMailUtil.getBody( msg );
 
-        Assert.assertNotNull( "Missing message", body );
-        Assert.assertFalse( "Got empty message", body.trim().length() == 0 );
+        AssertJUnit.assertNotNull( "Missing message", body );
+        AssertJUnit.assertFalse( "Got empty message", body.trim().length() == 0 );
     }
 
     @AfterClass

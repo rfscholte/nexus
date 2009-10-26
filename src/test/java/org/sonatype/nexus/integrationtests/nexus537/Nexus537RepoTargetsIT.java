@@ -20,12 +20,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.commons.httpclient.HttpException;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Test;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
 import org.sonatype.nexus.artifact.Gav;
@@ -41,6 +38,8 @@ import org.sonatype.nexus.test.utils.TargetMessageUtil;
 import org.sonatype.security.realms.privileges.application.ApplicationPrivilegeMethodPropertyDescriptor;
 import org.sonatype.security.rest.model.PrivilegeResource;
 import org.sonatype.security.rest.model.PrivilegeStatusResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Creates a few repo targets and make sure the privileges work correctly.
@@ -382,11 +381,11 @@ public class Nexus537RepoTargetsIT
         try
         {
             result = this.downloadArtifactFromRepository( repoId, gav, "target/nexus537jars/" );
-            Assert.assertTrue( "Artifact download should have thrown exception", shouldDownload );
+            AssertJUnit.assertTrue( "Artifact download should have thrown exception", shouldDownload );
         }
         catch ( IOException e )
         {
-            Assert.assertFalse( "Artifact should have downloaded: \n" + e.getMessage(), shouldDownload );
+            AssertJUnit.assertFalse( "Artifact should have downloaded: \n" + e.getMessage(), shouldDownload );
         }
 
         return result;
@@ -404,11 +403,11 @@ public class Nexus537RepoTargetsIT
                 MavenDeployer.deployAndGetVerifier( gav, this.getRepositoryUrl( repoId ), fileToDeploy,
                                                     this.getOverridableFile( "settings.xml" ) );
 
-            Assert.assertTrue( "Artifact upload should have thrown exception", shouldUpload );
+            AssertJUnit.assertTrue( "Artifact upload should have thrown exception", shouldUpload );
         }
         catch ( VerificationException e )
         {
-            Assert.assertFalse( "Artifact should have uploaded: \n" + e.getMessage(), shouldUpload );
+            AssertJUnit.assertFalse( "Artifact should have uploaded: \n" + e.getMessage(), shouldUpload );
         }
 
         // if we made it this far we should also test download, because upload implies download
@@ -421,7 +420,7 @@ public class Nexus537RepoTargetsIT
     {
         int status = DeployUtils.deployUsingGavWithRest( repoId, gav, fileToDeploy );
 
-        Assert.assertTrue( "Artifact upload returned: " + status
+        AssertJUnit.assertTrue( "Artifact upload returned: " + status
             + ( shouldUpload ? " expected sucess" : " expected failure" ), ( 201 == status && shouldUpload )
             || !shouldUpload );
         // if we made it this far we should also test download, because upload implies download
@@ -441,17 +440,17 @@ public class Nexus537RepoTargetsIT
 
         if ( !shouldDelete )
         {
-            Assert.assertEquals( "Response Status: " + responseText, 403, statusCode );
+            AssertJUnit.assertEquals( "Response Status: " + responseText, 403, statusCode );
         }
         else
         {
-            Assert.assertEquals( "Response Status: " + responseText, 204, statusCode );
-            Assert.assertEquals( "GET of artifact before DELETE:", 200, initialGet );
+            AssertJUnit.assertEquals( "Response Status: " + responseText, 204, statusCode );
+            AssertJUnit.assertEquals( "GET of artifact before DELETE:", 200, initialGet );
             // we should have read also
             reponse = RequestFacade.sendMessage( url, Method.GET, null );
             responseText = reponse.getEntity().getText();
             statusCode = reponse.getStatus().getCode();
-            Assert.assertEquals( "File should have been deleted from: " + url + "\n" + responseText, 404, statusCode );
+            AssertJUnit.assertEquals( "File should have been deleted from: " + url + "\n" + responseText, 404, statusCode );
         }
 
     }
@@ -462,11 +461,11 @@ public class Nexus537RepoTargetsIT
         try
         {
             result = this.downloadArtifactFromGroup( GROUP_ID, gav, "target/nexus537jars/" );
-            Assert.assertTrue( "Artifact download should have thrown exception", shouldDownload );
+            AssertJUnit.assertTrue( "Artifact download should have thrown exception", shouldDownload );
         }
         catch ( IOException e )
         {
-            Assert.assertFalse( "Artifact should have downloaded: \n" + e.getMessage(), shouldDownload );
+            AssertJUnit.assertFalse( "Artifact should have downloaded: \n" + e.getMessage(), shouldDownload );
         }
 
         return result;
@@ -517,7 +516,7 @@ public class Nexus537RepoTargetsIT
             else if ( SecurityConfigUtil.getPrivilegeProperty( privilegeBaseStatusResource, ApplicationPrivilegeMethodPropertyDescriptor.ID ).equals( "delete,read" ) )
                 fooPrivDeleteId = privilegeBaseStatusResource.getId();
             else
-                Assert.fail( "Unknown Privilege found, id: " + privilegeBaseStatusResource.getId() + " method: "
+                AssertJUnit.fail( "Unknown Privilege found, id: " + privilegeBaseStatusResource.getId() + " method: "
                     + SecurityConfigUtil.getPrivilegeProperty( privilegeBaseStatusResource, ApplicationPrivilegeMethodPropertyDescriptor.ID ) );
         }
 
@@ -548,7 +547,7 @@ public class Nexus537RepoTargetsIT
             else if ( SecurityConfigUtil.getPrivilegeProperty( privilegeBaseStatusResource, ApplicationPrivilegeMethodPropertyDescriptor.ID ).equals( "delete,read" ) )
                 barPrivDeleteId = privilegeBaseStatusResource.getId();
             else
-                Assert.fail( "Unknown Privilege found, id: " + privilegeBaseStatusResource.getId() + " method: "
+                AssertJUnit.fail( "Unknown Privilege found, id: " + privilegeBaseStatusResource.getId() + " method: "
                     + SecurityConfigUtil.getPrivilegeProperty( privilegeBaseStatusResource, ApplicationPrivilegeMethodPropertyDescriptor.ID ) );
         }
 
@@ -582,7 +581,7 @@ public class Nexus537RepoTargetsIT
             else if ( SecurityConfigUtil.getPrivilegeProperty( privilegeBaseStatusResource, ApplicationPrivilegeMethodPropertyDescriptor.ID ).equals( "delete,read" ) )
                 groupFooPrivDeleteId = privilegeBaseStatusResource.getId();
             else
-                Assert.fail( "Unknown Privilege found, id: " + privilegeBaseStatusResource.getId() + " method: "
+                AssertJUnit.fail( "Unknown Privilege found, id: " + privilegeBaseStatusResource.getId() + " method: "
                     + SecurityConfigUtil.getPrivilegeProperty( privilegeBaseStatusResource, ApplicationPrivilegeMethodPropertyDescriptor.ID ) );
         }
 

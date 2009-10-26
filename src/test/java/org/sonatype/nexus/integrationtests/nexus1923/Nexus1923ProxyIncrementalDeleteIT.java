@@ -2,11 +2,10 @@ package org.sonatype.nexus.integrationtests.nexus1923;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.Test;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1923ProxyIncrementalDeleteIT
 extends AbstractNexus1923
@@ -71,9 +70,9 @@ extends AbstractNexus1923
 
         //Make sure the indexes exist, and that a new one has been created with
         //the deletes
-        Assert.assertTrue( getProxyRepositoryIndex().exists() );
-        Assert.assertTrue( getProxyRepositoryIndexIncrement( "1" ).exists() );
-        Assert.assertFalse( getProxyRepositoryIndexIncrement( "2" ).exists() );
+        AssertJUnit.assertTrue( getProxyRepositoryIndex().exists() );
+        AssertJUnit.assertTrue( getProxyRepositoryIndexIncrement( "1" ).exists() );
+        AssertJUnit.assertFalse( getProxyRepositoryIndexIncrement( "2" ).exists() );
 
         searchForArtifactInProxyIndex( FIRST_ARTIFACT, true );
         searchForArtifactInProxyIndex( SECOND_ARTIFACT, true );

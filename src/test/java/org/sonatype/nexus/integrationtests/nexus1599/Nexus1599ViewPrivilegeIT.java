@@ -15,10 +15,6 @@ package org.sonatype.nexus.integrationtests.nexus1599;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
@@ -26,6 +22,9 @@ import org.sonatype.nexus.rest.model.RepositoryListResource;
 import org.sonatype.nexus.test.utils.FeedUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.SearchMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * @author juven
@@ -68,14 +67,14 @@ public class Nexus1599ViewPrivilegeIT
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        Assert.assertEquals( 1, searchMsgUtil.searchFor( getTestId() ).size() );
+        AssertJUnit.assertEquals( 1, searchMsgUtil.searchFor( getTestId() ).size() );
 
         // with view privilege
         this.giveUserPrivilege( TEST_USER_NAME, "repository-" + REPO_TEST_HARNESS_REPO );
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        Assert.assertEquals( 1, searchMsgUtil.searchFor( getTestId() ).size() );
+        AssertJUnit.assertEquals( 1, searchMsgUtil.searchFor( getTestId() ).size() );
 
         this.removePrivilege( TEST_USER_NAME, "T1" );
     }
@@ -91,14 +90,14 @@ public class Nexus1599ViewPrivilegeIT
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        Assert.assertFalse( FeedUtil.getFeed( "recentlyChangedArtifacts" ).getEntries().isEmpty() );
+        AssertJUnit.assertFalse( FeedUtil.getFeed( "recentlyChangedArtifacts" ).getEntries().isEmpty() );
 
         // with view privilege
         this.giveUserPrivilege( TEST_USER_NAME, "repository-" + REPO_TEST_HARNESS_REPO );
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        Assert.assertFalse( FeedUtil.getFeed( "recentlyChangedArtifacts" ).getEntries().isEmpty() );
+        AssertJUnit.assertFalse( FeedUtil.getFeed( "recentlyChangedArtifacts" ).getEntries().isEmpty() );
 
         this.removePrivilege( TEST_USER_NAME, "T1" );
     }
@@ -111,7 +110,7 @@ public class Nexus1599ViewPrivilegeIT
 
         List<RepositoryListResource> repos = repoMsgUtil.getList();
 
-        Assert.assertTrue( !repos.isEmpty() );
+        AssertJUnit.assertTrue( !repos.isEmpty() );
 
         for ( RepositoryListResource repo : repos )
         {
@@ -127,14 +126,14 @@ public class Nexus1599ViewPrivilegeIT
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        Assert.assertTrue( containsRepo( repoMsgUtil.getList(), repoId ) );
+        AssertJUnit.assertTrue( containsRepo( repoMsgUtil.getList(), repoId ) );
 
         TestContainer.getInstance().getTestContext().useAdminForRequests();
         removePrivilege( TEST_USER_NAME, "repository-" + repoId );
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        Assert.assertFalse( "Repo '" + repoId + "' should be hidden!", containsRepo( repoMsgUtil.getList(), repoId ) );
+        AssertJUnit.assertFalse( "Repo '" + repoId + "' should be hidden!", containsRepo( repoMsgUtil.getList(), repoId ) );
     }
 
     private boolean containsRepo( List<RepositoryListResource> repos, String repoId )

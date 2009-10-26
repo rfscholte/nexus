@@ -15,17 +15,14 @@ package org.sonatype.nexus.integrationtests.nexus259;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Date;
 
-import junit.framework.Assert;
-
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.DeployUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Deploys a snapshot artifact using a wagon and REST (both gav and pom) REST should fail 
@@ -62,7 +59,7 @@ public class Nexus259SnapshotDeployIT
 
         if ( status != HttpStatus.SC_BAD_REQUEST )
         {
-            Assert.fail( "Snapshot repositories do not allow manual file upload: " + status );
+            AssertJUnit.fail( "Snapshot repositories do not allow manual file upload: " + status );
         }
 
         boolean fileWasUploaded = true;
@@ -76,7 +73,7 @@ public class Nexus259SnapshotDeployIT
             fileWasUploaded = false;
         }
 
-        Assert.assertFalse( "The file was uploaded and it should not have been.", fileWasUploaded );
+        AssertJUnit.assertFalse( "The file was uploaded and it should not have been.", fileWasUploaded );
 
     }
 
@@ -103,7 +100,7 @@ public class Nexus259SnapshotDeployIT
 
         if ( status != HttpStatus.SC_BAD_REQUEST )
         {
-            Assert.fail( "Snapshot repositories do not allow manual file upload: " + status );
+            AssertJUnit.fail( "Snapshot repositories do not allow manual file upload: " + status );
         }
 
         boolean fileWasUploaded = true;
@@ -117,6 +114,6 @@ public class Nexus259SnapshotDeployIT
             fileWasUploaded = false;
         }
 
-        Assert.assertFalse( "The file was uploaded and it should not have been.", fileWasUploaded );
+        AssertJUnit.assertFalse( "The file was uploaded and it should not have been.", fileWasUploaded );
     }
 }

@@ -15,8 +15,6 @@ package org.sonatype.nexus.integrationtests.upgrades.nexus652;
 
 import java.io.IOException;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.sonatype.nexus.configuration.model.Configuration;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
@@ -24,6 +22,8 @@ import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.SecurityConfigUtil;
 import org.sonatype.security.configuration.model.SecurityConfiguration;
 import org.sonatype.security.configuration.source.SecurityConfigurationSource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Test nexus.xml after and upgrade from 1.0.0-beta-5 to 1.0.0.
@@ -50,33 +50,33 @@ public class Nexus652Beta5To10UpgradeIT
 
         Configuration nexusConfig = NexusConfigUtil.getNexusConfig();
 
-        Assert.assertEquals( "Smtp host:", "foo.org", nexusConfig.getSmtpConfiguration().getHostname() );
-        Assert.assertEquals( "Smtp password:", "now", nexusConfig.getSmtpConfiguration().getPassword() );
-        Assert.assertEquals( "Smtp username:", "void", nexusConfig.getSmtpConfiguration().getUsername() );
-        Assert.assertEquals( "Smtp port:", 465, nexusConfig.getSmtpConfiguration().getPort() );
+        AssertJUnit.assertEquals( "Smtp host:", "foo.org", nexusConfig.getSmtpConfiguration().getHostname() );
+        AssertJUnit.assertEquals( "Smtp password:", "now", nexusConfig.getSmtpConfiguration().getPassword() );
+        AssertJUnit.assertEquals( "Smtp username:", "void", nexusConfig.getSmtpConfiguration().getUsername() );
+        AssertJUnit.assertEquals( "Smtp port:", 465, nexusConfig.getSmtpConfiguration().getPort() );
 
-        Assert.assertEquals( "Security anon username:", "User3", securityConfig.getAnonymousUsername() );
-        Assert.assertEquals( "Security anon password:", "y6i0t9q1e3", securityConfig.getAnonymousPassword() );
-        Assert.assertEquals( "Security anon access:", true, securityConfig.isAnonymousAccessEnabled() );
-        Assert.assertEquals( "Security enabled:", true, securityConfig.isEnabled() );
-        Assert.assertEquals( "Security realm size:", 2, securityConfig.getRealms().size() );
-        Assert.assertEquals( "Security realm:", "XmlAuthenticatingRealm", securityConfig.getRealms().get( 0 ) );
-        Assert.assertEquals( "Security realm:", "XmlAuthorizingRealm", securityConfig.getRealms().get( 1 ) );
+        AssertJUnit.assertEquals( "Security anon username:", "User3", securityConfig.getAnonymousUsername() );
+        AssertJUnit.assertEquals( "Security anon password:", "y6i0t9q1e3", securityConfig.getAnonymousPassword() );
+        AssertJUnit.assertEquals( "Security anon access:", true, securityConfig.isAnonymousAccessEnabled() );
+        AssertJUnit.assertEquals( "Security enabled:", true, securityConfig.isEnabled() );
+        AssertJUnit.assertEquals( "Security realm size:", 2, securityConfig.getRealms().size() );
+        AssertJUnit.assertEquals( "Security realm:", "XmlAuthenticatingRealm", securityConfig.getRealms().get( 0 ) );
+        AssertJUnit.assertEquals( "Security realm:", "XmlAuthorizingRealm", securityConfig.getRealms().get( 1 ) );
 
-        Assert.assertEquals( "http proxy:", true, nexusConfig.getHttpProxy().isEnabled() );
+        AssertJUnit.assertEquals( "http proxy:", true, nexusConfig.getHttpProxy().isEnabled() );
 
-        Assert.assertEquals( "Base url:", AbstractNexusIntegrationTest.baseNexusUrl,
+        AssertJUnit.assertEquals( "Base url:", AbstractNexusIntegrationTest.baseNexusUrl,
                              nexusConfig.getRestApi().getBaseUrl() );
 
         // we will glance over the repos, because the unit tests cover this.
-        Assert.assertEquals( "Repository Count:", 9, nexusConfig.getRepositories().size() );
+        AssertJUnit.assertEquals( "Repository Count:", 9, nexusConfig.getRepositories().size() );
 
-        Assert.assertNotNull( "repo: central", NexusConfigUtil.getRepo( "central" ) );
-        Assert.assertNotNull( "repo: apache-snapshots", NexusConfigUtil.getRepo( "apache-snapshots" ) );
-        Assert.assertNotNull( "repo: codehaus-snapshots", NexusConfigUtil.getRepo( "codehaus-snapshots" ) );
-        Assert.assertNotNull( "repo: releases", NexusConfigUtil.getRepo( "releases" ) );
-        Assert.assertNotNull( "repo: snapshots", NexusConfigUtil.getRepo( "snapshots" ) );
-        Assert.assertNotNull( "repo: thirdparty", NexusConfigUtil.getRepo( "thirdparty" ) );
+        AssertJUnit.assertNotNull( "repo: central", NexusConfigUtil.getRepo( "central" ) );
+        AssertJUnit.assertNotNull( "repo: apache-snapshots", NexusConfigUtil.getRepo( "apache-snapshots" ) );
+        AssertJUnit.assertNotNull( "repo: codehaus-snapshots", NexusConfigUtil.getRepo( "codehaus-snapshots" ) );
+        AssertJUnit.assertNotNull( "repo: releases", NexusConfigUtil.getRepo( "releases" ) );
+        AssertJUnit.assertNotNull( "repo: snapshots", NexusConfigUtil.getRepo( "snapshots" ) );
+        AssertJUnit.assertNotNull( "repo: thirdparty", NexusConfigUtil.getRepo( "thirdparty" ) );
 
         // everything else including everything above should be covered by unit tests.
 
@@ -89,8 +89,8 @@ public class Nexus652Beta5To10UpgradeIT
     {
         org.sonatype.security.model.Configuration secConfig = SecurityConfigUtil.getSecurityConfig();
 
-        Assert.assertEquals( "User Count:", 7, secConfig.getUsers().size());
-        Assert.assertEquals( "Roles Count:", 22, secConfig.getRoles().size());
+        AssertJUnit.assertEquals( "User Count:", 7, secConfig.getUsers().size());
+        AssertJUnit.assertEquals( "Roles Count:", 22, secConfig.getRoles().size());
 
         // again, everything should have been upgraded.
     }

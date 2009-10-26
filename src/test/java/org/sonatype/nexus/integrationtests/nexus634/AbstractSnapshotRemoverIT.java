@@ -16,17 +16,15 @@ package org.sonatype.nexus.integrationtests.nexus634;
 import java.io.File;
 import java.util.Collection;
 
-import junit.framework.Assert;
-
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.maven.tasks.descriptors.SnapshotRemovalTaskDescriptor;
 import org.sonatype.nexus.rest.model.ScheduledServiceListResource;
 import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
 
 public abstract class AbstractSnapshotRemoverIT
     extends AbstractNexusIntegrationTest
@@ -54,7 +52,7 @@ public abstract class AbstractSnapshotRemoverIT
         super( "nexus-test-harness-snapshot-repo" );
     }
 
-    @Before
+    @BeforeClass
     public void deploySnapshotArtifacts()
         throws Exception
     {
@@ -75,7 +73,8 @@ public abstract class AbstractSnapshotRemoverIT
         // MavenDeployer.deployAndGetVerifier( gav, getNexusTestRepoUrl(), fileToDeploy, null );
         //
         // // Artifacts should be deployed here
-        // Assert.assertTrue( "nexus643:artifact:1.0-SNAPSHOT folder doesn't exists!", artifactFolder.isDirectory() );
+        // AssertJUnit.assertTrue( "nexus643:artifact:1.0-SNAPSHOT folder doesn't exists!", artifactFolder.isDirectory()
+        // );
     }
 
     public void initFolders()
@@ -109,8 +108,8 @@ public abstract class AbstractSnapshotRemoverIT
             TaskScheduleUtil.runTask( SnapshotRemovalTaskDescriptor.ID, repositoryProp, keepSnapshotsProp, ageProp,
                                       removeReleasedProp );
 
-        Assert.assertNotNull( task );
-        Assert.assertEquals( "SUBMITTED", task.getStatus() );
+        AssertJUnit.assertNotNull( task );
+        AssertJUnit.assertEquals( "SUBMITTED", task.getStatus() );
     }
 
 }

@@ -14,7 +14,7 @@
  */
 package org.sonatype.nexus.integrationtests;
 
-import static org.junit.Assert.fail;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,8 +27,6 @@ import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -44,10 +42,6 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.restlet.data.Method;
 import org.restlet.data.Reference;
 import org.restlet.data.Response;
@@ -64,6 +58,14 @@ import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.XStreamFactory;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -167,7 +169,7 @@ public class AbstractNexusIntegrationTest
      * 
      * @throws Exception
      */
-    @Before
+    @BeforeMethod
     public void oncePerClassSetUp()
         throws Exception
     {
@@ -252,6 +254,8 @@ public class AbstractNexusIntegrationTest
         // must wait for all tasks, some do file locking
         TaskScheduleUtil.waitForAllTasksToStop();
 
+        Assert.assertTrue( NexusStatusUtil.isNexusStopped() );
+
         final File workDir = new File( AbstractNexusIntegrationTest.nexusWorkDir );
 
         // to make sure I don't delete all my MP3's and pictures, or totally screw anyone.
@@ -317,7 +321,7 @@ public class AbstractNexusIntegrationTest
                 if ( model.getDistributionManagement() == null
                     || model.getDistributionManagement().getRepository() == null )
                 {
-                    Assert.fail( "The test artifact is either missing or has an invalid Distribution Management section." );
+                    AssertJUnit.fail( "The test artifact is either missing or has an invalid Distribution Management section." );
                 }
                 String deployUrl = model.getDistributionManagement().getRepository().getUrl();
 
@@ -397,7 +401,7 @@ public class AbstractNexusIntegrationTest
         }
     }
 
-    @After
+    @AfterMethod
     public void afterTest()
         throws Exception
     {
@@ -437,13 +441,13 @@ public class AbstractNexusIntegrationTest
         }
     }
 
-    @After
+    @AfterClass
     public void appendLogs()
         throws Exception
     {
         if ( nexusLog.exists() )
         {
-            File testNexusLog = new File( nexusLogDir, getTestId() + "/nexus.log" );
+            File testNexusLog = new File( nexusLogDir, getClass().getSimpleName() + "/nexus.log" );
             testNexusLog.getParentFile().mkdirs();
             String data = FileUtils.fileRead( nexusLog );
             FileUtils.fileAppend( testNexusLog.getAbsolutePath(), data );
@@ -577,14 +581,12 @@ public class AbstractNexusIntegrationTest
     public static void staticOncePerClassSetUp()
         throws Exception
     {
-        startProfiler();
-
         log.debug( "staticOncePerClassSetUp" );
         // hacky state machine
         NEEDS_INIT = true;
     }
 
-    @Before
+    @BeforeSuite
     public void createContainer()
     {
         this.container = setupContainer( getClass() );
@@ -604,25 +606,24 @@ public class AbstractNexusIntegrationTest
         staticContainer = null;
 
         resetLog();
-
-        takeSnapshot();
     }
 
-    @After
+    @AfterSuite
     public void killContainer()
         throws Exception
     {
         if ( container != null )
         {
-            this.container.dispose();
+            container.dispose();
         }
-        this.container = null;
+        container = null;
     }
 
     // profiling with yourkit, activate using -P youtkit-profile
     private static Object profiler;
 
-    private static void startProfiler()
+    @BeforeClass
+    public static void startProfiler()
     {
         Class<?> controllerClazz;
         try
@@ -646,7 +647,8 @@ public class AbstractNexusIntegrationTest
         }
     }
 
-    private static void takeSnapshot()
+    @AfterClass
+    public static void takeSnapshot()
     {
         if ( profiler != null )
         {
@@ -782,12 +784,12 @@ public class AbstractNexusIntegrationTest
                 + gav.getArtifactId() + "&v=" + gav.getVersion();
         Response response = RequestFacade.doGetRequest( serviceURI );
         Status status = response.getStatus();
-        Assert.assertEquals( "Snapshot download should redirect to a new file\n "
+        AssertJUnit.assertEquals( "Snapshot download should redirect to a new file\n "
             + response.getRequest().getResourceRef().toString() + " \n Error: " + status.getDescription(), 301,
-                             status.getCode() );
+                                  status.getCode() );
 
         Reference redirectRef = response.getRedirectRef();
-        Assert.assertNotNull( "Snapshot download should redirect to a new file "
+        AssertJUnit.assertNotNull( "Snapshot download should redirect to a new file "
             + response.getRequest().getResourceRef().toString(), redirectRef );
 
         serviceURI = redirectRef.toString();

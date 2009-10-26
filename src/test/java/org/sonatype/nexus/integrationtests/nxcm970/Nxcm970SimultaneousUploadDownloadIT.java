@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nxcm970SimultaneousUploadDownloadIT
     extends AbstractNexusIntegrationTest
@@ -56,7 +55,7 @@ public class Nxcm970SimultaneousUploadDownloadIT
             Thread.sleep( 200 );
         }
 
-        Assert.assertTrue( "Deployment failed: " + continuousDeployer.getResult(),
+        AssertJUnit.assertTrue( "Deployment failed: " + continuousDeployer.getResult(),
                            continuousDeployer.getResult() == 201 );
 
         // download the subjectArtifact -- should result in 200, found
@@ -73,14 +72,14 @@ public class Nxcm970SimultaneousUploadDownloadIT
 
             if ( !shouldSucceed )
             {
-                Assert.fail( "Should not succeed the retrieval!" );
+                AssertJUnit.fail( "Should not succeed the retrieval!" );
             }
         }
         catch ( IOException e )
         {
             if ( shouldSucceed )
             {
-                Assert.fail( "Should succeed the retrieval!" );
+                AssertJUnit.fail( "Should succeed the retrieval!" );
             }
         }
     }

@@ -17,12 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.NexusArtifact;
 import org.sonatype.nexus.test.utils.SearchMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus570IndexArchetypeIT extends AbstractNexusIntegrationTest
 {
@@ -38,8 +37,8 @@ public class Nexus570IndexArchetypeIT extends AbstractNexusIntegrationTest
         
         List<NexusArtifact> results = searchUtil.searchFor( args );
         
-        Assert.assertEquals( 1, results.size() );
-        Assert.assertEquals("Expected maven-archetype packaging: "+ results.get( 0 ).getPackaging(), "maven-archetype", results.get( 0 ).getPackaging() );
+        AssertJUnit.assertEquals( 1, results.size() );
+        AssertJUnit.assertEquals("Expected maven-archetype packaging: "+ results.get( 0 ).getPackaging(), "maven-archetype", results.get( 0 ).getPackaging() );
         
     }
     
@@ -54,8 +53,8 @@ public class Nexus570IndexArchetypeIT extends AbstractNexusIntegrationTest
         
         List<NexusArtifact> results = searchUtil.searchFor( args );
         
-        Assert.assertEquals( 1, results.size() );
-        Assert.assertEquals("Expected jar packaging: "+ results.get( 0 ).getPackaging(), "jar", results.get( 0 ).getPackaging() );
+        AssertJUnit.assertEquals( 1, results.size() );
+        AssertJUnit.assertEquals("Expected jar packaging: "+ results.get( 0 ).getPackaging(), "jar", results.get( 0 ).getPackaging() );
         
         
     }

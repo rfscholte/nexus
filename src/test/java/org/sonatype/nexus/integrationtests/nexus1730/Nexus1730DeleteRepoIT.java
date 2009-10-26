@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -22,6 +19,8 @@ import org.sonatype.nexus.test.utils.PrivilegesMessageUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.security.rest.model.PrivilegeResource;
 import org.sonatype.security.rest.model.PrivilegeStatusResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1730DeleteRepoIT
     extends AbstractNexusIntegrationTest
@@ -172,7 +171,7 @@ public class Nexus1730DeleteRepoIT
         Response response = privUtil.sendMessage( Method.GET, null, id );
         if ( response.getStatus().isSuccess() != shouldFind )
         {
-            Assert.fail( "Privilege " + id + " should " + ( shouldFind ? "" : " not " ) + "have been found" );
+            AssertJUnit.fail( "Privilege " + id + " should " + ( shouldFind ? "" : " not " ) + "have been found" );
         }
         
         return true;

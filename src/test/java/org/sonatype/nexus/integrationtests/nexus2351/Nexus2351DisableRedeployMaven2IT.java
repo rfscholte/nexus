@@ -4,10 +4,6 @@ import java.io.File;
 
 import org.apache.maven.wagon.TransferFailedException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.proxy.maven.RepositoryPolicy;
@@ -15,6 +11,9 @@ import org.sonatype.nexus.proxy.repository.RepositoryWritePolicy;
 import org.sonatype.nexus.rest.model.RepositoryResource;
 import org.sonatype.nexus.test.utils.DeployUtils;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus2351DisableRedeployMaven2IT
     extends AbstractNexusIntegrationTest
@@ -26,7 +25,7 @@ public class Nexus2351DisableRedeployMaven2IT
 
     private File artifactMD5;
 
-    @Before
+    @BeforeClass
     public void setup()
         throws Exception
     {
@@ -86,7 +85,7 @@ public class Nexus2351DisableRedeployMaven2IT
         {
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifact,
                                          "testM2Repo/group/testM2ReleaseNoRedeploy/1.0.0/testM2ReleaseNoRedeploy-1.0.0.jar" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
         }
         catch ( TransferFailedException e )
         {
@@ -97,7 +96,7 @@ public class Nexus2351DisableRedeployMaven2IT
         {
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifact,
                                          "testM2Repo/group/testM2ReleaseNoRedeploy/1.0.0/testM2ReleaseNoRedeploy-1.0.0.jar" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
         }
         catch ( TransferFailedException e )
         {
@@ -108,7 +107,7 @@ public class Nexus2351DisableRedeployMaven2IT
         {
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifactMD5,
                                          "testM2Repo/group/testM2ReleaseNoRedeploy/1.0.0/testM2ReleaseNoRedeploy-1.0.0.jar.md5" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
         }
         catch ( TransferFailedException e )
         {
@@ -131,7 +130,7 @@ public class Nexus2351DisableRedeployMaven2IT
         {
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifact,
                                          "testM2Repo/group/testM2ReleaseNoRedeployMultipleVersions/1.0.0/testM2ReleaseNoRedeployMultipleVersions-1.0.0.jar" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
         }
         catch ( TransferFailedException e )
         {
@@ -145,7 +144,7 @@ public class Nexus2351DisableRedeployMaven2IT
         {
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifact,
                                          "testM2Repo/group/testM2ReleaseNoRedeployMultipleVersions/1.0.1/testM2ReleaseNoRedeployMultipleVersions-1.0.1.jar" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
         }
         catch ( TransferFailedException e )
         {
@@ -167,7 +166,7 @@ public class Nexus2351DisableRedeployMaven2IT
 
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifact,
                                          "testM2Repo/group/testM2ReleaseReadOnly/1.0.0/testM2ReleaseReadOnly-1.0.0.jar" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
 
         }
         catch ( TransferFailedException e )
@@ -180,7 +179,7 @@ public class Nexus2351DisableRedeployMaven2IT
 
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifactMD5,
                                          "testM2Repo/group/testM2ReleaseAllowRedeploy/1.0.0/testM2ReleaseReadOnly-1.0.0.jar.md5" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
 
         }
         catch ( TransferFailedException e )
@@ -273,7 +272,7 @@ public class Nexus2351DisableRedeployMaven2IT
 
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifact,
                                          "testM2Repo/group/testM2SnapshotReadOnly/1.0.0-SNAPSHOT/testM2SnapshotReadOnly-20090729.054915-218.jar" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
 
         }
         catch ( TransferFailedException e )
@@ -285,7 +284,7 @@ public class Nexus2351DisableRedeployMaven2IT
 
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifactMD5,
                                          "testM2Repo/group/testM2SnapshotReadOnly/1.0.0-SNAPSHOT/testM2SnapshotReadOnly-20090729.054915-218.jar.md5" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
 
         }
         catch ( TransferFailedException e )
@@ -297,7 +296,7 @@ public class Nexus2351DisableRedeployMaven2IT
 
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifactMD5,
                                          "testM2Repo/group/testM2SnapshotReadOnly/1.0.0-SNAPSHOT/testM2SnapshotReadOnly-SNAPSHOT.jar.md5" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
 
         }
         catch ( TransferFailedException e )
@@ -309,7 +308,7 @@ public class Nexus2351DisableRedeployMaven2IT
 
             DeployUtils.deployWithWagon( this.getContainer(), "http", this.getRepositoryUrl( repoId ), artifact,
                                          "testM2Repo/group/testM2SnapshotReadOnly/1.0.0-SNAPSHOT/testM2SnapshotReadOnly-SNAPSHOT.jar" );
-            Assert.fail( "expected TransferFailedException" );
+            AssertJUnit.fail( "expected TransferFailedException" );
 
         }
         catch ( TransferFailedException e )

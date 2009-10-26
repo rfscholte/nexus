@@ -13,12 +13,12 @@
  */
 package org.sonatype.nexus.integrationtests.nexus395;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.ForgotUsernameUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Test the privilege Forgot username.
@@ -39,15 +39,15 @@ public class Nexus395ForgotUsernamePermissionIT
 
         // Should be able to forgot my own username
         Status status = ForgotUsernameUtils.recoverUsername( "nexus-dev2@sonatype.org" );
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
         // Should not be able to forgot anonymous
         status = ForgotUsernameUtils.recoverUsername( "changeme2@yourcompany.com" );
-        Assert.assertFalse( status.isSuccess() );
+        AssertJUnit.assertFalse( status.isSuccess() );
 
         // should be able to forget someone else username
         status = ForgotUsernameUtils.recoverUsername( "changeme1@yourcompany.com" );
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
     }
 
@@ -63,11 +63,11 @@ public class Nexus395ForgotUsernamePermissionIT
 
         // NOT Should be able to forgot anyone username
         Status status = ForgotUsernameUtils.recoverUsername( "changeme2@yourcompany.com" );
-        Assert.assertEquals( 403, status.getCode() );
+        AssertJUnit.assertEquals( 403, status.getCode() );
 
         // NOT Should be able to forgot my own username
         status = ForgotUsernameUtils.recoverUsername( "nexus-dev2@sonatype.org" );
-        Assert.assertEquals( 403, status.getCode() );
+        AssertJUnit.assertEquals( 403, status.getCode() );
 
     }
 }

@@ -17,11 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -31,6 +27,9 @@ import org.sonatype.nexus.test.utils.UserMessageUtil;
 import org.sonatype.security.model.CUser;
 import org.sonatype.security.rest.model.UserResource;
 import org.sonatype.security.usermanagement.PasswordGenerator;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * CRUD tests for JSON request/response.
@@ -91,7 +90,7 @@ public class Nexus142UserCrudJsonIT
         PasswordGenerator pwGenerator = this.getContainer().lookup( PasswordGenerator.class );
         String hashedPassword = pwGenerator.hashPassword( password );
         CUser cUser = SecurityConfigUtil.getCUser( "createTestWithPassword" );
-        Assert.assertEquals( "Expected hashed passwords to be the same.", hashedPassword, cUser.getPassword() );
+        AssertJUnit.assertEquals( "Expected hashed passwords to be the same.", hashedPassword, cUser.getPassword() );
 
     }
 
@@ -137,17 +136,17 @@ public class Nexus142UserCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not GET Repository Target: " + response.getStatus() );
+            AssertJUnit.fail( "Could not GET Repository Target: " + response.getStatus() );
         }
 
         // get the Resource object
         UserResource responseResource = this.messageUtil.getResourceFromResponse( response );
 
-        Assert.assertEquals( resource.getName(), responseResource.getName() );
-        Assert.assertEquals( resource.getUserId(), responseResource.getUserId() );
-        Assert.assertEquals( "active", responseResource.getStatus() );
-        Assert.assertEquals( resource.getEmail(), responseResource.getEmail() );
-        Assert.assertEquals( resource.getRoles(), responseResource.getRoles() );
+        AssertJUnit.assertEquals( resource.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( resource.getUserId(), responseResource.getUserId() );
+        AssertJUnit.assertEquals( "active", responseResource.getStatus() );
+        AssertJUnit.assertEquals( resource.getEmail(), responseResource.getEmail() );
+        AssertJUnit.assertEquals( resource.getRoles(), responseResource.getRoles() );
     }
 
     @Test
@@ -199,7 +198,7 @@ public class Nexus142UserCrudJsonIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not delete User: " + response.getStatus() );
+            AssertJUnit.fail( "Could not delete User: " + response.getStatus() );
         }
 
         SecurityConfigUtil.verifyUsers( new ArrayList<UserResource>() );

@@ -13,11 +13,11 @@
  */
 package org.sonatype.nexus.integrationtests.nexus597;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.nexus395.AbstractForgotUserNameIT;
 import org.sonatype.nexus.test.utils.ForgotUsernameUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * @author juven
@@ -34,7 +34,7 @@ public class Nexus597ForgotUserNameSharedEmailIT
         // username should be recovered with anonymous being ignored
         Status status = ForgotUsernameUtils.recoverUsername( anonymousEmail );
 
-        Assert.assertEquals( Status.SUCCESS_ACCEPTED.getCode(), status.getCode() );
+        AssertJUnit.assertEquals( Status.SUCCESS_ACCEPTED.getCode(), status.getCode() );
 
         assertRecoveredUserName( "test-user-1" );
     }

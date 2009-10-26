@@ -15,15 +15,14 @@ package org.sonatype.nexus.integrationtests.nexus970;
 
 import java.io.File;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.Method;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.RequestFacade;
 import org.sonatype.nexus.tasks.DeleteRepositoryFoldersTask;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  *When deleting a repository folders related to it is should be removed from disk
@@ -45,23 +44,23 @@ public class Nexus970DeleteRepositoryIT
         File artifactFile = new File( storageDir, "nexus970/artifact/1.0.0/artifact-1.0.0.jar" );
 
         // sanity check
-        Assert.assertTrue( storageDir.isDirectory() );
-        Assert.assertTrue( artifactFile.isFile() );
+        AssertJUnit.assertTrue( storageDir.isDirectory() );
+        AssertJUnit.assertTrue( artifactFile.isFile() );
 
         String uri = "service/local/repositories/nexus970-default";
         Status status = RequestFacade.sendMessage( uri, Method.DELETE ).getStatus();
-        Assert.assertTrue( "Unable to delete nexus970-default repository", status.isSuccess() );
+        AssertJUnit.assertTrue( "Unable to delete nexus970-default repository", status.isSuccess() );
 
         TaskScheduleUtil.waitForAllTasksToStop( DeleteRepositoryFoldersTask.class );
 
-        Assert.assertFalse( "Artifacts shouldn't exists on deleted repo", artifactFile.exists() );
-        Assert.assertFalse( "Storage dir should be deleted", storageDir.exists() );
+        AssertJUnit.assertFalse( "Artifacts shouldn't exists on deleted repo", artifactFile.exists() );
+        AssertJUnit.assertFalse( "Storage dir should be deleted", storageDir.exists() );
 
         File trashStorageDir = new File( nexusWorkDir, "trash/nexus970-default" );
         File trashArtifactFile = new File( trashStorageDir, "nexus970/artifact/1.0.0/artifact-1.0.0.jar" );
 
-        Assert.assertTrue( "Storage should be moved to trash", trashStorageDir.isDirectory() );
-        Assert.assertTrue( "Artifacts should be moved to trash", trashArtifactFile.isFile() );
+        AssertJUnit.assertTrue( "Storage should be moved to trash", trashStorageDir.isDirectory() );
+        AssertJUnit.assertTrue( "Artifacts should be moved to trash", trashArtifactFile.isFile() );
     }
 
     /*
@@ -75,23 +74,23 @@ public class Nexus970DeleteRepositoryIT
         File artifactFile = new File( storageDir, "nexus970/artifact/1.0.0/artifact-1.0.0.jar" );
 
         // sanity check
-        Assert.assertTrue( storageDir.isDirectory() );
-        Assert.assertTrue( artifactFile.isFile() );
+        AssertJUnit.assertTrue( storageDir.isDirectory() );
+        AssertJUnit.assertTrue( artifactFile.isFile() );
 
         String uri = "service/local/repositories/nexus970-overwrote";
         Status status = RequestFacade.sendMessage( uri, Method.DELETE ).getStatus();
-        Assert.assertTrue( "Unable to delete nexus970-default repository", status.isSuccess() );
+        AssertJUnit.assertTrue( "Unable to delete nexus970-default repository", status.isSuccess() );
 
         Thread.sleep( 1000 );
 
-        Assert.assertTrue( "Artifacts should exists on deleted repo", artifactFile.isFile() );
-        Assert.assertTrue( "Storage dir shouldn't be deleted", storageDir.isDirectory() );
+        AssertJUnit.assertTrue( "Artifacts should exists on deleted repo", artifactFile.isFile() );
+        AssertJUnit.assertTrue( "Storage dir shouldn't be deleted", storageDir.isDirectory() );
 
         File trashStorageDir = new File( nexusWorkDir, "trash/nexus970-overwrote" );
         File trashArtifactFile = new File( trashStorageDir, "nexus970/artifact/1.0.0/artifact-1.0.0.jar" );
 
-        Assert.assertFalse( "Storage shouldn't be moved to trash", trashStorageDir.exists() );
-        Assert.assertFalse( "Artifacts shouldn't be moved to trash", trashArtifactFile.exists() );
+        AssertJUnit.assertFalse( "Storage shouldn't be moved to trash", trashStorageDir.exists() );
+        AssertJUnit.assertFalse( "Artifacts shouldn't be moved to trash", trashArtifactFile.exists() );
     }
 
 }

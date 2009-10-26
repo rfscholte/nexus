@@ -13,11 +13,11 @@
  */
 package org.sonatype.nexus.integrationtests.nexus408;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.ChangePasswordUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Test change password service. 
@@ -31,7 +31,7 @@ public class Nexus408ChangePasswordIT
         throws Exception
     {
         Status status = ChangePasswordUtils.changePassword( "test-user", "admin123", "123admin" );
-        Assert.assertEquals( Status.SUCCESS_ACCEPTED.getCode(), status.getCode() );
+        AssertJUnit.assertEquals( Status.SUCCESS_ACCEPTED.getCode(), status.getCode() );
     }
 
 }

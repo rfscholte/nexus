@@ -16,8 +16,6 @@ package org.sonatype.nexus.test.utils;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -33,6 +31,7 @@ import org.sonatype.security.rest.model.PlexusRoleResource;
 import org.sonatype.security.rest.model.RoleListResourceResponse;
 import org.sonatype.security.rest.model.RoleResource;
 import org.sonatype.security.rest.model.RoleResourceRequest;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -59,25 +58,25 @@ public class RoleMessageUtil
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not create role: " + response.getStatus() + " - " + responseString );
+            AssertJUnit.fail( "Could not create role: " + response.getStatus() + " - " + responseString );
         }
 
         // get the Resource object
         RoleResource responseResource = this.getResourceFromResponse( responseString );
         
         // make sure the id != null
-        Assert.assertNotNull( "Result:\n"+ this.xStream.toXML( responseResource ), responseResource.getId() );
+        AssertJUnit.assertNotNull( "Result:\n"+ this.xStream.toXML( responseResource ), responseResource.getId() );
 
         if ( role.getId() != null )
         {
-            Assert.assertEquals( role.getId(), responseResource.getId() );
+            AssertJUnit.assertEquals( role.getId(), responseResource.getId() );
         }
 
-        Assert.assertEquals( role.getDescription(), responseResource.getDescription() );
-        Assert.assertEquals( role.getName(), responseResource.getName() );
-        Assert.assertEquals( role.getSessionTimeout(), responseResource.getSessionTimeout() );
-        Assert.assertEquals( role.getPrivileges(), responseResource.getPrivileges() );
-        Assert.assertEquals( role.getRoles(), responseResource.getRoles() );
+        AssertJUnit.assertEquals( role.getDescription(), responseResource.getDescription() );
+        AssertJUnit.assertEquals( role.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( role.getSessionTimeout(), responseResource.getSessionTimeout() );
+        AssertJUnit.assertEquals( role.getPrivileges(), responseResource.getPrivileges() );
+        AssertJUnit.assertEquals( role.getRoles(), responseResource.getRoles() );
 
         SecurityConfigUtil.verifyRole( responseResource );
 
@@ -91,7 +90,7 @@ public class RoleMessageUtil
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not find role: " + roleId + " got: " + response.getStatus() );
+            AssertJUnit.fail( "Could not find role: " + roleId + " got: " + response.getStatus() );
         }
 
         // get the Resource object
@@ -141,7 +140,7 @@ public class RoleMessageUtil
         
         String responseText = response.getEntity().getText();
 
-        Assert.assertTrue( "Request failed: "+ response.getStatus() +"\n"+ responseText, response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Request failed: "+ response.getStatus() +"\n"+ responseText, response.getStatus().isSuccess() );
         
         XStreamRepresentation representation =
             new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );
@@ -220,7 +219,7 @@ public class RoleMessageUtil
         Response response =
             RequestFacade.sendMessage( uriPart, Method.GET, new StringRepresentation( "", this.mediaType ) );
         String responseString = response.getEntity().getText();
-        Assert.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
+        AssertJUnit.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
                            response.getStatus().isSuccess() );
 
         ExternalRoleMappingResourceResponse result =
@@ -240,7 +239,7 @@ public class RoleMessageUtil
         Response response =
             RequestFacade.sendMessage( uriPart, Method.GET, new StringRepresentation( "", this.mediaType ) );
         String responseString = response.getEntity().getText();
-        Assert.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
+        AssertJUnit.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
                            response.getStatus().isSuccess() );
 
         LOG.debug( "response: " + responseString );

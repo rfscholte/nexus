@@ -1,21 +1,20 @@
 package org.sonatype.nexus.integrationtests.nexus1719;
 
-import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.ScheduledServiceListResource;
 import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.tasks.descriptors.EvictUnusedItemsTaskDescriptor;
 import org.sonatype.nexus.test.utils.RepositoryStatusMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus1719OOSRepoEvictUnusedTaskIT
     extends AbstractNexusIntegrationTest
 {
 
-    @Before
+    @BeforeClass
     public void putOutOfService()
         throws Exception
     {
@@ -36,7 +35,7 @@ public class Nexus1719OOSRepoEvictUnusedTaskIT
 
         ScheduledServiceListResource task = TaskScheduleUtil.runTask( EvictUnusedItemsTaskDescriptor.ID, prop, age );
 
-        Assert.assertNotNull( task );
-        Assert.assertEquals( "SUBMITTED", task.getStatus() );
+        AssertJUnit.assertNotNull( task );
+        AssertJUnit.assertEquals( "SUBMITTED", task.getStatus() );
     }
 }

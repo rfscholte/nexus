@@ -1,21 +1,20 @@
 package org.sonatype.nexus.integrationtests.nexus836;
 
-import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.ScheduledServiceListResource;
 import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.tasks.descriptors.ReindexTaskDescriptor;
 import org.sonatype.nexus.test.utils.RepositoryStatusMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus836OOSRepoReindexTaskIT
     extends AbstractNexusIntegrationTest
 {
 
-    @Before
+    @BeforeClass
     public void putOutOfService()
         throws Exception
     {
@@ -32,7 +31,7 @@ public class Nexus836OOSRepoReindexTaskIT
 
         ScheduledServiceListResource task = TaskScheduleUtil.runTask( ReindexTaskDescriptor.ID, prop );
 
-        Assert.assertNotNull( task );
-        Assert.assertEquals( "SUBMITTED", task.getStatus() );
+        AssertJUnit.assertNotNull( task );
+        AssertJUnit.assertEquals( "SUBMITTED", task.getStatus() );
     }
 }

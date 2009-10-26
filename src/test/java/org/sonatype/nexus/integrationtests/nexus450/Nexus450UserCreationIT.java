@@ -15,11 +15,6 @@ package org.sonatype.nexus.integrationtests.nexus450;
 
 import javax.mail.internet.MimeMessage;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractEmailServerNexusIT;
@@ -29,6 +24,10 @@ import org.sonatype.nexus.test.utils.ChangePasswordUtils;
 import org.sonatype.nexus.test.utils.UserCreationUtil;
 import org.sonatype.nexus.test.utils.UserMessageUtil;
 import org.sonatype.security.rest.model.UserResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.icegreen.greenmail.util.GreenMailUtil;
 
@@ -50,11 +49,10 @@ public class Nexus450UserCreationIT
         TestContainer.getInstance().getTestContext().setSecureTest( true );
     }
 
-    @Before
+    @BeforeClass
     public void init()
     {
-        userUtil =
-            new UserMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
+        userUtil = new UserMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
     }
 
     @Test
@@ -76,15 +74,15 @@ public class Nexus450UserCreationIT
         // get email
         // two e-mails (first confirming user creating and second with users pw)
         server.waitForIncomingEmail( 1000, 2 );
-        Thread.sleep( 1000 ); //w8 a few more
+        Thread.sleep( 1000 ); // w8 a few more
 
         MimeMessage[] msgs = server.getReceivedMessages();
         String password = null;
         StringBuilder emailsContent = new StringBuilder();
-        
-        /// make sure we have at least 1 message
-        Assert.assertTrue( "No emails recieved.", msgs.length > 0 );
-        
+
+        // / make sure we have at least 1 message
+        AssertJUnit.assertTrue( "No emails recieved.", msgs.length > 0 );
+
         for ( MimeMessage mimeMessage : msgs )
         {
             emailsContent.append( GreenMailUtil.getHeaders( mimeMessage ) ).append( '\n' );
@@ -103,32 +101,33 @@ public class Nexus450UserCreationIT
             }
         }
 
-        Assert.assertNotNull("Didn't recieve a password.  Got the following messages:\n" + emailsContent, password );
+        AssertJUnit.assertNotNull( "Didn't recieve a password.  Got the following messages:\n" + emailsContent,
+                                   password );
 
         // login with generated password
         testContext.setUsername( USER_ID );
         testContext.setPassword( password );
         Status status = UserCreationUtil.login();
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
         // set new password
         String newPassword = "velo123";
         status = ChangePasswordUtils.changePassword( USER_ID, password, newPassword );
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
         // check if the user is 'active'
         testContext.useAdminForRequests();
         UserResource user = userUtil.getUser( USER_ID );
-        Assert.assertEquals( "active", user.getStatus() );
+        AssertJUnit.assertEquals( "active", user.getStatus() );
 
         // login with new password
         testContext.setUsername( USER_ID );
         testContext.setPassword( newPassword );
         status = UserCreationUtil.login();
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
     }
 
-    @After
+    @AfterMethod
     public void removeUser()
         throws Exception
     {

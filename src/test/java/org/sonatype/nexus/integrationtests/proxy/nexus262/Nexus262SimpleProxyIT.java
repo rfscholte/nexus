@@ -16,11 +16,10 @@ package org.sonatype.nexus.integrationtests.proxy.nexus262;
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 
 /**
@@ -43,7 +42,7 @@ public class Nexus262SimpleProxyIT extends AbstractNexusProxyIntegrationTest
         
         File artifact = this.downloadArtifact( "simple.artifact", "simpleXMLArtifact", "1.0.0", "xml", null, "target/downloads" );
         
-        Assert.assertTrue( FileTestingUtils.compareFileSHA1s( artifact, localFile ) );
+        AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( artifact, localFile ) );
     }
 
 }

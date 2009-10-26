@@ -18,12 +18,12 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.rest.model.MirrorStatusResource;
 import org.sonatype.nexus.rest.model.MirrorStatusResourceListResponse;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1329MirrorFailAndRetriesIT
     extends AbstractMirrorIT
@@ -50,17 +50,17 @@ public class Nexus1329MirrorFailAndRetriesIT
         File artifactFile = this.downloadArtifactFromRepository( REPO, gav, "./target/downloads/nexus1329" );
 
         File originalFile = this.getTestFile( "basic/nexus1329/sample/1.0.0/sample-1.0.0.xml" );
-        Assert.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, artifactFile ) );
+        AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, artifactFile ) );
 
-        Assert.assertFalse( "Nexus should access first mirror " + mirror1Urls, mirror1Urls.isEmpty() );
-        Assert.assertEquals( "Nexus should retry mirror " + mirror1Urls, 3, mirror1Urls.size() );
-        Assert.assertTrue( "Nexus should not access second mirror " + mirror2Urls, mirror2Urls.isEmpty() );
+        AssertJUnit.assertFalse( "Nexus should access first mirror " + mirror1Urls, mirror1Urls.isEmpty() );
+        AssertJUnit.assertEquals( "Nexus should retry mirror " + mirror1Urls, 3, mirror1Urls.size() );
+        AssertJUnit.assertTrue( "Nexus should not access second mirror " + mirror2Urls, mirror2Urls.isEmpty() );
 
         MirrorStatusResourceListResponse response = this.messageUtil.getMirrorsStatus( REPO );
 
-        MirrorStatusResource one = (MirrorStatusResource) response.getData().get( 0 );
+        MirrorStatusResource one = response.getData().get( 0 );
 
-        Assert.assertEquals( "http://localhost:" + webProxyPort + "/mirror1", one.getUrl() );
-        Assert.assertEquals( "Blacklisted", one.getStatus() );
+        AssertJUnit.assertEquals( "http://localhost:" + webProxyPort + "/mirror1", one.getUrl() );
+        AssertJUnit.assertEquals( "Blacklisted", one.getStatus() );
     }
 }

@@ -17,10 +17,6 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -32,6 +28,9 @@ import org.sonatype.nexus.rest.model.RepositoryGroupMemberRepository;
 import org.sonatype.nexus.rest.model.RepositoryGroupResource;
 import org.sonatype.nexus.test.utils.GroupMessageUtil;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * CRUD tests for XML request/response.
@@ -82,7 +81,7 @@ public class Nexus532GroupsCrudXmlIT
 
         Response response = RequestFacade.doGetRequest( GroupMessageUtil.SERVICE_PART + "/" + groupId );
 
-        Assert.assertEquals( 404, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( 404, response.getStatus().getCode() );
     }
 
     @Test
@@ -163,9 +162,9 @@ public class Nexus532GroupsCrudXmlIT
 
         if ( !response.getStatus().isSuccess() )
         {
-            Assert.fail( "Could not delete Repository: " + response.getStatus() );
+            AssertJUnit.fail( "Could not delete Repository: " + response.getStatus() );
         }
-        Assert.assertNull( NexusConfigUtil.getRepo( resource.getId() ) );
+        AssertJUnit.assertNull( NexusConfigUtil.getRepo( resource.getId() ) );
     }
 
     @SuppressWarnings( "unchecked" )
@@ -196,7 +195,7 @@ public class Nexus532GroupsCrudXmlIT
             RepositoryGroupListResource group = iter.next();
             M2GroupRepositoryConfiguration cGroup = NexusConfigUtil.getGroup( group.getId() );
 
-            Assert.assertNotNull( "CRepositoryGroup", cGroup );
+            AssertJUnit.assertNotNull( "CRepositoryGroup", cGroup );
         }
     }
 }

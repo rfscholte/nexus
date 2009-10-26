@@ -13,21 +13,19 @@
  */
 package org.sonatype.nexus.integrationtests.nexus261;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
- * Tests to make sure an artifact deployed in multiple repositories will respect the group order. 
+ * Tests to make sure an artifact deployed in multiple repositories will respect the group order.
  */
 public class Nexus261NexusGroupDownloadIT
     extends AbstractNexusIntegrationTest
@@ -38,8 +36,8 @@ public class Nexus261NexusGroupDownloadIT
         throws Exception
     {
         Gav gav =
-            new Gav( this.getTestId(), "release-jar", "1", null, "jar", 0, new Date().getTime(),
-                     "Release Jar", false, false, null, false, null );
+            new Gav( this.getTestId(), "release-jar", "1", null, "jar", 0, new Date().getTime(), "Release Jar", false,
+                     false, null, false, null );
 
         File artifact = downloadArtifactFromGroup( "nexus-test", gav, "./target/downloaded-jars" );
 
@@ -49,7 +47,7 @@ public class Nexus261NexusGroupDownloadIT
             this.getTestResourceAsFile( "projects/" + gav.getArtifactId() + "/" + gav.getArtifactId() + "."
                 + gav.getExtension() );
 
-        Assert.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, artifact ) );
+        AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, artifact ) );
 
     }
 }

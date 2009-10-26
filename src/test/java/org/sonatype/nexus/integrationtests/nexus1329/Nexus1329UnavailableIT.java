@@ -16,11 +16,11 @@ package org.sonatype.nexus.integrationtests.nexus1329;
 import java.io.FileNotFoundException;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.rest.model.MirrorStatusResource;
 import org.sonatype.nexus.rest.model.MirrorStatusResourceListResponse;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1329UnavailableIT
     extends AbstractMirrorIT
@@ -45,22 +45,22 @@ public class Nexus1329UnavailableIT
         try
         {
             this.downloadArtifactFromRepository( REPO, gav, "./target/downloads/nexus1329" );
-            Assert.fail( "Artifact is not available, shouldn't download!" );
+            AssertJUnit.fail( "Artifact is not available, shouldn't download!" );
         }
         catch ( FileNotFoundException e )
         {
             // expected
         }
 
-        Assert.assertFalse( "Nexus should try repository canonical url " + repoUrls, repoUrls.isEmpty() );
-        Assert.assertFalse( "Nexus should try mirror 1 " + mirror1Urls, mirror1Urls.isEmpty() );
+        AssertJUnit.assertFalse( "Nexus should try repository canonical url " + repoUrls, repoUrls.isEmpty() );
+        AssertJUnit.assertFalse( "Nexus should try mirror 1 " + mirror1Urls, mirror1Urls.isEmpty() );
 
         MirrorStatusResourceListResponse response = this.messageUtil.getMirrorsStatus( REPO );
 
-        MirrorStatusResource one = (MirrorStatusResource) response.getData().get( 0 );
+        MirrorStatusResource one = response.getData().get( 0 );
 
-        Assert.assertEquals( "http://localhost:" + webProxyPort + "/mirror1", one.getUrl() );
-        Assert.assertEquals( "Available", one.getStatus() );
+        AssertJUnit.assertEquals( "http://localhost:" + webProxyPort + "/mirror1", one.getUrl() );
+        AssertJUnit.assertEquals( "Available", one.getStatus() );
     }
 
 }

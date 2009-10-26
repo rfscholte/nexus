@@ -17,10 +17,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
-import org.junit.Test;
 import org.sonatype.nexus.client.NexusClient;
 import org.sonatype.nexus.client.NexusConnectionException;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
@@ -34,6 +31,8 @@ import org.sonatype.nexus.rest.model.NexusArtifact;
 import org.sonatype.nexus.rest.model.RepositoryBaseResource;
 import org.sonatype.nexus.rest.model.RepositoryListResource;
 import org.sonatype.nexus.rest.model.RepositoryResource;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Tests the Nexus java/REST client.
@@ -63,7 +62,7 @@ public class Nexus725InitialRestClientIT
         NexusClient client = this.getConnectedNexusClient();
 
         List<RepositoryListResource> repos = client.getRespositories();
-        Assert.assertTrue( "Expected list of repos to be larger then 0", repos.size() > 0 );
+        AssertJUnit.assertTrue( "Expected list of repos to be larger then 0", repos.size() > 0 );
 
         List<String> knownRepos = new ArrayList<String>();
         knownRepos.add( "fake-central" );
@@ -77,7 +76,7 @@ public class Nexus725InitialRestClientIT
         for ( Iterator<RepositoryListResource> iter = repos.iterator(); iter.hasNext(); )
         {
             RepositoryListResource repositoryListResource = iter.next();
-            Assert.assertTrue( "Expected to find repo: " + repositoryListResource.getId() + " in list: " + knownRepos,
+            AssertJUnit.assertTrue( "Expected to find repo: " + repositoryListResource.getId() + " in list: " + knownRepos,
                                knownRepos.contains( repositoryListResource.getId() ) );
         }
         client.disconnect();
@@ -90,11 +89,11 @@ public class Nexus725InitialRestClientIT
 
         NexusClient client = this.getConnectedNexusClient();
 
-        Assert.assertTrue( "Expected to find 'apache-snapshots' repo:",
+        AssertJUnit.assertTrue( "Expected to find 'apache-snapshots' repo:",
                            client.isValidRepository( "nexus-test-harness-repo" ) );
-        Assert.assertFalse( "Expected not to find 'foobar' repo:", client.isValidRepository( "foobar" ) );
+        AssertJUnit.assertFalse( "Expected not to find 'foobar' repo:", client.isValidRepository( "foobar" ) );
 
-        Assert.assertFalse( "Expected not to find 'null' repo:", client.isValidRepository( null ) );
+        AssertJUnit.assertFalse( "Expected not to find 'null' repo:", client.isValidRepository( null ) );
 
         client.disconnect();
 
@@ -107,7 +106,7 @@ public class Nexus725InitialRestClientIT
         NexusClient client = this.getConnectedNexusClient();
 
         RepositoryBaseResource repo = client.getRepository( "nexus-test-harness-repo" );
-        Assert.assertEquals( "nexus-test-harness-repo", repo.getId() );
+        AssertJUnit.assertEquals( "nexus-test-harness-repo", repo.getId() );
         client.disconnect();
     }
 
@@ -140,14 +139,14 @@ public class Nexus725InitialRestClientIT
         RepositoryBaseResource repoResult = client.createRepository( repoResoruce );
         RepositoryBaseResource repoExpected = client.getRepository( "testCreate" );
 
-        Assert.assertEquals( repoResult.getId(), repoExpected.getId() );
-        Assert.assertEquals( repoResult.getName(), repoExpected.getName() );
-        Assert.assertEquals( repoResult.getFormat(), repoExpected.getFormat() );
+        AssertJUnit.assertEquals( repoResult.getId(), repoExpected.getId() );
+        AssertJUnit.assertEquals( repoResult.getName(), repoExpected.getName() );
+        AssertJUnit.assertEquals( repoResult.getFormat(), repoExpected.getFormat() );
 
         // now update it
         repoExpected.setName( "Updated Name" );
         repoExpected = client.updateRepository( repoExpected );
-        Assert.assertEquals( "Updated Name", repoExpected.getName() );
+        AssertJUnit.assertEquals( "Updated Name", repoExpected.getName() );
 
         // now delete it
         client.deleteRepository( "testCreate" );
@@ -155,13 +154,13 @@ public class Nexus725InitialRestClientIT
         try
         {
             client.getRepository( "testCreate" );
-            Assert.fail( "expected a 404" );
+            AssertJUnit.fail( "expected a 404" );
         }
         catch ( NexusConnectionException e )
         {
             // expected
         }
-        Assert.assertFalse( "Expected false, repo should have been deleted.", client.isValidRepository( "testCreate" ) );
+        AssertJUnit.assertFalse( "Expected false, repo should have been deleted.", client.isValidRepository( "testCreate" ) );
 
         client.disconnect();
     }
@@ -204,12 +203,12 @@ public class Nexus725InitialRestClientIT
         searchParam.setClassifier( null );
 
         List<NexusArtifact> results = client.searchByGAV( searchParam );
-        Assert.assertEquals( "Search result size", 1, results.size() );
+        AssertJUnit.assertEquals( "Search result size", 1, results.size() );
 
-        Assert.assertEquals( "Search result artifact id", "nexus725-artifact-1", results.get( 0 ).getArtifactId() );
-        Assert.assertEquals( "Search result group id", "nexus725", results.get( 0 ).getGroupId() );
-        Assert.assertEquals( "Search result version", "1.0.1", results.get( 0 ).getVersion() );
-        Assert.assertEquals( "Search result packaging", "jar", results.get( 0 ).getPackaging() );
+        AssertJUnit.assertEquals( "Search result artifact id", "nexus725-artifact-1", results.get( 0 ).getArtifactId() );
+        AssertJUnit.assertEquals( "Search result group id", "nexus725", results.get( 0 ).getGroupId() );
+        AssertJUnit.assertEquals( "Search result version", "1.0.1", results.get( 0 ).getVersion() );
+        AssertJUnit.assertEquals( "Search result packaging", "jar", results.get( 0 ).getPackaging() );
 
         client.disconnect();
 
@@ -230,16 +229,16 @@ public class Nexus725InitialRestClientIT
         try
         {
             client.createRepository( repoResoruce );
-            Assert.fail( "Expected NexusConnectionException" );
+            AssertJUnit.fail( "Expected NexusConnectionException" );
         }
         catch ( NexusConnectionException e )
         {
             // make sure we have an error
-            Assert.assertTrue( "NexusConnectionException should contain at least 1 NexusError",
+            AssertJUnit.assertTrue( "NexusConnectionException should contain at least 1 NexusError",
                                e.getErrors().size() > 0 );
 
             // make sure the error is in the stacktrace
-            Assert.assertTrue( "Expected message in error", e.getMessage().contains( e.getErrors().get( 0 ).getMsg() ) );
+            AssertJUnit.assertTrue( "Expected message in error", e.getMessage().contains( e.getErrors().get( 0 ).getMsg() ) );
         }
     }
 
@@ -254,7 +253,7 @@ public class Nexus725InitialRestClientIT
             client.connect( "http://nexus.invalid.url/nexus", "", "" );
             // the REST instance doesn't actually connect until you send a message
             client.getRepository( "nexus-test-harness-repo" );
-            Assert.fail( "Expected NexusConnectionException" );
+            AssertJUnit.fail( "Expected NexusConnectionException" );
         }
         catch ( NexusConnectionException e )
         {
@@ -274,7 +273,7 @@ public class Nexus725InitialRestClientIT
             client.connect( AbstractNexusIntegrationTest.baseNexusUrl, "admin", "wrong-password" );
             // the REST instance doesn't actually connect until you send a message
             client.getRepository( "nexus-test-harness-repo" );
-            Assert.fail( "Expected NexusConnectionException" );
+            AssertJUnit.fail( "Expected NexusConnectionException" );
         }
         catch ( NexusConnectionException e )
         {

@@ -1,8 +1,5 @@
 package org.sonatype.nexus.integrationtests.nexus2327;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -13,6 +10,8 @@ import org.sonatype.nexus.rest.model.RepositoryGroupResource;
 import org.sonatype.nexus.rest.model.RepositoryResource;
 import org.sonatype.nexus.test.utils.GroupMessageUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus2327RepositoryIdValidationIT
     extends AbstractNexusIntegrationTest
@@ -45,7 +44,7 @@ public class Nexus2327RepositoryIdValidationIT
 
         resource.setId( "repoaA1-_." );
         Response resp = repositoryMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertTrue( resp.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( resp.getStatus().isSuccess() );
     }
 
     @Test
@@ -61,19 +60,19 @@ public class Nexus2327RepositoryIdValidationIT
 
         resource.setId( "repo/" );
         Response resp = repositoryMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertFalse( resp.getStatus().isSuccess() );
+        AssertJUnit.assertFalse( resp.getStatus().isSuccess() );
 
         resource.setId( "repo," );
         resp = repositoryMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertFalse( resp.getStatus().isSuccess() );
+        AssertJUnit.assertFalse( resp.getStatus().isSuccess() );
 
         resource.setId( "repo*" );
         resp = repositoryMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertFalse( resp.getStatus().isSuccess() );
+        AssertJUnit.assertFalse( resp.getStatus().isSuccess() );
 
         resource.setId( "repo>" );
         resp = repositoryMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertFalse( resp.getStatus().isSuccess() );
+        AssertJUnit.assertFalse( resp.getStatus().isSuccess() );
     }
 
     @Test
@@ -90,7 +89,7 @@ public class Nexus2327RepositoryIdValidationIT
 
         resource.setId( "groupaA0-_." );
         Response resp = groupMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertTrue( resp.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( resp.getStatus().isSuccess() );
     }
 
     @Test
@@ -108,19 +107,19 @@ public class Nexus2327RepositoryIdValidationIT
 
         resource.setId( "group/" );
         Response resp = groupMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertFalse( resp.getStatus().isSuccess() );
+        AssertJUnit.assertFalse( resp.getStatus().isSuccess() );
 
         resource.setId( "group," );
         resp = groupMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertFalse( resp.getStatus().isSuccess() );
+        AssertJUnit.assertFalse( resp.getStatus().isSuccess() );
 
         resource.setId( "group*" );
         resp = groupMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertFalse( resp.getStatus().isSuccess() );
+        AssertJUnit.assertFalse( resp.getStatus().isSuccess() );
 
         resource.setId( "group>" );
         resp = groupMsgUtil.sendMessage( Method.POST, resource );
-        Assert.assertFalse( resp.getStatus().isSuccess() );
+        AssertJUnit.assertFalse( resp.getStatus().isSuccess() );
     }
 
 }

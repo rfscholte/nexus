@@ -2,9 +2,6 @@ package org.sonatype.nexus.integrationtests.nexus1765;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
@@ -15,6 +12,8 @@ import org.sonatype.nexus.rest.model.RepositoryGroupListResource;
 import org.sonatype.nexus.rest.model.RepositoryGroupResource;
 import org.sonatype.nexus.rest.model.RepositoryListResource;
 import org.sonatype.nexus.test.utils.GroupMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1765RepositoryFilterIT
     extends AbstractPrivilegeTest
@@ -29,7 +28,7 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         List<RepositoryListResource> repoList = repoUtil.getList();
-        Assert.assertEquals( 0, repoList.size() );
+        AssertJUnit.assertEquals( 0, repoList.size() );
     }
 
     @Test
@@ -46,8 +45,8 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         List<RepositoryListResource> repoList = repoUtil.getList();
-        Assert.assertEquals( 1, repoList.size() );
-        Assert.assertEquals( repoId, repoList.get( 0 ).getId() );
+        AssertJUnit.assertEquals( 1, repoList.size() );
+        AssertJUnit.assertEquals( repoId, repoList.get( 0 ).getId() );
     }
 
     @Test
@@ -61,7 +60,7 @@ public class Nexus1765RepositoryFilterIT
         String repoId = this.getTestRepositoryId();
         Response response = RequestFacade.doGetRequest( "service/local/repositories/" + repoId );
 
-        Assert.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
     @Test
@@ -79,7 +78,7 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         Response response = this.repoUtil.sendMessage( Method.PUT, repo );
-        Assert.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
     @Test
@@ -97,7 +96,7 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         Response response = this.repoUtil.sendMessage( Method.POST, repo, repoId );
-        Assert.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
     @Test
@@ -112,7 +111,7 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         Response response = RequestFacade.sendMessage( "service/local/repositories/" + repoId, Method.DELETE );
-        Assert.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
     @Test
@@ -124,7 +123,7 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         List<RepositoryGroupListResource> groupList = groupUtil.getList();
-        Assert.assertEquals( 0, groupList.size() );
+        AssertJUnit.assertEquals( 0, groupList.size() );
     }
 
     @Test
@@ -141,8 +140,8 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         List<RepositoryGroupListResource> groupList = groupUtil.getList();
-        Assert.assertEquals( 1, groupList.size() );
-        Assert.assertEquals( repoId, groupList.get( 0 ).getId() );
+        AssertJUnit.assertEquals( 1, groupList.size() );
+        AssertJUnit.assertEquals( repoId, groupList.get( 0 ).getId() );
     }
     
     @Test
@@ -155,7 +154,7 @@ public class Nexus1765RepositoryFilterIT
 
         String repoId = "public";
         Response response = RequestFacade.doGetRequest( GroupMessageUtil.SERVICE_PART +"/" + repoId );
-        Assert.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
     
     @Test
@@ -173,7 +172,7 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         Response response = this.groupUtil.sendMessage( Method.PUT, repo );
-        Assert.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
     @Test
@@ -191,7 +190,7 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         Response response = this.groupUtil.sendMessage( Method.POST, repo, repoId );
-        Assert.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
     @Test
@@ -206,7 +205,7 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         Response response = RequestFacade.sendMessage( GroupMessageUtil.SERVICE_PART +"/" + repoId, Method.DELETE );
-        Assert.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
 }

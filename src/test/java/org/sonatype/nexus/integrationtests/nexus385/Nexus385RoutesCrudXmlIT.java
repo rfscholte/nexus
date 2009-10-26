@@ -15,10 +15,6 @@ package org.sonatype.nexus.integrationtests.nexus385;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
-import org.junit.Before;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -27,6 +23,9 @@ import org.sonatype.nexus.rest.model.RepositoryRouteMemberRepository;
 import org.sonatype.nexus.rest.model.RepositoryRouteResource;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.RoutesMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -44,7 +43,7 @@ public class Nexus385RoutesCrudXmlIT
         this.messageUtil = new RoutesMessageUtil( this.getXMLXStream(), MediaType.APPLICATION_XML );
     }
 
-    @Before
+    @BeforeClass
     public void cleanRoutes()
         throws IOException
     {
@@ -83,22 +82,23 @@ public class Nexus385RoutesCrudXmlIT
             String responseText = response.getEntity().getText();
             try
             {
-                Assert.fail( "Could not create privilege: " + response.getStatus() + "\nresponse:\n" + responseText );
+                AssertJUnit.fail( "Could not create privilege: " + response.getStatus() + "\nresponse:\n"
+                    + responseText );
             }
             catch ( NullPointerException e )
             {
-                Assert.fail( new XStream().toXML( response ) );
+                AssertJUnit.fail( new XStream().toXML( response ) );
             }
         }
 
         // get the Resource object
         RepositoryRouteResource resourceResponse = this.messageUtil.getResourceFromResponse( response );
 
-        Assert.assertNotNull( resourceResponse.getId() );
+        AssertJUnit.assertNotNull( resourceResponse.getId() );
 
-        Assert.assertEquals( resource.getGroupId(), resourceResponse.getGroupId() );
-        Assert.assertEquals( resource.getPattern(), resourceResponse.getPattern() );
-        Assert.assertEquals( resource.getRuleType(), resourceResponse.getRuleType() );
+        AssertJUnit.assertEquals( resource.getGroupId(), resourceResponse.getGroupId() );
+        AssertJUnit.assertEquals( resource.getPattern(), resourceResponse.getPattern() );
+        AssertJUnit.assertEquals( resource.getRuleType(), resourceResponse.getRuleType() );
         this.messageUtil.validateSame( resource.getRepositories(), resourceResponse.getRepositories() );
 
         // now check the nexus config
@@ -120,17 +120,17 @@ public class Nexus385RoutesCrudXmlIT
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not create privilege: " + response.getStatus() + "\nresponse:\n" + responseText );
+            AssertJUnit.fail( "Could not create privilege: " + response.getStatus() + "\nresponse:\n" + responseText );
         }
 
         // get the Resource object
         RepositoryRouteResource resourceResponse = this.messageUtil.getResourceFromResponse( response );
 
-        Assert.assertNotNull( resourceResponse.getId() );
+        AssertJUnit.assertNotNull( resourceResponse.getId() );
 
-        Assert.assertEquals( resource.getGroupId(), resourceResponse.getGroupId() );
-        Assert.assertEquals( resource.getPattern(), resourceResponse.getPattern() );
-        Assert.assertEquals( resource.getRuleType(), resourceResponse.getRuleType() );
+        AssertJUnit.assertEquals( resource.getGroupId(), resourceResponse.getGroupId() );
+        AssertJUnit.assertEquals( resource.getPattern(), resourceResponse.getPattern() );
+        AssertJUnit.assertEquals( resource.getRuleType(), resourceResponse.getRuleType() );
         this.messageUtil.validateSame( resource.getRepositories(), resourceResponse.getRepositories() );
 
         // now check the nexus config
@@ -158,17 +158,17 @@ public class Nexus385RoutesCrudXmlIT
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not create privilege: " + response.getStatus() + "\nresponse:\n" + responseText );
+            AssertJUnit.fail( "Could not create privilege: " + response.getStatus() + "\nresponse:\n" + responseText );
         }
 
         // get the Resource object
         RepositoryRouteResource resourceResponse = this.messageUtil.getResourceFromResponse( response );
 
-        Assert.assertNotNull( resourceResponse.getId() );
+        AssertJUnit.assertNotNull( resourceResponse.getId() );
 
-        Assert.assertEquals( resource.getGroupId(), resourceResponse.getGroupId() );
-        Assert.assertEquals( resource.getPattern(), resourceResponse.getPattern() );
-        Assert.assertEquals( resource.getRuleType(), resourceResponse.getRuleType() );
+        AssertJUnit.assertEquals( resource.getGroupId(), resourceResponse.getGroupId() );
+        AssertJUnit.assertEquals( resource.getPattern(), resourceResponse.getPattern() );
+        AssertJUnit.assertEquals( resource.getRuleType(), resourceResponse.getRuleType() );
         this.messageUtil.validateSame( resource.getRepositories(), resourceResponse.getRepositories() );
 
         // now check the nexus config
@@ -188,10 +188,10 @@ public class Nexus385RoutesCrudXmlIT
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not create privilege: " + response.getStatus() + "\nresponse:\n" + responseText );
+            AssertJUnit.fail( "Could not create privilege: " + response.getStatus() + "\nresponse:\n" + responseText );
         }
 
-        Assert.assertTrue( "Route was not deleted.", NexusConfigUtil.getRoute( resource.getId() ) == null );
+        AssertJUnit.assertTrue( "Route was not deleted.", NexusConfigUtil.getRoute( resource.getId() ) == null );
 
     }
 

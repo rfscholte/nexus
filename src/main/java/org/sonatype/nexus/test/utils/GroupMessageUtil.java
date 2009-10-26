@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -31,6 +29,7 @@ import org.sonatype.nexus.rest.model.RepositoryGroupMemberRepository;
 import org.sonatype.nexus.rest.model.RepositoryGroupResource;
 import org.sonatype.nexus.rest.model.RepositoryGroupResourceResponse;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -60,7 +59,7 @@ public class GroupMessageUtil
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not create Repository: " + response.getStatus() + ":\n" + responseText );
+            AssertJUnit.fail( "Could not create Repository: " + response.getStatus() + ":\n" + responseText );
         }
 
         // // get the Resource object
@@ -79,9 +78,9 @@ public class GroupMessageUtil
     public void validateResourceResponse( RepositoryGroupResource expected, RepositoryGroupResource actual )
         throws IOException
     {
-        Assert.assertEquals( expected.getId(), actual.getId() );
-        Assert.assertEquals( expected.getName(), actual.getName() );
-        Assert.assertEquals( expected.getFormat(), actual.getFormat() );
+        AssertJUnit.assertEquals( expected.getId(), actual.getId() );
+        AssertJUnit.assertEquals( expected.getName(), actual.getName() );
+        AssertJUnit.assertEquals( expected.getFormat(), actual.getFormat() );
 
         LOG.debug( "group repos: " + expected.getRepositories() );
         LOG.debug( "other repos: " + actual.getRepositories() );
@@ -99,7 +98,7 @@ public class GroupMessageUtil
     public void validateRepoLists( List<RepositoryGroupMemberRepository> expected, List<?> actual )
     {
 
-        Assert.assertEquals( "Size of groups repository list, \nexpected: " + this.repoListToStringList( expected )
+        AssertJUnit.assertEquals( "Size of groups repository list, \nexpected: " + this.repoListToStringList( expected )
             + "\nactual: " + this.repoListToStringList( actual ) + "\n", expected.size(), actual.size() );
 
         for ( int ii = 0; ii < expected.size(); ii++ )
@@ -118,7 +117,7 @@ public class GroupMessageUtil
                 actualRepoId = tmpObj.toString();
             }
 
-            Assert.assertEquals( "Repo Id:", expectedRepo.getId(), actualRepoId );
+            AssertJUnit.assertEquals( "Repo Id:", expectedRepo.getId(), actualRepoId );
         }
     }
 
@@ -150,7 +149,7 @@ public class GroupMessageUtil
         String responseText = response.getEntity().getText();
         LOG.debug( "responseText: \n" + responseText );
 
-        Assert.assertTrue( "Failed to return Group: " + groupId + "\nResponse:\n" + responseText,
+        AssertJUnit.assertTrue( "Failed to return Group: " + groupId + "\nResponse:\n" + responseText,
                            response.getStatus().isSuccess() );
 
         // this should use call to: getResourceFromResponse
@@ -171,7 +170,7 @@ public class GroupMessageUtil
         if ( !response.getStatus().isSuccess() )
         {
             String responseText = response.getEntity().getText();
-            Assert.fail( "Could not update user: " + response.getStatus() + "\n" + responseText );
+            AssertJUnit.fail( "Could not update user: " + response.getStatus() + "\n" + responseText );
         }
 
         // this doesn't return any objects, it should....
@@ -253,8 +252,8 @@ public class GroupMessageUtil
     {
         CRepository cGroup = NexusConfigUtil.getRepo( group.getId() );
 
-        Assert.assertEquals( group.getId(), cGroup.getId() );
-        Assert.assertEquals( group.getName(), cGroup.getName() );
+        AssertJUnit.assertEquals( group.getId(), cGroup.getId() );
+        AssertJUnit.assertEquals( group.getName(), cGroup.getName() );
 
         List expectedRepos = group.getRepositories();
         List<String> actualRepos = NexusConfigUtil.getGroup( group.getId() ).getMemberRepositoryIds();

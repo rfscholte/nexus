@@ -13,18 +13,17 @@
  */
 package org.sonatype.nexus.integrationtests.nexus1071;
 
-import static org.junit.Assert.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * @author Juven Xu
@@ -49,7 +48,7 @@ public class Nexus1071AnonAccessIT
             this.getTestResourceAsFile( "projects/" + gav.getArtifactId() + "/" + gav.getArtifactId() + "."
                 + gav.getExtension() );
 
-        Assert.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, artifact ) );
+        AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( originalFile, artifact ) );
 
     }
 
@@ -70,11 +69,11 @@ public class Nexus1071AnonAccessIT
         {
             downloadArtifactFromRepository( "Internal", gav, "./target/downloaded-jars" );
 
-            Assert.fail( "Should throw 401 error" );
+            AssertJUnit.fail( "Should throw 401 error" );
         }
         catch ( IOException e )
         {
-            Assert.assertTrue( e.getMessage().contains( "401" ) );
+            AssertJUnit.assertTrue( e.getMessage().contains( "401" ) );
         }
 
     }

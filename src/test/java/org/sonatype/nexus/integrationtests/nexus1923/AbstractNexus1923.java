@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import junit.framework.Assert;
-
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.BeforeClass;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.sonatype.nexus.index.context.IndexingContext;
@@ -30,6 +27,8 @@ import org.sonatype.nexus.test.utils.GroupMessageUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.SearchMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
 
 public abstract class AbstractNexus1923
     extends AbstractNexusIntegrationTest
@@ -208,7 +207,7 @@ public abstract class AbstractNexus1923
         scheduledTask.addProperty( prop );
         Status status = TaskScheduleUtil.create( scheduledTask );
 
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
         return TaskScheduleUtil.getTask( taskName ).getId();
     }
@@ -494,11 +493,11 @@ public abstract class AbstractNexus1923
     {
         if ( current == null )
         {
-            Assert.assertNull( properties.getProperty( IndexingContext.INDEX_CHUNK_COUNTER ) );
+            AssertJUnit.assertNull( properties.getProperty( IndexingContext.INDEX_CHUNK_COUNTER ) );
         }
         else
         {
-            Assert.assertEquals( properties.getProperty( IndexingContext.INDEX_CHUNK_COUNTER ),
+            AssertJUnit.assertEquals( properties.getProperty( IndexingContext.INDEX_CHUNK_COUNTER ),
                                  Integer.toString( current ) );
         }
     }
@@ -561,7 +560,7 @@ public abstract class AbstractNexus1923
 
         List<NexusArtifact> artifacts = SearchMessageUtil.searchFor( args, repositoryId );
 
-        Assert.assertEquals( artifacts.size() > 0, shouldFind );
+        AssertJUnit.assertEquals( artifacts.size() > 0, shouldFind );
     }
 
     protected void searchForArtifactInHostedIndex( String artifact, boolean shouldFind )

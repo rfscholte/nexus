@@ -17,10 +17,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -28,6 +24,9 @@ import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.RequestFacade;
 import org.sonatype.nexus.rest.model.ContentListResource;
 import org.sonatype.nexus.test.utils.ContentListMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class Nexus947GroupBrowsingIT
     extends AbstractNexusIntegrationTest
@@ -41,7 +40,7 @@ public class Nexus947GroupBrowsingIT
         List<ContentListResource> items = contentUtil.getContentListResource( "public", "/", true );
 
         // make sure we have a few items
-        Assert.assertTrue( "Expected more then 1 item. ", items.size() > 1 );
+        AssertJUnit.assertTrue( "Expected more then 1 item. ", items.size() > 1 );
 
         // now for a bit more control
         items = contentUtil.getContentListResource( "public", "/nexus947/nexus947/3.2.1/", true );
@@ -54,8 +53,8 @@ public class Nexus947GroupBrowsingIT
         }
 
         // they are sorted in alpha order, so expect the jar, then the pom
-        Assert.assertTrue( itemsText.contains("nexus947-3.2.1.jar") );
-        Assert.assertTrue( itemsText.contains("nexus947-3.2.1.pom") );
+        AssertJUnit.assertTrue( itemsText.contains("nexus947-3.2.1.jar") );
+        AssertJUnit.assertTrue( itemsText.contains("nexus947-3.2.1.pom") );
     }
 
     @Test
@@ -63,9 +62,9 @@ public class Nexus947GroupBrowsingIT
     {
         String uriPart = RequestFacade.SERVICE_LOCAL + "repo_groups/" + "public" + "/content";
         Response response = RequestFacade.sendMessage( uriPart, Method.GET );
-        Assert.assertEquals( 301, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( 301, response.getStatus().getCode() );
 
-        Assert.assertTrue(response.getLocationRef().toString().endsWith( uriPart + "/" ));
+        AssertJUnit.assertTrue(response.getLocationRef().toString().endsWith( uriPart + "/" ));
 
     }
     

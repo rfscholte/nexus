@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.proxy.maven.ChecksumPolicy;
 import org.sonatype.nexus.proxy.maven.RepositoryPolicy;
+import org.sonatype.nexus.proxy.repository.RepositoryWritePolicy;
 import org.sonatype.nexus.repository.metadata.model.RepositoryMetadata;
 import org.sonatype.nexus.repository.metadata.model.RepositoryMirrorMetadata;
 import org.sonatype.nexus.repository.metadata.model.io.xpp3.RepositoryMetadataXpp3Reader;
@@ -19,9 +17,10 @@ import org.sonatype.nexus.rest.model.MirrorResource;
 import org.sonatype.nexus.rest.model.MirrorResourceListResponse;
 import org.sonatype.nexus.rest.model.RepositoryResource;
 import org.sonatype.nexus.rest.model.RepositoryResourceRemoteStorage;
-import org.sonatype.nexus.proxy.repository.RepositoryWritePolicy;
 import org.sonatype.nexus.test.utils.MirrorMessageUtils;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1581MirrorMetadataIT
     extends AbstractNexusIntegrationTest
@@ -95,13 +94,13 @@ public class Nexus1581MirrorMetadataIT
         
         MirrorResourceListResponse response = mirrorUtils.getPredefinedMirrors( PROXY_REPO_ID );
         
-        Assert.assertEquals( 3, response.getData().size() );
-        Assert.assertEquals( "id1", ( ( MirrorResource ) response.getData().get(0) ).getId() );
-        Assert.assertEquals( "http://localhost:8081/somemirror", ( ( MirrorResource ) response.getData().get(0) ).getUrl() );
-        Assert.assertEquals( "id2", ( ( MirrorResource ) response.getData().get(1) ).getId() );
-        Assert.assertEquals( "http://localhost:8086/somemirror2", ( ( MirrorResource ) response.getData().get(1) ).getUrl() );
-        Assert.assertEquals( "id3", ( ( MirrorResource ) response.getData().get(2) ).getId() );
-        Assert.assertEquals( "http://localhost:8086/somemirror3", ( ( MirrorResource ) response.getData().get(2) ).getUrl() );
+        AssertJUnit.assertEquals( 3, response.getData().size() );
+        AssertJUnit.assertEquals( "id1", ( ( MirrorResource ) response.getData().get(0) ).getId() );
+        AssertJUnit.assertEquals( "http://localhost:8081/somemirror", ( ( MirrorResource ) response.getData().get(0) ).getUrl() );
+        AssertJUnit.assertEquals( "id2", ( ( MirrorResource ) response.getData().get(1) ).getId() );
+        AssertJUnit.assertEquals( "http://localhost:8086/somemirror2", ( ( MirrorResource ) response.getData().get(1) ).getUrl() );
+        AssertJUnit.assertEquals( "id3", ( ( MirrorResource ) response.getData().get(2) ).getId() );
+        AssertJUnit.assertEquals( "http://localhost:8086/somemirror3", ( ( MirrorResource ) response.getData().get(2) ).getUrl() );
     }
     
     protected void createProxyRepository()

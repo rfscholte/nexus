@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
-import org.junit.Assert;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
@@ -33,6 +32,7 @@ import org.sonatype.nexus.rest.model.RepositoryResource;
 import org.sonatype.nexus.rest.model.RepositoryResourceResponse;
 import org.sonatype.nexus.rest.model.SearchResponse;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -106,7 +106,7 @@ public class SearchMessageUtil
         Response response = doSearchFor( queryArgs, repositoryId );
         String responseText = response.getEntity().getText();
         
-        Assert.assertTrue( "Search failure:\n"+ responseText, response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Search failure:\n"+ responseText, response.getStatus().isSuccess() );
 
         XStreamRepresentation representation =
             new XStreamRepresentation( xstream, responseText, MediaType.APPLICATION_XML );
@@ -173,7 +173,7 @@ public class SearchMessageUtil
         representation.setPayload( repositoryResponse );
 
         Status status = RequestFacade.sendMessage( serviceURI, Method.PUT, representation ).getStatus();
-        Assert.assertEquals( Status.SUCCESS_OK.getCode(), status.getCode() );
+        AssertJUnit.assertEquals( Status.SUCCESS_OK.getCode(), status.getCode() );
 
     }
 

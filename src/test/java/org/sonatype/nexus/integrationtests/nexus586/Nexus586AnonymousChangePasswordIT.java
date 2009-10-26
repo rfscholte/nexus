@@ -13,11 +13,11 @@
  */
 package org.sonatype.nexus.integrationtests.nexus586;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.test.utils.ChangePasswordUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 /**
  * Saving the Nexus config needs to validate the anonymous user information 
@@ -32,6 +32,6 @@ public class Nexus586AnonymousChangePasswordIT
     {
         String username = "anonymous";
         Status status = ChangePasswordUtils.changePassword( username, "anonymous", "anonymous@123" );
-        Assert.assertEquals( 400, status.getCode() );
+        AssertJUnit.assertEquals( 400, status.getCode() );
     }
 }

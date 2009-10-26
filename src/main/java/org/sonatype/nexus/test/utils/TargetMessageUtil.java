@@ -19,8 +19,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.log4j.Logger;
 import org.codehaus.plexus.util.StringUtils;
 import org.restlet.data.MediaType;
@@ -35,6 +33,7 @@ import org.sonatype.nexus.rest.model.RepositoryTargetListResourceResponse;
 import org.sonatype.nexus.rest.model.RepositoryTargetResource;
 import org.sonatype.nexus.rest.model.RepositoryTargetResourceResponse;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
+import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -60,7 +59,7 @@ public class TargetMessageUtil
         Response response = this.sendMessage( Method.POST, target );
         String responseText = response.getEntity().getText();
 
-        Assert.assertTrue( "Could not create Repository Target: " + response.getStatus() + "\nResponse Text:\n"
+        AssertJUnit.assertTrue( "Could not create Repository Target: " + response.getStatus() + "\nResponse Text:\n"
             + responseText + "\n" + xstream.toXML( target ), response.getStatus().isSuccess() );
 
         // get the Resource object
@@ -68,11 +67,11 @@ public class TargetMessageUtil
 
         // validate
         // make sure the id != null
-        Assert.assertTrue( StringUtils.isNotEmpty( responseResource.getId() ) );
+        AssertJUnit.assertTrue( StringUtils.isNotEmpty( responseResource.getId() ) );
 
-        Assert.assertEquals( target.getContentClass(), responseResource.getContentClass() );
-        Assert.assertEquals( target.getName(), responseResource.getName() );
-        Assert.assertEquals( target.getPatterns(), responseResource.getPatterns() );
+        AssertJUnit.assertEquals( target.getContentClass(), responseResource.getContentClass() );
+        AssertJUnit.assertEquals( target.getName(), responseResource.getName() );
+        AssertJUnit.assertEquals( target.getPatterns(), responseResource.getPatterns() );
 
         this.verifyTargetsConfig( responseResource );
 
@@ -155,7 +154,7 @@ public class TargetMessageUtil
 
         // TODO: we can't check the size unless we reset the config after each run...
         // check to see if the size matches
-        // Assert.assertTrue( "Configuration had a different number: (" + repoTargets.size()
+        // AssertJUnit.assertTrue( "Configuration had a different number: (" + repoTargets.size()
         // + ") of targets then expected: (" + targetResources.size() + ")",
         // repoTargets.size() == targetResources.size() );
 
@@ -173,11 +172,11 @@ public class TargetMessageUtil
                 if ( targetResource.getId().equals( repositoryTarget.getId() ) )
                 {
                     found = true;
-                    Assert.assertEquals( targetResource.getId(), repositoryTarget.getId() );
-                    Assert.assertEquals( targetResource.getContentClass(), repositoryTarget.getContentClass() );
-                    Assert.assertEquals( targetResource.getName(), repositoryTarget.getName() );
+                    AssertJUnit.assertEquals( targetResource.getId(), repositoryTarget.getId() );
+                    AssertJUnit.assertEquals( targetResource.getContentClass(), repositoryTarget.getContentClass() );
+                    AssertJUnit.assertEquals( targetResource.getName(), repositoryTarget.getName() );
                     // order doesn't matter
-                    Assert.assertEquals( new HashSet<String>(targetResource.getPatterns()), new HashSet<String>( repositoryTarget.getPatterns()) );
+                    AssertJUnit.assertEquals( new HashSet<String>(targetResource.getPatterns()), new HashSet<String>( repositoryTarget.getPatterns()) );
 
                     break;
                 }
@@ -187,7 +186,7 @@ public class TargetMessageUtil
             if ( !found )
             {
 
-                Assert.fail( "Target with ID: " + targetResource.getId() + " could not be found in configuration." );
+                AssertJUnit.fail( "Target with ID: " + targetResource.getId() + " could not be found in configuration." );
             }
         }
     }
@@ -200,7 +199,7 @@ public class TargetMessageUtil
 
         List<CRepositoryTarget> repoTargets = config.getRepositoryTargets();
         // check to see if the size matches
-        Assert.assertTrue( "Configuration had a different number: (" + repoTargets.size()
+        AssertJUnit.assertTrue( "Configuration had a different number: (" + repoTargets.size()
             + ") of targets then expected: (" + targets.size() + ")", repoTargets.size() == targets.size() );
 
         // look for the target by id
@@ -217,9 +216,9 @@ public class TargetMessageUtil
                 if ( targetResource.getId().equals( repositoryTarget.getId() ) )
                 {
                     found = true;
-                    Assert.assertEquals( targetResource.getId(), repositoryTarget.getId() );
-                    Assert.assertEquals( targetResource.getContentClass(), repositoryTarget.getContentClass() );
-                    Assert.assertEquals( targetResource.getName(), repositoryTarget.getName() );
+                    AssertJUnit.assertEquals( targetResource.getId(), repositoryTarget.getId() );
+                    AssertJUnit.assertEquals( targetResource.getContentClass(), repositoryTarget.getContentClass() );
+                    AssertJUnit.assertEquals( targetResource.getName(), repositoryTarget.getName() );
 
                     break;
                 }
@@ -229,7 +228,7 @@ public class TargetMessageUtil
             if ( !found )
             {
 
-                Assert.fail( "Target with ID: " + targetResource.getId() + " could not be found in configuration." );
+                AssertJUnit.fail( "Target with ID: " + targetResource.getId() + " could not be found in configuration." );
             }
         }
 
@@ -243,7 +242,7 @@ public class TargetMessageUtil
         {
             Status status =
                 RequestFacade.sendMessage( "service/local/repo_targets/" + target.getId(), Method.DELETE ).getStatus();
-            Assert.assertTrue( "Failt to delete: " + status.getDescription(), status.isSuccess() );
+            AssertJUnit.assertTrue( "Failt to delete: " + status.getDescription(), status.isSuccess() );
         }
     }
 

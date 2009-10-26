@@ -18,13 +18,8 @@ import java.io.FileReader;
 import java.util.Date;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
@@ -36,6 +31,10 @@ import org.sonatype.nexus.test.utils.GroupMessageUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.SearchMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Test Search operations.
@@ -68,7 +67,7 @@ public class Nexus383SearchIT
         super.runOnce();
 
         RepositoryMessageUtil.updateIndexes( NEXUS_TEST_HARNESS_RELEASE_REPO, NEXUS_TEST_HARNESS_REPO2,
-            NEXUS_TEST_HARNESS_REPO );
+                                             NEXUS_TEST_HARNESS_REPO );
 
         TaskScheduleUtil.waitForTasks();
 
@@ -81,7 +80,7 @@ public class Nexus383SearchIT
         publicGroup.addRepository( member );
     }
 
-    @After
+    @AfterMethod
     public void resetRepo()
         throws Exception
     {
@@ -97,34 +96,34 @@ public class Nexus383SearchIT
     {
         // groupId
         List<NexusArtifact> results = messageUtil.searchFor( "nexus383" );
-        Assert.assertEquals( 2, results.size() );
+        AssertJUnit.assertEquals( 2, results.size() );
 
         // 3. negative test
         results = messageUtil.searchFor( "nexus-383" );
-        Assert.assertTrue( results.isEmpty() );
+        AssertJUnit.assertTrue( results.isEmpty() );
 
         // artifactId
         results = messageUtil.searchFor( "know-artifact-1" );
-        Assert.assertEquals( 1, results.size() );
+        AssertJUnit.assertEquals( 1, results.size() );
 
         // artifactId
         results = messageUtil.searchFor( "know-artifact-2" );
-        Assert.assertEquals( 1, results.size() );
+        AssertJUnit.assertEquals( 1, results.size() );
 
         // partial artifactId
         results = messageUtil.searchFor( "know-artifact" );
-        Assert.assertEquals( 2, results.size() );
+        AssertJUnit.assertEquals( 2, results.size() );
 
         // 3. negative test
         results = messageUtil.searchFor( "unknow-artifacts" );
-        Assert.assertTrue( results.isEmpty() );
+        AssertJUnit.assertTrue( results.isEmpty() );
 
         // NEXUS-2724: the member changes should propagate to it's groups too
         // has it propagated to group?
         results = messageUtil.searchFor( "nexus383", "know-artifact-1", "1.0.0", "public" );
-        Assert.assertEquals( 1, results.size() );
+        AssertJUnit.assertEquals( 1, results.size() );
         results = messageUtil.searchFor( "nexus383", "know-artifact-2", "1.0.0", "public" );
-        Assert.assertEquals( 1, results.size() );
+        AssertJUnit.assertEquals( 1, results.size() );
     }
 
     @Test
@@ -134,15 +133,15 @@ public class Nexus383SearchIT
     {
         // know-artifact-1
         NexusArtifact result = messageUtil.searchForSHA1( "4ce1d96bd11b8959b32a75c1fa5b738d7b87d408" );
-        Assert.assertNotNull( result );
+        AssertJUnit.assertNotNull( result );
 
         // know-artifact-2
         result = messageUtil.searchForSHA1( "230377663ac3b19ad83c99b0afdb056dd580c5c8" );
-        Assert.assertNotNull( result );
+        AssertJUnit.assertNotNull( result );
 
         // velo's picture
         result = messageUtil.searchForSHA1( "612c17de73fdc8b9e3f6a063154d89946eb7c6f2" );
-        Assert.assertNull( result );
+        AssertJUnit.assertNull( result );
     }
 
     @Test
@@ -156,19 +155,19 @@ public class Nexus383SearchIT
 
         // groupId
         List<NexusArtifact> results = messageUtil.searchFor( "nexus383" );
-        Assert.assertTrue( results.isEmpty() );
+        AssertJUnit.assertTrue( results.isEmpty() );
 
         // artifactId
         results = messageUtil.searchFor( "know-artifact-1" );
-        Assert.assertTrue( results.isEmpty() );
+        AssertJUnit.assertTrue( results.isEmpty() );
 
         // artifactId
         results = messageUtil.searchFor( "know-artifact-2" );
-        Assert.assertTrue( results.isEmpty() );
+        AssertJUnit.assertTrue( results.isEmpty() );
 
         // partial artifactId
         results = messageUtil.searchFor( "know-artifact" );
-        Assert.assertTrue( results.isEmpty() );
+        AssertJUnit.assertTrue( results.isEmpty() );
 
     }
 
@@ -246,38 +245,46 @@ public class Nexus383SearchIT
 
         Gav gav =
             new Gav( model.getGroupId(), model.getArtifactId(), model.getVersion(), null, model.getPackaging(), 0,
-                new Date().getTime(), model.getName(), false, false, null, false, null );
+                     new Date().getTime(), model.getName(), false, false, null, false, null );
 
         // Multi repository deploy
-        DeployUtils.deployWithWagon( this.container, "http", deployUrl, fileToDeploy, this
-            .getRelitiveArtifactPath( gav ) );
+        DeployUtils.deployWithWagon( this.container, "http", deployUrl, fileToDeploy,
+                                     this.getRelitiveArtifactPath( gav ) );
         DeployUtils.deployWithWagon( this.container, "http", deployUrl.replace( NEXUS_TEST_HARNESS_REPO,
-            NEXUS_TEST_HARNESS_REPO2 ), fileToDeploy, this.getRelitiveArtifactPath( gav ) );
+                                                                                NEXUS_TEST_HARNESS_REPO2 ),
+                                     fileToDeploy, this.getRelitiveArtifactPath( gav ) );
         DeployUtils.deployWithWagon( this.container, "http", deployUrl.replace( NEXUS_TEST_HARNESS_REPO,
-            NEXUS_TEST_HARNESS_RELEASE_REPO ), fileToDeploy, this.getRelitiveArtifactPath( gav ) );
+                                                                                NEXUS_TEST_HARNESS_RELEASE_REPO ),
+                                     fileToDeploy, this.getRelitiveArtifactPath( gav ) );
         DeployUtils.deployWithWagon( this.container, "http", deployUrl, pomFile, this.getRelitivePomPath( gav ) );
         DeployUtils.deployWithWagon( this.container, "http", deployUrl.replace( NEXUS_TEST_HARNESS_REPO,
-            NEXUS_TEST_HARNESS_REPO2 ), pomFile, this.getRelitivePomPath( gav ) );
+                                                                                NEXUS_TEST_HARNESS_REPO2 ), pomFile,
+                                     this.getRelitivePomPath( gav ) );
         DeployUtils.deployWithWagon( this.container, "http", deployUrl.replace( NEXUS_TEST_HARNESS_REPO,
-            NEXUS_TEST_HARNESS_RELEASE_REPO ), pomFile, this.getRelitivePomPath( gav ) );
+                                                                                NEXUS_TEST_HARNESS_RELEASE_REPO ),
+                                     pomFile, this.getRelitivePomPath( gav ) );
 
         // if you deploy the same item multiple times to the same repo, that is only a single item
         DeployUtils.deployWithWagon( this.container, "http", deployUrl.replace( NEXUS_TEST_HARNESS_REPO,
-            NEXUS_TEST_HARNESS_RELEASE_REPO ), fileToDeploy, this.getRelitiveArtifactPath( gav ) );
+                                                                                NEXUS_TEST_HARNESS_RELEASE_REPO ),
+                                     fileToDeploy, this.getRelitiveArtifactPath( gav ) );
         DeployUtils.deployWithWagon( this.container, "http", deployUrl.replace( NEXUS_TEST_HARNESS_REPO,
-            NEXUS_TEST_HARNESS_RELEASE_REPO ), pomFile, this.getRelitivePomPath( gav ) );
+                                                                                NEXUS_TEST_HARNESS_RELEASE_REPO ),
+                                     pomFile, this.getRelitivePomPath( gav ) );
         DeployUtils.deployWithWagon( this.container, "http", deployUrl.replace( NEXUS_TEST_HARNESS_REPO,
-            NEXUS_TEST_HARNESS_RELEASE_REPO ), fileToDeploy, this.getRelitiveArtifactPath( gav ) );
+                                                                                NEXUS_TEST_HARNESS_RELEASE_REPO ),
+                                     fileToDeploy, this.getRelitiveArtifactPath( gav ) );
         DeployUtils.deployWithWagon( this.container, "http", deployUrl.replace( NEXUS_TEST_HARNESS_REPO,
-            NEXUS_TEST_HARNESS_RELEASE_REPO ), pomFile, this.getRelitivePomPath( gav ) );
+                                                                                NEXUS_TEST_HARNESS_RELEASE_REPO ),
+                                     pomFile, this.getRelitivePomPath( gav ) );
 
         RepositoryMessageUtil.updateIndexes( NEXUS_TEST_HARNESS_REPO, NEXUS_TEST_HARNESS_REPO2,
-            NEXUS_TEST_HARNESS_RELEASE_REPO );
+                                             NEXUS_TEST_HARNESS_RELEASE_REPO );
 
         TaskScheduleUtil.waitForTasks();
 
         List<NexusArtifact> results = messageUtil.searchFor( "crossArtifact" );
-        Assert.assertEquals( 3, results.size() );
+        AssertJUnit.assertEquals( 3, results.size() );
 
     }
 

@@ -18,10 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.Test;
 import org.restlet.data.Status;
 import org.sonatype.nexus.configuration.model.CScheduledTask;
 import org.sonatype.nexus.configuration.model.Configuration;
@@ -31,6 +28,8 @@ import org.sonatype.nexus.rest.model.ScheduledServiceListResource;
 import org.sonatype.nexus.rest.model.ScheduledServiceOnceResource;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledServiceBaseResource>
     extends AbstractNexusIntegrationTest
@@ -43,7 +42,7 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
         throws Exception
     {
         Status status = TaskScheduleUtil.create( getTaskScheduled() );
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
         assertTasks();
     }
@@ -55,13 +54,13 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
         Configuration nexusConfig = NexusConfigUtil.getNexusConfig();
 
         List<CScheduledTask> tasks = nexusConfig.getTasks();
-        Assert.assertEquals( 1, tasks.size() );
+        AssertJUnit.assertEquals( 1, tasks.size() );
 
         CScheduledTask task = tasks.get( 0 );
         E scheduledTask = getTaskScheduled();
 
-        Assert.assertEquals( scheduledTask.getName(), task.getName() );
-        Assert.assertEquals( scheduledTask.getTypeId(), task.getType() );
+        AssertJUnit.assertEquals( scheduledTask.getName(), task.getName() );
+        AssertJUnit.assertEquals( scheduledTask.getTypeId(), task.getType() );
     }
 
     @Test
@@ -74,7 +73,7 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
         scheduledTask.setId( task.getId() );
         updateTask( scheduledTask );
         Status status = TaskScheduleUtil.update( scheduledTask );
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
         assertTasks();
     }
@@ -101,7 +100,7 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
             taskManual.setSchedule( "manual" );
 
             Status status = TaskScheduleUtil.update( taskManual );
-            Assert.assertTrue( status.isSuccess() );
+            AssertJUnit.assertTrue( status.isSuccess() );
 
         }
         else
@@ -119,7 +118,7 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
             updatedTask.setStartTime( "03:30" );
 
             Status status = TaskScheduleUtil.update( updatedTask );
-            Assert.assertTrue( status.isSuccess() );
+            AssertJUnit.assertTrue( status.isSuccess() );
         }
 
         assertTasks();
@@ -131,11 +130,11 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
     {
         ScheduledServiceListResource task = TaskScheduleUtil.getTask( getTaskScheduled().getName() );
         Status status = TaskScheduleUtil.deleteTask( task.getId() );
-        Assert.assertTrue( status.isSuccess() );
+        AssertJUnit.assertTrue( status.isSuccess() );
 
         // delete is not working, see NEXUS-572
         Configuration nexusConfig = NexusConfigUtil.getNexusConfig();
-        Assert.assertTrue( nexusConfig.getTasks().isEmpty() );
+        AssertJUnit.assertTrue( nexusConfig.getTasks().isEmpty() );
     }
 
 }

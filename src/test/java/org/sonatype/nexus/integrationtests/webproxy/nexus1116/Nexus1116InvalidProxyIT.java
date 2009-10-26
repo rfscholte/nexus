@@ -17,13 +17,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
-import org.junit.Test;
 import org.sonatype.nexus.integrationtests.webproxy.AbstractNexusWebProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.TestProperties;
+import org.testng.AssertJUnit;
+import org.testng.annotations.Test;
 
 public class Nexus1116InvalidProxyIT
     extends AbstractNexusWebProxyIntegrationTest
@@ -49,7 +48,7 @@ public class Nexus1116InvalidProxyIT
 
             if ( status.startsWith( "fail" ) )
             {
-                Assert.fail( "Verifier fail: " + status );
+                AssertJUnit.fail( "Verifier fail: " + status );
             }
             else if ( status.equals( "executed" ) )
             {
@@ -61,7 +60,7 @@ public class Nexus1116InvalidProxyIT
             Thread.sleep( 200 );
         }
 
-        Assert.fail( "Verifier didn't runn after 20 seconds: " + this.status );
+        AssertJUnit.fail( "Verifier didn't runn after 20 seconds: " + this.status );
     }
 
     private String status = "notStarted";

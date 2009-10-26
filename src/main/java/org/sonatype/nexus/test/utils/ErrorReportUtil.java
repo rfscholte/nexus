@@ -8,8 +8,7 @@ import java.util.zip.ZipFile;
 
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
-
-import junit.framework.Assert;
+import org.testng.AssertJUnit;
 
 public class ErrorReportUtil
 {
@@ -28,7 +27,7 @@ public class ErrorReportUtil
     {
         File errorBundleDir = new File( directory + "/error-report-bundles" );
         
-        Assert.assertFalse( errorBundleDir.exists() );
+        AssertJUnit.assertFalse( errorBundleDir.exists() );
     }
     
     public static void validateZipContents( String directory )
@@ -38,10 +37,10 @@ public class ErrorReportUtil
         
         File[] files = errorBundleDir.listFiles();
         
-        Assert.assertTrue( files != null );
-        Assert.assertEquals( 1, files.length );
-        Assert.assertTrue( files[0].getName().startsWith( "nexus-error-bundle." ) );
-        Assert.assertTrue( files[0].getName().endsWith( ".zip" ) );
+        AssertJUnit.assertTrue( files != null );
+        AssertJUnit.assertEquals( 1, files.length );
+        AssertJUnit.assertTrue( files[0].getName().startsWith( "nexus-error-bundle." ) );
+        AssertJUnit.assertTrue( files[0].getName().endsWith( ".zip" ) );
         
         validateZipContents( files[0] );
     }
@@ -106,13 +105,13 @@ public class ErrorReportUtil
             }
         }
 
-        Assert.assertTrue( foundException );
-        Assert.assertTrue( foundFileList );
-        Assert.assertTrue( foundContextList );
-        Assert.assertTrue( foundLog4j );
-        Assert.assertTrue( foundNexusXml );
-        Assert.assertTrue( foundSecurityXml );
-        Assert.assertTrue( foundSecurityConfigXml );
-        Assert.assertFalse( foundOthers );
+        AssertJUnit.assertTrue( foundException );
+        AssertJUnit.assertTrue( foundFileList );
+        AssertJUnit.assertTrue( foundContextList );
+        AssertJUnit.assertTrue( foundLog4j );
+        AssertJUnit.assertTrue( foundNexusXml );
+        AssertJUnit.assertTrue( foundSecurityXml );
+        AssertJUnit.assertTrue( foundSecurityConfigXml );
+        AssertJUnit.assertFalse( foundOthers );
     }
 }
