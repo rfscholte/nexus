@@ -37,7 +37,6 @@ import org.sonatype.security.rest.model.RoleResource;
 import org.sonatype.security.rest.model.UserResource;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class Nexus1696ValidateBaseUrlIT
@@ -46,10 +45,12 @@ public class Nexus1696ValidateBaseUrlIT
 
     private String baseUrl;
 
-    @BeforeClass
-    public void init()
+    @Override
+    protected void runOnce()
         throws Exception
     {
+        super.runOnce();
+
         baseUrl = nexusBaseUrl.replace( "nexus", "nexus1696" ).replace( "http", "https" );
 
         GlobalConfigurationResource settings = SettingsMessageUtil.getCurrentSettings();

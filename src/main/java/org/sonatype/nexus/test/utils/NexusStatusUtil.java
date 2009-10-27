@@ -101,8 +101,8 @@ public class NexusStatusUtil
     public static void start()
         throws Exception
     {
-        int totalWaitCycles = 200 * 5; // 200 sec
-        int retryStartCycles = 50 * 5; // 50 sec
+        int totalWaitCycles = 400; // 200 sec
+        int retryStartCycles = 200; // 50 sec
         int pollingFreq = 200; // 200 ms
 
         log.info( "wait for Nexus start" );
@@ -111,6 +111,7 @@ public class NexusStatusUtil
 
             if ( i % retryStartCycles == 0 )
             {
+                getAppBooterService().shutdown();
                 getAppBooterService().start();
             }
 

@@ -24,7 +24,6 @@ import org.sonatype.nexus.test.utils.GavUtil;
 import org.sonatype.nexus.test.utils.MavenDeployer;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.testng.AssertJUnit;
-import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -74,14 +73,10 @@ public class Nexus2497ConcurrentRepoAccessIT
         return file;
     }
 
-    @Test
+    @Test( enabled = false )
     public void doConcurrence()
         throws Exception
     {
-        if ( true )
-        {
-            throw new SkipException( "" );
-        }
         List<Thread> threads = new ArrayList<Thread>();
         final Map<Thread, Throwable> errors = new LinkedHashMap<Thread, Throwable>();
         for ( final File f : files )

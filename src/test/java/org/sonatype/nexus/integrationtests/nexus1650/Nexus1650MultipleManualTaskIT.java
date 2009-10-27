@@ -14,7 +14,6 @@ import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class Nexus1650MultipleManualTaskIT
@@ -35,10 +34,12 @@ public class Nexus1650MultipleManualTaskIT
         super( "nexus-test-harness-snapshot-repo" );
     }
 
-    @BeforeClass
-    public void deploySnapshotArtifacts()
+    @Override
+    protected void runOnce()
         throws Exception
     {
+        super.runOnce();
+
         initFolders();
 
         File oldSnapshot = getTestFile( "repo" );

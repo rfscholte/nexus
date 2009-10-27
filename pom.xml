@@ -90,7 +90,7 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>failsafe-maven-plugin</artifactId>
         <configuration>
-          <argLine>-Xmx512M</argLine>
+          <argLine>-Xmx1024M  -XX:MaxPermSize=384m  -server</argLine>
           <excludes>
             <exclude>**Suite*</exclude>
             <!-- START This are start/stop tests, shouldn't be runned -->
@@ -253,7 +253,7 @@
     <dependency>
       <groupId>org.sonatype.appbooter.plexus-booters</groupId>
       <artifactId>plexus-app-booter</artifactId>
-      <version>2.0.0</version>
+      <version>${plexus.appbooter.version}</version>
     </dependency>
 
     <dependency>
@@ -287,7 +287,7 @@
     <dependency>
       <groupId>org.sonatype.appbooter</groupId>
       <artifactId>plexus-forked-app-booter</artifactId>
-      <version>2.0.0</version>
+      <version>${plexus.appbooter.version}</version>
     </dependency>
 
     <dependency>
@@ -401,10 +401,10 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>failsafe-maven-plugin</artifactId>
             <configuration>
-              <argLine>-agentpath:"${yourkit.home}\bin\win32\yjpagent.dll"</argLine>
+              <argLine>-agentpath:"${yourkit.home}\bin\win64\yjpagent.dll"</argLine>
             </configuration>
           </plugin>
         </plugins>

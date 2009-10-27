@@ -60,12 +60,12 @@ import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.testng.Assert;
 import org.testng.AssertJUnit;
+import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeSuite;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -129,6 +129,8 @@ public class AbstractNexusIntegrationTest
      * Flag that says if we should verify the config before startup, we do not want to do this for upgrade tests.
      */
     private boolean verifyNexusConfigBeforeStart = true;
+
+    private static boolean INVALID_STATE;
 
     static
     {
@@ -430,6 +432,7 @@ public class AbstractNexusIntegrationTest
         }
         catch ( Exception e )
         {
+            INVALID_STATE = true;
             log.fatal( e.getMessage(), e );
             if ( nexusLog.exists() )
             {
@@ -581,12 +584,17 @@ public class AbstractNexusIntegrationTest
     public static void staticOncePerClassSetUp()
         throws Exception
     {
+        if ( INVALID_STATE )
+        {
+            throw new SkipException( "Nexus entered into an invalid state" );
+        }
+
         log.debug( "staticOncePerClassSetUp" );
         // hacky state machine
         NEEDS_INIT = true;
     }
 
-    @BeforeSuite
+    @BeforeClass
     public void createContainer()
     {
         this.container = setupContainer( getClass() );
@@ -643,7 +651,7 @@ public class AbstractNexusIntegrationTest
         }
         catch ( Exception e )
         {
-            fail( "Profiler was active, but failed due: " + e.getMessage() );
+            Assert.fail( "Profiler was active, but failed", e );
         }
     }
 
