@@ -26,15 +26,16 @@ import org.testng.annotations.Test;
 /**
  * Test the privilege for CRUD operations.
  */
-public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
+public class Nexus385RoutesPermissionIT
+    extends AbstractPrivilegeTest
 {
-    
+
     @Test
     public void testCreatePermission()
         throws IOException
     {
         this.giveUserPrivilege( TEST_USER_NAME, "repository-all" );
-        
+
         RepositoryRouteResource route = new RepositoryRouteResource();
         route.setGroupId( "nexus-test" );
         route.setPattern( ".*testCreatePermission.*" );
@@ -51,7 +52,7 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
 
         // now give create
-        this.giveUserPrivilege( TEST_USER_NAME, "22" );   
+        this.giveUserPrivilege( TEST_USER_NAME, "22" );
 
         // now.... it should work...
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
@@ -64,11 +65,11 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         // read should succeed (inherited)
         response = this.routeUtil.sendMessage( Method.GET, route );
         AssertJUnit.assertEquals( "Response status: ", 200, response.getStatus().getCode() );
-        
+
         // update should fail
         response = this.routeUtil.sendMessage( Method.PUT, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
-        
+
         // delete should fail
         response = this.routeUtil.sendMessage( Method.DELETE, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
@@ -82,7 +83,7 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
 
         TestContainer.getInstance().getTestContext().setUsername( "admin" );
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
-        
+
         this.giveUserPrivilege( TEST_USER_NAME, "repository-all" );
 
         RepositoryRouteResource route = new RepositoryRouteResource();
@@ -100,8 +101,9 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         // update user
         route.setPattern( ".*testUpdatePermission2.*" );
         response = this.routeUtil.sendMessage( Method.PUT, route );
-//        log.debug( "PROBLEM: "+ this.userUtil.getUser( TEST_USER_NAME ) );
-        AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
+        // log.debug( "PROBLEM: "+ this.userUtil.getUser( TEST_USER_NAME ) );
+        AssertJUnit.assertEquals( "Response status: " + "\n" + getUserRoles( "test-user" ), 403,
+                                  response.getStatus().getCode() );
 
         // use admin
         TestContainer.getInstance().getTestContext().setUsername( "admin" );
@@ -114,7 +116,7 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
 
         // should work now...
-        
+
         // update user
         response = this.routeUtil.sendMessage( Method.PUT, route );
         AssertJUnit.assertEquals( "Response status: ", 204, response.getStatus().getCode() );
@@ -122,25 +124,24 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         // read should succeed (inherited)
         response = this.routeUtil.sendMessage( Method.GET, route );
         AssertJUnit.assertEquals( "Response status: ", 200, response.getStatus().getCode() );
-        
+
         // update should fail
         response = this.routeUtil.sendMessage( Method.POST, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
-        
+
         // delete should fail
         response = this.routeUtil.sendMessage( Method.DELETE, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
-        
-        
+
     }
-    
+
     @Test
     public void testReadPermission()
         throws IOException
     {
         TestContainer.getInstance().getTestContext().setUsername( "admin" );
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
-        
+
         this.giveUserPrivilege( TEST_USER_NAME, "repository-all" );
 
         RepositoryRouteResource route = new RepositoryRouteResource();
@@ -156,7 +157,8 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
 
         response = this.routeUtil.sendMessage( Method.PUT, route );
-        AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Response status: " + "\n" + getUserRoles( "test-user" ), 403,
+                                  response.getStatus().getCode() );
 
         // use admin
         TestContainer.getInstance().getTestContext().setUsername( "admin" );
@@ -169,7 +171,7 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
 
         // should work now...
-        
+
         // update user
         response = this.routeUtil.sendMessage( Method.PUT, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
@@ -177,18 +179,17 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         // read should fail
         response = this.routeUtil.sendMessage( Method.GET, route );
         AssertJUnit.assertEquals( "Response status: ", 200, response.getStatus().getCode() );
-        
+
         // update should fail
         response = this.routeUtil.sendMessage( Method.POST, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
-        
+
         // delete should fail
         response = this.routeUtil.sendMessage( Method.DELETE, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
-        
-        
+
     }
-    
+
     @Test
     public void testDeletePermission()
         throws IOException
@@ -196,7 +197,7 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
 
         TestContainer.getInstance().getTestContext().setUsername( "admin" );
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
-        
+
         this.giveUserPrivilege( TEST_USER_NAME, "repository-all" );
 
         RepositoryRouteResource route = new RepositoryRouteResource();
@@ -210,7 +211,6 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
 
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
-
 
         response = this.routeUtil.sendMessage( Method.DELETE, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
@@ -226,7 +226,7 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
 
         // should work now...
-        
+
         // update user
         response = this.routeUtil.sendMessage( Method.PUT, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
@@ -234,17 +234,15 @@ public class Nexus385RoutesPermissionIT extends AbstractPrivilegeTest
         // read should succeed (inherited)
         response = this.routeUtil.sendMessage( Method.GET, route );
         AssertJUnit.assertEquals( "Response status: ", 200, response.getStatus().getCode() );
-        
+
         // update should fail
         response = this.routeUtil.sendMessage( Method.POST, route );
         AssertJUnit.assertEquals( "Response status: ", 403, response.getStatus().getCode() );
-        
+
         // delete should fail
         response = this.routeUtil.sendMessage( Method.DELETE, route );
         AssertJUnit.assertEquals( "Response status: ", 204, response.getStatus().getCode() );
-        
-        
+
     }
-    
-    
+
 }

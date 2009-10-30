@@ -17,7 +17,7 @@ import org.sonatype.nexus.integrationtests.AbstractPrivilegeTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.security.rest.model.RoleResource;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.meterware.httpunit.GetMethodWebRequest;
@@ -29,7 +29,7 @@ public class Nexus507UserTimeoutIT
     extends AbstractPrivilegeTest
 {
 
-    @BeforeClass
+    @BeforeMethod
     public void reduceAdminRoleTimeout()
         throws Exception
     {

@@ -20,12 +20,14 @@ import java.util.List;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.FileUtils;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.NexusArtifact;
 import org.sonatype.nexus.rest.model.RepositoryGroupMemberRepository;
 import org.sonatype.nexus.rest.model.RepositoryGroupResource;
+import org.sonatype.nexus.tasks.ReindexTask;
 import org.sonatype.nexus.test.utils.DeployUtils;
 import org.sonatype.nexus.test.utils.GroupMessageUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
@@ -34,6 +36,7 @@ import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -66,11 +69,6 @@ public class Nexus383SearchIT
     {
         super.runOnce();
 
-        RepositoryMessageUtil.updateIndexes( NEXUS_TEST_HARNESS_RELEASE_REPO, NEXUS_TEST_HARNESS_REPO2,
-                                             NEXUS_TEST_HARNESS_REPO );
-
-        TaskScheduleUtil.waitForTasks();
-
         // add the repo to public group
         RepositoryGroupResource publicGroup = groupMessageUtil.getGroup( "public" );
 
@@ -78,6 +76,22 @@ public class Nexus383SearchIT
         member.setId( NEXUS_TEST_HARNESS_REPO );
 
         publicGroup.addRepository( member );
+    }
+
+    @BeforeMethod
+    public void cleanRepos()
+        throws Exception
+    {
+        FileUtils.forceDelete( new File( nexusWorkDir, "storage" ) );
+
+        deployArtifacts();
+
+        RepositoryMessageUtil.updateIndexes( NEXUS_TEST_HARNESS_RELEASE_REPO, NEXUS_TEST_HARNESS_REPO2,
+                                             NEXUS_TEST_HARNESS_REPO );
+
+        TaskScheduleUtil.waitForAllTasksToStop( ReindexTask.class );
+        TaskScheduleUtil.waitForTasks();
+
     }
 
     @AfterMethod
@@ -96,7 +110,7 @@ public class Nexus383SearchIT
     {
         // groupId
         List<NexusArtifact> results = messageUtil.searchFor( "nexus383" );
-        AssertJUnit.assertEquals( 2, results.size() );
+        AssertJUnit.assertEquals( "Got: " + resultsToString( results ), 2, results.size() );
 
         // 3. negative test
         results = messageUtil.searchFor( "nexus-383" );
@@ -120,9 +134,9 @@ public class Nexus383SearchIT
 
         // NEXUS-2724: the member changes should propagate to it's groups too
         // has it propagated to group?
-        results = messageUtil.searchFor( "nexus383", "know-artifact-1", "1.0.0", "public" );
+        results = SearchMessageUtil.searchFor( "nexus383", "know-artifact-1", "1.0.0", "public" );
         AssertJUnit.assertEquals( 1, results.size() );
-        results = messageUtil.searchFor( "nexus383", "know-artifact-2", "1.0.0", "public" );
+        results = SearchMessageUtil.searchFor( "nexus383", "know-artifact-2", "1.0.0", "public" );
         AssertJUnit.assertEquals( 1, results.size() );
     }
 
@@ -155,7 +169,7 @@ public class Nexus383SearchIT
 
         // groupId
         List<NexusArtifact> results = messageUtil.searchFor( "nexus383" );
-        AssertJUnit.assertTrue( results.isEmpty() );
+        AssertJUnit.assertTrue( "Got: " + resultsToString( results ), results.isEmpty() );
 
         // artifactId
         results = messageUtil.searchFor( "know-artifact-1" );
@@ -229,7 +243,8 @@ public class Nexus383SearchIT
         messageUtil.allowDeploying( NEXUS_TEST_HARNESS_REPO, true );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "disableDeploying", "disableEnableBrowsing", "disableBrowsing",
+        "disableEnableSearching", "disableSearching", "searchForSHA1", "searchFor" } )
     // 4. deploy same artifact to multiple repos, and search
     public void crossRepositorySearch()
         throws Exception
@@ -295,4 +310,24 @@ public class Nexus383SearchIT
         cleanWorkDir();
     }
 
+    private String resultsToString( List<NexusArtifact> results )
+    {
+        StringBuilder sb = new StringBuilder();
+        for ( NexusArtifact a : results )
+        {
+            sb.append( '\n' );
+            sb.append( a.getRepoId() );
+            sb.append( ':' );
+            sb.append( a.getGroupId() );
+            sb.append( ':' );
+            sb.append( a.getArtifactId() );
+            sb.append( ':' );
+            sb.append( a.getVersion() );
+            sb.append( ':' );
+            sb.append( a.getContextId() );
+            sb.append( ':' );
+            sb.append( a.getExtension() );
+        }
+        return sb.toString();
+    }
 }

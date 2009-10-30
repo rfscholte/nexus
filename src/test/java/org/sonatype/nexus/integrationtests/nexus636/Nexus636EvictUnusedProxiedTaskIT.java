@@ -33,6 +33,7 @@ import org.sonatype.nexus.tasks.descriptors.RebuildAttributesTaskDescriptor;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.thoughtworks.xstream.XStream;
@@ -60,7 +61,7 @@ public class Nexus636EvictUnusedProxiedTaskIT
         super( REPO_RELEASE_PROXY_REPO1 );
     }
 
-    @BeforeClass
+    @BeforeMethod
     public void deployOldArtifacts()
         throws Exception
     {

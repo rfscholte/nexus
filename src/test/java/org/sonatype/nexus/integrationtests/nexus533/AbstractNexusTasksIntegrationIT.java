@@ -29,6 +29,8 @@ import org.sonatype.nexus.rest.model.ScheduledServiceOnceResource;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledServiceBaseResource>
@@ -37,7 +39,7 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
 
     public abstract E getTaskScheduled();
 
-    @Test
+    @BeforeMethod
     public void scheduleTasks()
         throws Exception
     {
@@ -47,7 +49,6 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
         assertTasks();
     }
 
-    @SuppressWarnings( "unchecked" )
     protected void assertTasks()
         throws IOException
     {
@@ -124,7 +125,7 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
         assertTasks();
     }
 
-    @Test
+    @AfterMethod
     public void deleteTasks()
         throws Exception
     {

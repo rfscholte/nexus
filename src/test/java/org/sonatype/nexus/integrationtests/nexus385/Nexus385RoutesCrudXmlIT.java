@@ -24,7 +24,7 @@ import org.sonatype.nexus.rest.model.RepositoryRouteResource;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.RoutesMessageUtil;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.thoughtworks.xstream.XStream;
@@ -43,7 +43,7 @@ public class Nexus385RoutesCrudXmlIT
         this.messageUtil = new RoutesMessageUtil( this.getXMLXStream(), MediaType.APPLICATION_XML );
     }
 
-    @BeforeClass
+    @BeforeMethod
     public void cleanRoutes()
         throws IOException
     {

@@ -56,7 +56,7 @@ public class Nxcm970SimultaneousUploadDownloadIT
         }
 
         AssertJUnit.assertTrue( "Deployment failed: " + continuousDeployer.getResult(),
-                           continuousDeployer.getResult() == 201 );
+                                continuousDeployer.getResult() == 201 );
 
         // download the subjectArtifact -- should result in 200, found
         downloadSubjectArtifact( true, baseUrl );

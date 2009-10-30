@@ -132,6 +132,8 @@ public class AbstractNexusIntegrationTest
 
     private static boolean INVALID_STATE;
 
+    private static File testResourcesFolder;
+
     static
     {
         nexusApplicationPort = TestProperties.getInteger( "nexus.application.port" );
@@ -143,6 +145,7 @@ public class AbstractNexusIntegrationTest
         nexusBaseUrl = TestProperties.getString( "nexus.base.url" );
         baseNexusUrl = nexusBaseUrl;
         nexusLog = new File( TestProperties.getFile( "nexus.log.dir" ), "nexus.log" );
+        testResourcesFolder = new File( TestProperties.getString( "test.resources.folder" ) );
     }
 
     protected AbstractNexusIntegrationTest()
@@ -172,7 +175,7 @@ public class AbstractNexusIntegrationTest
      * @throws Exception
      */
     @BeforeMethod
-    public void oncePerClassSetUp()
+    public final void oncePerClassSetUp()
         throws Exception
     {
         synchronized ( AbstractNexusIntegrationTest.class )
@@ -182,8 +185,6 @@ public class AbstractNexusIntegrationTest
             {
                 // tell the console what we are doing, now that there is no output its
                 log.info( "Running Test: " + this.getClass().getSimpleName() );
-
-                this.copyTestResources();
 
                 HashMap<String, String> variables = new HashMap<String, String>();
                 variables.put( "test-harness-id", this.getTestId() );
@@ -227,7 +228,7 @@ public class AbstractNexusIntegrationTest
             return;
         }
 
-        File destination = new File( TestProperties.getString( "test.resources.folder" ), getTestId() );
+        File destination = new File( testResourcesFolder, getTestId() );
 
         FileTestingUtils.interpolationDirectoryCopy( source, destination, TestProperties.getAll() );
     }
@@ -444,7 +445,7 @@ public class AbstractNexusIntegrationTest
         }
     }
 
-    @AfterClass
+    @AfterMethod
     public void appendLogs()
         throws Exception
     {
@@ -562,8 +563,7 @@ public class AbstractNexusIntegrationTest
         log.debug( "Looking for resource: " + resource );
         // URL classURL = Thread.currentThread().getContextClassLoader().getResource( resource );
 
-        File rootDir = new File( TestProperties.getString( "test.resources.folder" ) );
-        File file = new File( rootDir, resource );
+        File file = new File( testResourcesFolder, resource );
 
         if ( !file.exists() )
         {
@@ -581,7 +581,7 @@ public class AbstractNexusIntegrationTest
      * @throws Exception
      */
     @BeforeClass
-    public static void staticOncePerClassSetUp()
+    public final void staticOncePerClassSetUp()
         throws Exception
     {
         if ( INVALID_STATE )
@@ -589,13 +589,15 @@ public class AbstractNexusIntegrationTest
             throw new SkipException( "Nexus entered into an invalid state" );
         }
 
+        copyTestResources();
+
         log.debug( "staticOncePerClassSetUp" );
         // hacky state machine
         NEEDS_INIT = true;
     }
 
     @BeforeClass
-    public void createContainer()
+    public final void createContainer()
     {
         this.container = setupContainer( getClass() );
     }
@@ -631,7 +633,7 @@ public class AbstractNexusIntegrationTest
     private static Object profiler;
 
     @BeforeClass
-    public static void startProfiler()
+    public final static void startProfiler()
     {
         Class<?> controllerClazz;
         try

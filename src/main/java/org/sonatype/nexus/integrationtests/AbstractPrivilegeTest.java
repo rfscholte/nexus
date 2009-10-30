@@ -35,6 +35,7 @@ import org.sonatype.security.rest.model.PrivilegeStatusResource;
 import org.sonatype.security.rest.model.RoleResource;
 import org.sonatype.security.rest.model.UserResource;
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 import com.thoughtworks.xstream.XStream;
@@ -124,14 +125,12 @@ public class AbstractPrivilegeTest
         UserResource user = this.userUtil.getUser( userId );
         ArrayList<String> privs = new ArrayList<String>();
 
-        for ( Iterator iter = user.getRoles().iterator(); iter.hasNext(); )
+        for ( String roleId : user.getRoles() )
         {
-            String roleId = (String) iter.next();
             RoleResource role = this.roleUtil.getRole( roleId );
 
-            for ( Iterator roleIter = role.getPrivileges().iterator(); roleIter.hasNext(); )
+            for ( String privId : role.getPrivileges() )
             {
-                String privId = (String) roleIter.next();
                 // PrivilegeBaseStatusResource priv = this.privUtil.getPrivilegeResource( privId );
                 // privs.add( priv.getName() );
                 CPrivilege priv = SecurityConfigUtil.getCPrivilege( privId );
@@ -149,9 +148,9 @@ public class AbstractPrivilegeTest
         }
 
         LOG.info( "User: " + userId );
-        for ( Iterator iter = privs.iterator(); iter.hasNext(); )
+        for ( Iterator<String> iter = privs.iterator(); iter.hasNext(); )
         {
-            String privName = (String) iter.next();
+            String privName = iter.next();
             LOG.info( "\t" + privName );
         }
     }
@@ -274,6 +273,15 @@ public class AbstractPrivilegeTest
         this.userUtil.updateUser( testUser );
     }
 
+    @Override
+    @AfterMethod
+    public void afterTest()
+        throws Exception
+    {
+        // reset any password
+        TestContainer.getInstance().getTestContext().useAdminForRequests();
+    }
+
     protected void addPrivilege( String userId, String privilege, String... privs )
         throws IOException
     {
@@ -340,4 +348,12 @@ public class AbstractPrivilegeTest
         List<PrivilegeStatusResource> stat = privUtil.createPrivileges( priv );
         addPrivilege( userName, stat.get( 0 ).getId() );
     }
+
+    protected List<String> getUserRoles( String username )
+        throws IOException
+    {
+        UserResource user = userUtil.getUser( username );
+        return user.getRoles();
+    }
+
 }

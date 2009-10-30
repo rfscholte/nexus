@@ -27,7 +27,7 @@ import org.sonatype.nexus.integrationtests.RequestFacade;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.DeployUtils;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -37,7 +37,7 @@ public class Nexus477ArtifactsCrudIT
     extends AbstractPrivilegeTest
 {
 
-    @BeforeClass
+    @BeforeMethod
     public void deployArtifact()
         throws Exception
     {

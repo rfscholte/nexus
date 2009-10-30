@@ -53,7 +53,7 @@ public class Nexus429WagonDeployPrivilegeIT
         Gav gav =
             new Gav( this.getTestId(), "artifact", "1.0.0", null, "xml", 0, new Date().getTime(), "", false, false,
                      null, false, null );
-        this.setTestRepositoryId( TEST_RELEASE_REPO );        
+        this.setTestRepositoryId( TEST_RELEASE_REPO );
         this.deployPrivWithWagon( gav, this.getNexusTestRepoUrl() );
     }
 
@@ -64,16 +64,16 @@ public class Nexus429WagonDeployPrivilegeIT
         Gav gav =
             new Gav( this.getTestId(), "artifact", "1.0.0-SNAPSHOT", null, "xml", 0, new Date().getTime(), "", false,
                      false, null, false, null );
-        this.setTestRepositoryId( TEST_SNAPSHOT_REPO );        
+        this.setTestRepositoryId( TEST_SNAPSHOT_REPO );
         this.deployPrivWithWagon( gav, this.getNexusTestRepoUrl() );
     }
-    
+
     @Override
     public void resetTestUserPrivs()
-    throws Exception
+        throws Exception
     {
         super.resetTestUserPrivs();
-        
+
         // give use view access to everything, (this acts like > 1.4)
         this.giveUserPrivilege( TEST_USER_NAME, "repository-all" );
     }
@@ -172,11 +172,10 @@ public class Nexus429WagonDeployPrivilegeIT
         // check the services url too, ( just the GET for now )
         // just check the parent dir, incase this is a SNAPSHOT repo
         Response response =
-            RequestFacade.sendMessage( new URL( this.getNexusTestRepoServiceUrl() + gav.getGroupId().replace( '.', '/' ) + "/" + gav.getArtifactId() + "/" + gav.getVersion() + "/"),
-                                       Method.GET, null );
+            RequestFacade.sendMessage( new URL( this.getNexusTestRepoServiceUrl() + gav.getGroupId().replace( '.', '/' )
+                + "/" + gav.getArtifactId() + "/" + gav.getVersion() + "/" ), Method.GET, null );
         AssertJUnit.assertEquals( "Artifact should have been downloaded", 200, response.getStatus().getCode() );
-        
-        
+
         // make sure delete does not work
         response =
             RequestFacade.sendMessage( "content/repositories/" + this.getTestRepositoryId() + "/" + this.getTestId(),
@@ -195,7 +194,7 @@ public class Nexus429WagonDeployPrivilegeIT
     protected void failTest( Verifier verifier )
         throws IOException
     {
-        File logFile = new File( verifier.getBasedir(), "log.txt" );
+        File logFile = new File( verifier.getLogFileName() );
         String log = FileUtils.readFileToString( logFile );
         AssertJUnit.fail( log );
     }

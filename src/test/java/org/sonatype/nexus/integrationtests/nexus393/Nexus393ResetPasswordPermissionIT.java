@@ -40,12 +40,12 @@ public class Nexus393ResetPasswordPermissionIT
         // Should be able to reset anyone password
         String username = "another-user";
         Response response = ResetPasswordUtils.resetPassword( username );
-        AssertJUnit.assertTrue( "Status: "+ response.getStatus(), response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Status: " + response.getStatus(), response.getStatus().isSuccess() );
 
         // Should be able to reset my own password
         username = TEST_USER_NAME;
         response = ResetPasswordUtils.resetPassword( username );
-        AssertJUnit.assertTrue( "Status: "+ response.getStatus(), response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Status: " + response.getStatus(), response.getStatus().isSuccess() );
 
     }
 
@@ -62,12 +62,14 @@ public class Nexus393ResetPasswordPermissionIT
         // NOT Shouldn't be able to reset anyone password
         String username = "another-user";
         Response response = ResetPasswordUtils.resetPassword( username );
-        AssertJUnit.assertEquals("Status: "+ response.getStatus() +"\n"+ response.getEntity().getText(), 401, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus() + "\n" + response.getEntity().getText() + "\n"
+            + getUserRoles( "test-user" ), 401, response.getStatus().getCode() );
 
         // NOT Should be able to reset my own password
         username = TEST_USER_NAME;
         response = ResetPasswordUtils.resetPassword( username );
-        AssertJUnit.assertEquals( "Status: "+ response.getStatus() +"\n"+ response.getEntity().getText(), 401, response.getStatus().getCode() );
+        AssertJUnit.assertEquals( "Status: " + response.getStatus() + "\n" + response.getEntity().getText(), 401,
+                                  response.getStatus().getCode() );
 
     }
 }

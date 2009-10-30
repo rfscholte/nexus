@@ -25,6 +25,7 @@ import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 
 public abstract class AbstractSnapshotRemoverIT
     extends AbstractNexusIntegrationTest
@@ -52,7 +53,7 @@ public abstract class AbstractSnapshotRemoverIT
         super( "nexus-test-harness-snapshot-repo" );
     }
 
-    @BeforeClass
+    @BeforeMethod
     public void deploySnapshotArtifacts()
         throws Exception
     {

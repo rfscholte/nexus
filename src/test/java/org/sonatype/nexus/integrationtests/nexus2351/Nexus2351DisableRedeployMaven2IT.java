@@ -13,6 +13,7 @@ import org.sonatype.nexus.test.utils.DeployUtils;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class Nexus2351DisableRedeployMaven2IT
@@ -25,7 +26,7 @@ public class Nexus2351DisableRedeployMaven2IT
 
     private File artifactMD5;
 
-    @BeforeClass
+    @BeforeMethod
     public void setup()
         throws Exception
     {

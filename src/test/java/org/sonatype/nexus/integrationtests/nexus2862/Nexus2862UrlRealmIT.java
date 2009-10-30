@@ -11,7 +11,6 @@ import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.UserCreationUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -62,19 +61,11 @@ public class Nexus2862UrlRealmIT
         AssertJUnit.assertTrue( status.isSuccess() );
     }
 
-    @AfterMethod
-    public void cleanAccessedUris()
-    {
-        server.getAccessedUri().clear();
-    }
-
     @Test
     public void loginUrlRealm()
         throws IOException
     {
         AssertJUnit.assertTrue( UserCreationUtil.login( "juka", "juk@" ).isSuccess() );
-
-        AssertJUnit.assertFalse( server.getAccessedUri().isEmpty() );
 
         AssertJUnit.assertTrue( UserCreationUtil.logout().isSuccess() );
     }

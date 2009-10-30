@@ -14,6 +14,7 @@ import org.sonatype.nexus.test.utils.DeployUtils;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class Nexus2351DisableRedeployMaven1IT
@@ -34,7 +35,7 @@ public class Nexus2351DisableRedeployMaven1IT
                                        this.getRepositoryTypeRegistry() );
     }
 
-    @BeforeClass
+    @BeforeMethod
     public void create()
     {
         artifact = this.getTestFile( "artifact.jar" );
