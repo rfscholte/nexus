@@ -139,26 +139,7 @@ public class NexusPoolTest
         }
     }
 
-    @Test( threadPoolSize = 4 /* pool has 8 elements we use 2 per test */, invocationCount = 30, dependsOnMethods = { "testPool" } )
-    public void severalObjectComparation()
-        throws Exception
-    {
-        NexusContext c1 = (NexusContext) pool.borrowObject();
-        NexusContext c2 = (NexusContext) pool.borrowObject();
-        try
-        {
-            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
-            MatcherAssert.assertThat( c1, CoreMatchers.not( CoreMatchers.equalTo( c2 ) ) );
-            Assert.assertTrue( c2.getForkedAppBooter().getControllerClient().isOpen() );
-        }
-        finally
-        {
-            pool.returnObject( c1 );
-            pool.returnObject( c2 );
-        }
-    }
-
-    @Test( threadPoolSize = 8, invocationCount = 100, dependsOnMethods = { "testPool" } )
+    @Test( threadPoolSize = 8, invocationCount = 50, dependsOnMethods = { "testPool" } )
     public void severalRequests()
         throws Exception
     {
