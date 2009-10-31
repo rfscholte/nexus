@@ -103,10 +103,9 @@ public class NexusPoolTest
         NexusContext c1 = (NexusContext) pool.borrowObject();
         try
         {
-            Assert.assertTrue( c1.getClient().isOpen() );
+            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
             Integer port = c1.getPort();
-            MatcherAssert.assertThat( getNexusStatus( port ).getData().getState(),
-                                      CoreMatchers.equalTo( "STARTED" ) );
+            MatcherAssert.assertThat( getNexusStatus( port ).getData().getState(), CoreMatchers.equalTo( "STARTED" ) );
         }
         finally
         {
@@ -122,13 +121,13 @@ public class NexusPoolTest
         NexusContext c2 = (NexusContext) pool.borrowObject();
         try
         {
-            Assert.assertTrue( c1.getClient().isOpen() );
+            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
             MatcherAssert.assertThat( getNexusStatus( c1.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
 
             MatcherAssert.assertThat( c1, CoreMatchers.not( CoreMatchers.equalTo( c2 ) ) );
 
-            Assert.assertTrue( c2.getClient().isOpen() );
+            Assert.assertTrue( c2.getForkedAppBooter().getControllerClient().isOpen() );
             MatcherAssert.assertThat( getNexusStatus( c2.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
 
@@ -148,9 +147,9 @@ public class NexusPoolTest
         NexusContext c2 = (NexusContext) pool.borrowObject();
         try
         {
-            Assert.assertTrue( c1.getClient().isOpen() );
+            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
             MatcherAssert.assertThat( c1, CoreMatchers.not( CoreMatchers.equalTo( c2 ) ) );
-            Assert.assertTrue( c2.getClient().isOpen() );
+            Assert.assertTrue( c2.getForkedAppBooter().getControllerClient().isOpen() );
         }
         finally
         {
@@ -159,14 +158,14 @@ public class NexusPoolTest
         }
     }
 
-    @Test( threadPoolSize = 8, invocationCount = 20, dependsOnMethods = { "testPool" } )
+    @Test( threadPoolSize = 8, invocationCount = 100, dependsOnMethods = { "testPool" } )
     public void severalRequests()
         throws Exception
     {
         NexusContext c1 = (NexusContext) pool.borrowObject();
         try
         {
-            Assert.assertTrue( c1.getClient().isOpen() );
+            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
             MatcherAssert.assertThat( getNexusStatus( c1.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
         }

@@ -97,27 +97,7 @@ public class NexusInstancesPool
             forkedAppBooter = container.lookup( ForkedAppBooter.class, comp.getRoleHint() );
         }
 
-        try
-        {
-            forkedAppBooter.start();
-        }
-        catch ( Exception e )
-        {
-            e.printStackTrace();
-            throw e;
-        }
-        ControllerClient client = forkedAppBooter.getControllerClient();
-
-        for ( int i = 0; i < 30; i++ )
-        {
-            if ( client.ping() )
-            {
-                return new NexusContext( client, forkedAppBooter, nexusPort, new File( nexusWorkDir ) );
-            }
-            sleep( 200 );
-        }
-
-        throw new NexusIllegalStateException( "Unable to ping remote control!" );
+        return new NexusContext( forkedAppBooter, nexusPort, new File( nexusWorkDir ) );
     }
 
     private void addChild( PlexusConfiguration cfg, String name, String value )
@@ -145,19 +125,36 @@ public class NexusInstancesPool
         System.out.println( "=                                                                       =" );
         System.out.println( "=========================================================================" );
 
-        ControllerClient client = ( (NexusContext) obj ).getClient();
+        ForkedAppBooter appBooter = ( (NexusContext) obj ).getForkedAppBooter();
 
-        if ( client.isStopped() )
+        try
         {
-            client.start();
+            appBooter.start();
         }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw e;
+        }
+        ControllerClient client = appBooter.getControllerClient();
+
+        for ( int i = 0; i < 30; i++ )
+        {
+            if ( client.ping() )
+            {
+                return;
+            }
+            sleep( 200 );
+        }
+
+        throw new NexusIllegalStateException( "Unable to ping remote control!" );
     }
 
     @Override
     public boolean validateObject( Object obj )
     {
-        ControllerClient client = ( (NexusContext) obj ).getClient();
-        return client != null;
+        ForkedAppBooter forkedAppBooter = ( (NexusContext) obj ).getForkedAppBooter();
+        return forkedAppBooter != null;
     }
 
     private void sleep( int i )
@@ -184,12 +181,12 @@ public class NexusInstancesPool
         System.out.println( "=                                                                       =" );
         System.out.println( "=========================================================================" );
 
-        ControllerClient client = ( (NexusContext) obj ).getClient();
-        if ( !client.isStopped() )
+        ForkedAppBooter appBooter = ( (NexusContext) obj ).getForkedAppBooter();
+        if ( !appBooter.isStopped() )
         {
             try
             {
-                client.stop();
+                appBooter.stop();
             }
             catch ( Exception e )
             {
@@ -211,10 +208,10 @@ public class NexusInstancesPool
         System.out.println( "=                                                                       =" );
         System.out.println( "=========================================================================" );
 
-        ControllerClient client = ( (NexusContext) obj ).getClient();
+        ForkedAppBooter appBooter = ( (NexusContext) obj ).getForkedAppBooter();
         try
         {
-            client.shutdown();
+            appBooter.shutdown();
         }
         catch ( Exception e )
         {

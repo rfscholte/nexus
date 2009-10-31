@@ -3,12 +3,9 @@ package org.sonatype.nexus.test.launcher;
 import java.io.File;
 
 import org.sonatype.appbooter.ForkedAppBooter;
-import org.sonatype.appbooter.ctl.ControllerClient;
 
 public class NexusContext
 {
-
-    private ControllerClient client;
 
     private ForkedAppBooter forkedAppBooter;
 
@@ -16,18 +13,12 @@ public class NexusContext
 
     private File workDir;
 
-    public NexusContext( ControllerClient client, ForkedAppBooter forkedAppBooter, Integer port, File workDir )
+    public NexusContext( ForkedAppBooter forkedAppBooter, Integer port, File workDir )
     {
         super();
-        this.client = client;
         this.forkedAppBooter = forkedAppBooter;
         this.port = port;
         this.workDir = workDir;
-    }
-
-    public ControllerClient getClient()
-    {
-        return client;
     }
 
     public ForkedAppBooter getForkedAppBooter()
@@ -46,8 +37,15 @@ public class NexusContext
     }
 
     public void kill()
+        throws Exception
     {
-        client = null;
+        if ( forkedAppBooter != null )
+        {
+            if ( !forkedAppBooter.isStopped() )
+            {
+                forkedAppBooter.shutdown();
+            }
+        }
         forkedAppBooter = null;
     }
 
