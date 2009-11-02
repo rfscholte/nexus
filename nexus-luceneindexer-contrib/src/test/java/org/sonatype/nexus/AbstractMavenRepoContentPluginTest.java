@@ -195,7 +195,7 @@ public class AbstractMavenRepoContentPluginTest extends AbstractPluginTestCase
     protected String[] getClasspathEntries() {
 
         return new String[] {
-            AbstractMavenRepoContentPluginTest.class.getPackage().getName().replaceAll("\\.","/") +  "/**/*.class"
+            "org/sonatype/nexus/**/*.class"
         };
     }
 }
