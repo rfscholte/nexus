@@ -8,6 +8,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.DirectoryWalkListener;
 import org.codehaus.plexus.util.DirectoryWalker;
 import org.codehaus.plexus.util.FileUtils;
+import org.junit.Test;
 import org.sonatype.nexus.configuration.application.NexusConfiguration;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
 import org.sonatype.nexus.proxy.item.RepositoryItemUid;
@@ -23,7 +24,7 @@ import org.sonatype.nexus.proxy.registry.RepositoryRegistry;
  * Watch NEXUS-2846 for future solutions.
  *
  */
-public class AbstractMavenRepoContentPluginTest extends AbstractPluginTestCase
+public abstract class AbstractMavenRepoContentPluginTest extends AbstractPluginTestCase
 {
 
     protected DefaultNexus defaultNexus;
@@ -198,4 +199,5 @@ public class AbstractMavenRepoContentPluginTest extends AbstractPluginTestCase
             "org/sonatype/nexus/**/*.class"
         };
     }
+
 }
