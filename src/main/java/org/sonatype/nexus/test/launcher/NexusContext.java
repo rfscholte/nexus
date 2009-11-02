@@ -9,14 +9,16 @@ public class NexusContext
 
     private ForkedAppBooter forkedAppBooter;
 
+    private String forkedAppBooterHint;
+
     private Integer port;
 
     private File workDir;
 
-    public NexusContext( ForkedAppBooter forkedAppBooter, Integer port, File workDir )
+    public NexusContext( String forkedAppBooterHint, Integer port, File workDir )
     {
         super();
-        this.forkedAppBooter = forkedAppBooter;
+        this.forkedAppBooterHint = forkedAppBooterHint;
         this.port = port;
         this.workDir = workDir;
     }
@@ -24,6 +26,11 @@ public class NexusContext
     public ForkedAppBooter getForkedAppBooter()
     {
         return forkedAppBooter;
+    }
+
+    String getForkedAppBooterHint()
+    {
+        return forkedAppBooterHint;
     }
 
     public Integer getPort()
@@ -39,14 +46,17 @@ public class NexusContext
     public void kill()
         throws Exception
     {
+        forkedAppBooterHint = null;
         if ( forkedAppBooter != null )
         {
-            if ( !forkedAppBooter.isStopped() )
-            {
-                forkedAppBooter.shutdown();
-            }
+            forkedAppBooter.shutdown();
         }
         forkedAppBooter = null;
+    }
+
+    void setForkedAppBooter( ForkedAppBooter forkedAppBooter )
+    {
+        this.forkedAppBooter = forkedAppBooter;
     }
 
 }

@@ -147,6 +147,7 @@ public class NexusPoolTest
         try
         {
             Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
+            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().ping() );
             MatcherAssert.assertThat( getNexusStatus( c1.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
         }
@@ -166,6 +167,7 @@ public class NexusPoolTest
         System.out.println( "makeCount " + makeCount );
         System.out.println( "activateCount " + activateCount );
         System.out.println( "passivateCount " + passivateCount );
+        System.out.println( "validateCount " + validateCount );
         System.out.println( "destroyCount " + destroyCount );
         System.out.println( "=                                                                       =" );
         System.out.println( "=                                                                       =" );
