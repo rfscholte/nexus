@@ -16,9 +16,12 @@ package org.sonatype.nexus.test.utils;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.URL;
 
 import org.apache.log4j.Logger;
+import org.restlet.data.Method;
 import org.restlet.data.Response;
+import org.restlet.data.Status;
 import org.sonatype.appbooter.PlexusAppBooter;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.RequestFacade;
@@ -342,4 +345,63 @@ public class NexusStatusUtil
         return APP_BOOTER_SERVICE;
     }
 
+    public static StatusResourceResponse getNexusStatus( int port )
+        throws NexusIllegalStateException
+    {
+
+        Response response;
+        Status status;
+        int i = 0;
+        do
+        {
+            try
+            {
+                response =
+                    RequestFacade.sendMessage( new URL( "http://localhost:" + port + "/nexus/service/local/status" ),
+                                               Method.GET, null );
+            }
+            catch ( IOException e )
+            {
+                throw new NexusIllegalStateException( "Unable to retrieve nexus status", e );
+            }
+
+            status = response.getStatus();
+
+            if ( status.isSuccess() )
+            {
+                break;
+            }
+
+            if ( status.isConnectorError() && ++i < 50 )
+            {
+                try
+                {
+                    Thread.sleep( 200 );
+                }
+                catch ( InterruptedException e )
+                {
+                    // ignore
+                }
+                continue;
+            }
+            throw new NexusIllegalStateException( i + "Error retrieving current status at " + port + " got: "
+                + response.getStatus().toString() );
+        }
+        while ( true );
+
+        XStream xstream = XStreamFactory.getXmlXStream();
+
+        String entityText;
+        try
+        {
+            entityText = response.getEntity().getText();
+        }
+        catch ( IOException e )
+        {
+            throw new NexusIllegalStateException( "Unable to retrieve nexus status " + new XStream().toXML( response ),
+                                                  e );
+        }
+
+        return (StatusResourceResponse) xstream.fromXML( entityText );
+    }
 }

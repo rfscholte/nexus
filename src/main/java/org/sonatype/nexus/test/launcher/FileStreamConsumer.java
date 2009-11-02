@@ -6,14 +6,13 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.codehaus.plexus.logging.AbstractLogEnabled;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.util.cli.StreamConsumer;
 
 public class FileStreamConsumer
     extends AbstractLogEnabled
-    implements StreamConsumer, Initializable, Disposable
+    implements StreamConsumer, Initializable
 {
 
     private File destination;
@@ -44,18 +43,6 @@ public class FileStreamConsumer
         catch ( IOException e )
         {
             throw new com.thoughtworks.xstream.InitializationException( e.getMessage(), e );
-        }
-    }
-
-    public void dispose()
-    {
-        try
-        {
-            writer.close();
-        }
-        catch ( IOException e )
-        {
-            throw new RuntimeException( e );
         }
     }
 

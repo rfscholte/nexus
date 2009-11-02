@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.ComponentRequirement;
@@ -18,11 +21,13 @@ import org.sonatype.appbooter.DefaultForkedAppBooter;
 import org.sonatype.appbooter.ForkedAppBooter;
 import org.sonatype.appbooter.ctl.ControllerClient;
 import org.sonatype.nexus.test.utils.NexusIllegalStateException;
+import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 
 public class NexusInstancesPool
-    extends BasePoolableObjectFactory
 {
+
+    private static final List<NexusContext> contexts = new ArrayList<NexusContext>();
 
     private PlexusContainer container;
 
@@ -31,9 +36,54 @@ public class NexusInstancesPool
         this.container = container;
     }
 
-    @Override
-    public Object makeObject()
-        throws Exception
+    private void addChild( PlexusConfiguration cfg, String name, String value )
+    {
+        PlexusConfiguration child = cfg.getChild( name );
+        if ( child != null )
+        {
+            child.setValue( value );
+        }
+        else
+        {
+            cfg.addChild( name, value );
+        }
+    }
+
+    private void sleep( int i )
+    {
+        try
+        {
+            Thread.sleep( i );
+        }
+        catch ( InterruptedException e )
+        {
+            // ok
+        }
+    }
+
+    private Integer getRandomPort()
+        throws IOException
+    {
+        ServerSocket ss = new ServerSocket( 0 );
+        try
+        {
+            return ss.getLocalPort();
+        }
+        finally
+        {
+            try
+            {
+                ss.close();
+            }
+            catch ( IOException e )
+            {
+                // no problem
+            }
+        }
+    }
+
+    public NexusContext borrowObject()
+        throws Exception, NoSuchElementException, IllegalStateException
     {
         System.out.println( "=========================================================================" );
         System.out.println( "=                                                                       =" );
@@ -70,7 +120,8 @@ public class NexusInstancesPool
         out.close();
 
         String forkedAppBooterHint = "TestForkedAppBooter" + nexusPort;
-        synchronized ( this )
+        ForkedAppBooter appBooter;
+        synchronized ( container )
         {
             ComponentDescriptor<ForkedAppBooter> baseComp =
                 container.getComponentDescriptor( ForkedAppBooter.class, ForkedAppBooter.class.getName(),
@@ -120,126 +171,87 @@ public class NexusInstancesPool
             comp.addRequirement( requirement );
 
             container.addComponentDescriptor( comp );
+
+            appBooter = container.lookup( ForkedAppBooter.class, forkedAppBooterHint );
         }
 
-        return new NexusContext( forkedAppBooterHint, nexusPort, new File( nexusWorkDir ) );
-    }
-
-    private void addChild( PlexusConfiguration cfg, String name, String value )
-    {
-        PlexusConfiguration child = cfg.getChild( name );
-        if ( child != null )
-        {
-            child.setValue( value );
-        }
-        else
-        {
-            cfg.addChild( name, value );
-        }
-    }
-
-    @Override
-    public void activateObject( Object obj )
-        throws Exception
-    {
-        NexusContext context = (NexusContext) obj;
-        String hint = context.getForkedAppBooterHint();
-        ForkedAppBooter appBooter = container.lookup( ForkedAppBooter.class, hint );
         appBooter.start();
+        NexusContext context = new NexusContext( appBooter, nexusPort, new File( nexusWorkDir ) );
 
-        context.setForkedAppBooter( appBooter );
-        ControllerClient client = appBooter.getControllerClient();
-
-        for ( int i = 0; i < 30; i++ )
-        {
-            if ( client.ping() )
-            {
-                return;
-            }
-            sleep( 200 );
-        }
-
-        throw new NexusIllegalStateException( "Unable to ping remote control!" );
-    }
-
-    @Override
-    public boolean validateObject( Object obj )
-    {
-        ForkedAppBooter forkedAppBooter = ( (NexusContext) obj ).getForkedAppBooter();
-
-        if ( forkedAppBooter == null )
-        {
-            return false;
-        }
+        ForkedAppBooter forkedAppBooter = context.getForkedAppBooter();
 
         ControllerClient client = forkedAppBooter.getControllerClient();
-
-        for ( int i = 0; i < 30; i++ )
+        for ( int i = 0; i < 50; i++ )
         {
             if ( client.ping() )
             {
-                return true;
+                break;
             }
             sleep( 200 );
         }
-        return false;
+
+        if ( !NexusStatusUtil.getNexusStatus( context.getPort() ).getData().getState().equals( "STARTED" ) )
+        {
+            throw new NexusIllegalStateException( "Failed to start nexus" );
+        }
+
+        synchronized ( contexts )
+        {
+            contexts.add( context );
+        }
+
+        return context;
     }
 
-    private void sleep( int i )
-    {
-        try
-        {
-            Thread.sleep( i );
-        }
-        catch ( InterruptedException e )
-        {
-            // ok
-        }
-    }
-
-    @Override
-    public void passivateObject( Object obj )
+    public void close()
         throws Exception
     {
-        NexusContext context = (NexusContext) obj;
-        ForkedAppBooter appBooter = ( context ).getForkedAppBooter();
+        synchronized ( contexts )
+        {
+            Iterator<NexusContext> it = contexts.iterator();
+            while ( it.hasNext() )
+            {
+                NexusContext context = it.next();
+                try
+                {
+                    returnObject( context );
+                }
+                catch ( Throwable t )
+                {
+                    t.printStackTrace();
+                }
+                finally
+                {
+                    it.remove();
+                }
+            }
+        }
+    }
+
+    public void returnObject( NexusContext context )
+        throws Exception
+    {
+        System.out.println( "=========================================================================" );
+        System.out.println( "=                                                                       =" );
+        System.out.println( "=                                                                       =" );
+        System.out.println( "=  destroy object                                                       =" );
+        System.out.println( "=                                                                       =" );
+        System.out.println( "=                                                                       =" );
+        System.out.println( "=========================================================================" );
+
+        synchronized ( contexts )
+        {
+            contexts.remove( context );
+        }
+
+        ForkedAppBooter appBooter = context.getForkedAppBooter();
         appBooter.shutdown();
-        context.setForkedAppBooter( null );
-        container.release( appBooter );
-    }
+        context.release();
 
-    @Override
-    public void destroyObject( Object obj )
-        throws Exception
-    {
-        NexusContext context = (NexusContext) obj;
-        ForkedAppBooter appBooter = ( context ).getForkedAppBooter();
-        if ( appBooter != null )
+        synchronized ( container )
         {
-            appBooter.shutdown();
             container.release( appBooter );
-            context.kill();
         }
     }
 
-    private Integer getRandomPort()
-        throws IOException
-    {
-        ServerSocket ss = new ServerSocket( 0 );
-        try
-        {
-            return ss.getLocalPort();
-        }
-        finally
-        {
-            try
-            {
-                ss.close();
-            }
-            catch ( IOException e )
-            {
-                // no problem
-            }
-        }
-    }
 }
