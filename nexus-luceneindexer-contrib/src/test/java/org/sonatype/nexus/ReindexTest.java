@@ -15,27 +15,26 @@ package org.sonatype.nexus;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.sonatype.jettytestsuite.ServletServer;
 import org.sonatype.nexus.index.ArtifactInfo;
 import org.sonatype.nexus.index.IndexerManager;
 import org.sonatype.nexus.index.NexusIndexer;
-import org.sonatype.nexus.index.context.IndexCreator;
 import org.sonatype.nexus.index.context.IndexingContext;
 import org.sonatype.nexus.index.packer.IndexPacker;
 import org.sonatype.nexus.index.packer.IndexPackingRequest;
 import org.sonatype.nexus.proxy.maven.MavenProxyRepository;
 
 public class ReindexTest
-    extends AbstractMavenRepoContentPluginTest
+    extends AbstractMavenRepoContentTests
 {
     public static final long A_DAY_MILLIS = 24 * 60 * 60 * 1000;
 
@@ -46,9 +45,6 @@ public class ReindexTest
     private NexusIndexer nexusIndexer;
 
     private IndexPacker indexPacker;
-
-    // TODO Toni - Fill them using a helper service (code removed from core base class)
-    public List<IndexCreator> FULL_CREATORS = new ArrayList<IndexCreator>();
 
     @Override
     protected void setUp()
@@ -163,19 +159,20 @@ public class ReindexTest
      * @param repositoryId
      * @param deleteIndexFiles
      * @param shiftDays
-     * @throws java.io.IOException
+     * @throws IOException
      */
     protected void reindexRemoteRepositoryAndPublish( File repositoryRoot, String repositoryId,
                                                       boolean deleteIndexFiles, int shiftDays )
-        throws IOException
+        throws IOException, ComponentLookupException
     {
         File indexDirectory = getIndexFamilyDirectory( repositoryId );
 
         Directory directory = FSDirectory.getDirectory( indexDirectory );
 
+
         IndexingContext ctx =
             nexusIndexer.addIndexingContextForced( repositoryId + "-temp", repositoryId, repositoryRoot, directory,
-                                                   null, null, FULL_CREATORS );
+                                                   null, null, new IndexCreatorHelper( getContainer() ).getFullCreators() );
 
         // shifting if needed (very crude way to do it, but heh)
         shiftContextInTime( ctx, shiftDays );
