@@ -219,7 +219,8 @@ public class NexusPoolTest
                 }
                 continue;
             }
-            throw new NexusIllegalStateException( "Error retrieving current status " + response.getStatus().toString() );
+            throw new NexusIllegalStateException( i + "Error retrieving current status "
+                + response.getStatus().toString() );
         }
         while ( true );
 
