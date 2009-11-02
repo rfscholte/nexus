@@ -43,6 +43,7 @@ public class CompositeIndexerManager
     @Requirement( role = ComposableIndexerManager.class )
     private Map<String, IndexerManager> m_managers;
 
+
     /**
      * {@inheritDoc}
      */
@@ -449,7 +450,7 @@ public class CompositeIndexerManager
                 if ( result != null )
                 {
                     results = new HashSet<ArtifactInfo>();
-                    results.addAll( results );
+                    results.addAll( result.getResults() );
                     hits += result.getTotalHits();
                 }
             }
@@ -484,7 +485,7 @@ public class CompositeIndexerManager
                 if ( result != null )
                 {
                     results = new HashSet<ArtifactInfo>();
-                    results.addAll( results );
+                    results.addAll( result.getResults() );
                     hits += result.getTotalHits();
                 }
             }
@@ -518,7 +519,7 @@ public class CompositeIndexerManager
                 if ( result != null )
                 {
                     results = new HashSet<ArtifactInfo>();
-                    results.addAll( results );
+                    results.addAll( result.getResults() );
                     hits += result.getTotalHits();
                 }
             }
