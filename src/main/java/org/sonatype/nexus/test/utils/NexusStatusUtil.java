@@ -386,7 +386,7 @@ public class NexusStatusUtil
                 }
                 continue;
             }
-            throw new NexusIllegalStateException( i + "Error retrieving current status at " + port + " got: "
+            throw new NexusIllegalStateException( i + " Error retrieving current status at " + port + " got: "
                 + response.getStatus().toString() );
         }
         while ( true );

@@ -19,6 +19,7 @@ import org.codehaus.plexus.util.cli.StreamConsumer;
 import org.sonatype.appbooter.DefaultForkedAppBooter;
 import org.sonatype.appbooter.ForkedAppBooter;
 import org.sonatype.appbooter.ctl.ControllerClient;
+import org.sonatype.nexus.rest.model.StatusResource;
 import org.sonatype.nexus.test.utils.NexusIllegalStateException;
 import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
@@ -182,9 +183,10 @@ public class NexusInstancesPool
         ControllerClient client = forkedAppBooter.getControllerClient();
         ping( client );
 
-        if ( !NexusStatusUtil.getNexusStatus( context.getPort() ).getData().getState().equals( "STARTED" ) )
+        StatusResource status = NexusStatusUtil.getNexusStatus( context.getPort() ).getData();
+        if ( !status.getState().equals( "STARTED" ) )
         {
-            throw new NexusIllegalStateException( "Failed to start nexus" );
+            throw new NexusIllegalStateException( "Failed to start nexus: " + status.getState() );
         }
 
         synchronized ( contexts )
@@ -208,7 +210,7 @@ public class NexusInstancesPool
             sleep( 200 );
         }
 
-        throw new NexusIllegalStateException( "Failed to start nexus after " + cycles );
+        throw new NexusIllegalStateException( "Failed to start nexus after: " + cycles );
     }
 
     public void close()
