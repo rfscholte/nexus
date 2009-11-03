@@ -208,7 +208,7 @@ public class NexusInstancesPool
             sleep( 200 );
         }
 
-        throw new NexusIllegalStateException( "Failed to start nexus" );
+        throw new NexusIllegalStateException( "Failed to start nexus after " + cycles );
     }
 
     public void close()
