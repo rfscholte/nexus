@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Properties;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -24,15 +23,16 @@ import org.sonatype.nexus.test.utils.NexusIllegalStateException;
 import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 
-public class NexusInstancesPool
+public class NexusInstancesFactory
 {
 
-    private static final List<NexusContext> contexts = new ArrayList<NexusContext>();
+    private List<NexusContext> contexts;
 
     private PlexusContainer container;
 
-    public NexusInstancesPool( PlexusContainer container )
+    public NexusInstancesFactory( PlexusContainer container )
     {
+        this.contexts = new ArrayList<NexusContext>();
         this.container = container;
     }
 
@@ -82,17 +82,9 @@ public class NexusInstancesPool
         }
     }
 
-    public NexusContext borrowObject()
-        throws Exception, NoSuchElementException, IllegalStateException
+    public NexusContext createInstance()
+        throws Exception
     {
-        System.out.println( "=========================================================================" );
-        System.out.println( "=                                                                       =" );
-        System.out.println( "=                                                                       =" );
-        System.out.println( "=  make object                                                          =" );
-        System.out.println( "=                                                                       =" );
-        System.out.println( "=                                                                       =" );
-        System.out.println( "=========================================================================" );
-
         Integer nexusPort = getRandomPort();
         Integer controllerPort = getRandomPort();
         String nexusWorkDir = TestProperties.getPath( "nexus.work.dir" ) + nexusPort;
@@ -103,6 +95,7 @@ public class NexusInstancesPool
         plexusProps.setProperty( "application-port", nexusPort.toString() );
         plexusProps.setProperty( "application-host", "0.0.0.0" );
         plexusProps.setProperty( "runtime", nexusBaseDir + "/runtime" );
+        plexusProps.setProperty( "runtime-tmp", nexusWorkDir + "/runtime-tmp" );
         plexusProps.setProperty( "apps", nexusBaseDir + "/runtime/apps" );
         plexusProps.setProperty( "nexus-work", nexusWorkDir );
         plexusProps.setProperty( "nexus-app", nexusApp );
@@ -213,7 +206,7 @@ public class NexusInstancesPool
         throw new NexusIllegalStateException( "Failed to start nexus after: " + cycles );
     }
 
-    public void close()
+    public void shutdown()
         throws Exception
     {
         synchronized ( contexts )
@@ -223,27 +216,26 @@ public class NexusInstancesPool
                 NexusContext context = contexts.get( 0 );
                 try
                 {
-                    returnObject( context );
+                    destroyInstance( context );
                 }
                 catch ( Throwable t )
                 {
                     t.printStackTrace();
                 }
             }
+
+            contexts = null;
+        }
+
+        synchronized ( container )
+        {
+            container = null;
         }
     }
 
-    public void returnObject( NexusContext context )
+    public void destroyInstance( NexusContext context )
         throws Exception
     {
-        System.out.println( "=========================================================================" );
-        System.out.println( "=                                                                       =" );
-        System.out.println( "=                                                                       =" );
-        System.out.println( "=  destroy object                                                       =" );
-        System.out.println( "=                                                                       =" );
-        System.out.println( "=                                                                       =" );
-        System.out.println( "=========================================================================" );
-
         ForkedAppBooter appBooter = context.getForkedAppBooter();
         appBooter.shutdown();
 

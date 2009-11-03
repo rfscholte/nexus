@@ -12,7 +12,7 @@
   <name>Nexus Test Harness Launcher</name>
   
   <properties>
-    <startup-delay>50</startup-delay>
+    <startup-delay>500</startup-delay>
   </properties>
 
   <build>
@@ -390,11 +390,6 @@
           <artifactId>junit</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>commons-pool</groupId>
-      <artifactId>commons-pool</artifactId>
-      <version>1.5.3</version>
     </dependency>
   </dependencies>
 

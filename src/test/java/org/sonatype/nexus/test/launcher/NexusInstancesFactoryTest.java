@@ -1,21 +1,21 @@
-package nexuspool;
+package org.sonatype.nexus.test.launcher;
 
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.sonatype.nexus.test.launcher.NexusContext;
-import org.sonatype.nexus.test.launcher.NexusInstancesPool;
+import org.sonatype.nexus.test.launcher.NexusInstancesFactory;
 import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class NexusPoolTest
+public class NexusInstancesFactoryTest
 {
 
-    private static NexusInstancesPool pool;
+    private static NexusInstancesFactory factory;
 
     private static DefaultPlexusContainer container;
 
@@ -25,14 +25,14 @@ public class NexusPoolTest
     {
         container = new DefaultPlexusContainer();
 
-        pool = new NexusInstancesPool( container );
+        factory = new NexusInstancesFactory( container );
     }
 
     @Test
     public void singleInstance()
         throws Exception
     {
-        NexusContext c1 = pool.borrowObject();
+        NexusContext c1 = factory.createInstance();
         try
         {
             Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
@@ -42,16 +42,16 @@ public class NexusPoolTest
         }
         finally
         {
-            pool.returnObject( c1 );
+            factory.destroyInstance( c1 );
         }
     }
 
     @Test( dependsOnMethods = { "singleInstance" } )
-    public void testPool()
+    public void testFactory()
         throws Exception
     {
-        NexusContext c1 = pool.borrowObject();
-        NexusContext c2 = pool.borrowObject();
+        NexusContext c1 = factory.createInstance();
+        NexusContext c2 = factory.createInstance();
         try
         {
             Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
@@ -69,16 +69,16 @@ public class NexusPoolTest
         }
         finally
         {
-            pool.returnObject( c1 );
-            pool.returnObject( c2 );
+            factory.destroyInstance( c1 );
+            factory.destroyInstance( c2 );
         }
     }
 
-    @Test( threadPoolSize = 8, invocationCount = 50, dependsOnMethods = { "testPool" } )
+    @Test( threadPoolSize = 8, invocationCount = 200, dependsOnMethods = { "testFactory" } )
     public void severalRequests()
         throws Exception
     {
-        NexusContext c1 = pool.borrowObject();
+        NexusContext c1 = factory.createInstance();
         try
         {
             Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
@@ -88,7 +88,7 @@ public class NexusPoolTest
         }
         finally
         {
-            pool.returnObject( c1 );
+            factory.destroyInstance( c1 );
         }
     }
 
@@ -96,8 +96,8 @@ public class NexusPoolTest
     public static void kill()
         throws Exception
     {
-        pool.close();
-        pool = null;
+        factory.shutdown();
+        factory = null;
 
         container.dispose();
         container = null;
