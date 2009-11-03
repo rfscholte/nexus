@@ -10,6 +10,10 @@
 
   <artifactId>nexus-test-harness-launcher-2914</artifactId>
   <name>Nexus Test Harness Launcher</name>
+  
+  <properties>
+    <startup-delay>50</startup-delay>
+  </properties>
 
   <build>
 
@@ -65,7 +69,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.4.3</version>
         <configuration>
-          <skipTests>true</skipTests>
           <properties>
             <property>
               <name>listener</name>
