@@ -17,11 +17,14 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
 import org.apache.lucene.search.Query;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.sonatype.nexus.index.context.IndexingContext;
+import org.sonatype.nexus.index.treeview.TreeNode;
+import org.sonatype.nexus.index.treeview.TreeNodeFactory;
 import org.sonatype.nexus.proxy.NoSuchRepositoryException;
 import org.sonatype.nexus.proxy.item.StorageItem;
 import org.sonatype.nexus.proxy.repository.Repository;
@@ -43,6 +46,14 @@ public class CompositeIndexerManager
     @Requirement( role = ComposableIndexerManager.class )
     private Map<String, IndexerManager> m_managers;
 
+    /**
+     * Test overwrite helper method to inject mock instances without plexus.
+     * Better would have been constructor injection.
+     * @param managers
+     */
+    void setManagers( Map<String, IndexerManager> managers ) {
+        m_managers = managers;
+    }
 
     /**
      * {@inheritDoc}
@@ -440,7 +451,8 @@ public class CompositeIndexerManager
         throws NoSuchRepositoryException
     {
         int hits = 0;
-        Set<ArtifactInfo> results = null;
+        Set<ArtifactInfo> results = new HashSet<ArtifactInfo>();
+
         for ( IndexerManager manager : m_managers.values() )
         {
             try
@@ -449,7 +461,6 @@ public class CompositeIndexerManager
                     manager.searchArtifactClassFlat( term, repositoryId, from, count, hitLimit );
                 if ( result != null )
                 {
-                    results = new HashSet<ArtifactInfo>();
                     results.addAll( result.getResults() );
                     hits += result.getTotalHits();
                 }
@@ -475,7 +486,7 @@ public class CompositeIndexerManager
         throws NoSuchRepositoryException
     {
         int hits = 0;
-        Set<ArtifactInfo> results = null;
+        Set<ArtifactInfo> results = new HashSet<ArtifactInfo>();
         for ( IndexerManager manager : m_managers.values() )
         {
             try
@@ -484,7 +495,6 @@ public class CompositeIndexerManager
                     manager.searchArtifactFlat( gTerm, aTerm, vTerm, pTerm, cTerm, repositoryId, from, count, hitLimit );
                 if ( result != null )
                 {
-                    results = new HashSet<ArtifactInfo>();
                     results.addAll( result.getResults() );
                     hits += result.getTotalHits();
                 }
@@ -509,7 +519,7 @@ public class CompositeIndexerManager
         throws NoSuchRepositoryException
     {
         int hits = 0;
-        Set<ArtifactInfo> results = null;
+        Set<ArtifactInfo> results = new HashSet<ArtifactInfo>();
         for ( IndexerManager manager : m_managers.values() )
         {
             try
@@ -518,7 +528,6 @@ public class CompositeIndexerManager
                     manager.searchArtifactFlat( term, repositoryId, from, count, hitLimit );
                 if ( result != null )
                 {
-                    results = new HashSet<ArtifactInfo>();
                     results.addAll( result.getResults() );
                     hits += result.getTotalHits();
                 }
@@ -623,5 +632,4 @@ public class CompositeIndexerManager
             }
         }
     }
-
 }
