@@ -37,7 +37,6 @@ public class NexusContext
     }
 
     public void release()
-        throws Exception
     {
         forkedAppBooter = null;
     }
