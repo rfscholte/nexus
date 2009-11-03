@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Properties;
@@ -217,10 +216,9 @@ public class NexusInstancesPool
     {
         synchronized ( contexts )
         {
-            Iterator<NexusContext> it = contexts.iterator();
-            while ( it.hasNext() )
+            while ( !contexts.isEmpty() )
             {
-                NexusContext context = it.next();
+                NexusContext context = contexts.get( 0 );
                 try
                 {
                     returnObject( context );
@@ -228,10 +226,6 @@ public class NexusInstancesPool
                 catch ( Throwable t )
                 {
                     t.printStackTrace();
-                }
-                finally
-                {
-                    it.remove();
                 }
             }
         }
@@ -248,19 +242,20 @@ public class NexusInstancesPool
         System.out.println( "=                                                                       =" );
         System.out.println( "=========================================================================" );
 
-        synchronized ( contexts )
-        {
-            contexts.remove( context );
-        }
-
         ForkedAppBooter appBooter = context.getForkedAppBooter();
         appBooter.shutdown();
-        context.release();
 
         synchronized ( container )
         {
             container.release( appBooter );
         }
+
+        synchronized ( contexts )
+        {
+            contexts.remove( context );
+        }
+
+        context.release();
     }
 
 }
