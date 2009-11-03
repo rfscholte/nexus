@@ -181,14 +181,7 @@ public class NexusInstancesPool
         ForkedAppBooter forkedAppBooter = context.getForkedAppBooter();
 
         ControllerClient client = forkedAppBooter.getControllerClient();
-        for ( int i = 0; i < 50; i++ )
-        {
-            if ( client.ping() )
-            {
-                break;
-            }
-            sleep( 200 );
-        }
+        ping( client );
 
         if ( !NexusStatusUtil.getNexusStatus( context.getPort() ).getData().getState().equals( "STARTED" ) )
         {
@@ -201,6 +194,22 @@ public class NexusInstancesPool
         }
 
         return context;
+    }
+
+    private void ping( ControllerClient client )
+        throws NexusIllegalStateException
+    {
+        Integer cycles = TestProperties.getInteger( "startup-delay" );
+        for ( int i = 0; i < cycles; i++ )
+        {
+            if ( client.ping() )
+            {
+                return;
+            }
+            sleep( 200 );
+        }
+
+        throw new NexusIllegalStateException( "Failed to start nexus" );
     }
 
     public void close()

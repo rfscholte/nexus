@@ -58,11 +58,13 @@ public class NexusPoolTest
             MatcherAssert.assertThat( NexusStatusUtil.getNexusStatus( c1.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
 
-            MatcherAssert.assertThat( c1, CoreMatchers.not( CoreMatchers.equalTo( c2 ) ) );
-
             Assert.assertTrue( c2.getForkedAppBooter().getControllerClient().isOpen() );
             MatcherAssert.assertThat( NexusStatusUtil.getNexusStatus( c2.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
+
+            MatcherAssert.assertThat( c1, CoreMatchers.not( CoreMatchers.equalTo( c2 ) ) );
+            MatcherAssert.assertThat( c1.getPort(), CoreMatchers.not( CoreMatchers.equalTo( c2.getPort() ) ) );
+            MatcherAssert.assertThat( c1.getWorkDir(), CoreMatchers.not( CoreMatchers.equalTo( c2.getWorkDir() ) ) );
 
         }
         finally

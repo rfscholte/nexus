@@ -349,6 +349,8 @@ public class NexusStatusUtil
         throws NexusIllegalStateException
     {
 
+        Integer cycles = TestProperties.getInteger( "startup-delay" );
+
         Response response;
         Status status;
         int i = 0;
@@ -372,7 +374,7 @@ public class NexusStatusUtil
                 break;
             }
 
-            if ( status.isConnectorError() && ++i < 50 )
+            if ( status.isConnectorError() && ++i < cycles )
             {
                 try
                 {
