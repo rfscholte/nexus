@@ -4,8 +4,6 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.sonatype.nexus.test.launcher.NexusContext;
-import org.sonatype.nexus.test.launcher.NexusInstancesFactory;
 import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -74,7 +72,7 @@ public class NexusInstancesFactoryTest
         }
     }
 
-    @Test( threadPoolSize = 8, invocationCount = 200, dependsOnMethods = { "testFactory" } )
+    @Test( threadPoolSize = 8, invocationCount = 50, dependsOnMethods = { "testFactory" } )
     public void severalRequests()
         throws Exception
     {
