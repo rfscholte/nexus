@@ -29,6 +29,7 @@ import org.sonatype.nexus.rest.model.RepositoryGroupMemberRepository;
 import org.sonatype.nexus.rest.model.RepositoryGroupResource;
 import org.sonatype.nexus.rest.model.RepositoryGroupResourceResponse;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
+import org.testng.Assert;
 import org.testng.AssertJUnit;
 
 import com.thoughtworks.xstream.XStream;
@@ -150,7 +151,7 @@ public class GroupMessageUtil
         LOG.debug( "responseText: \n" + responseText );
 
         AssertJUnit.assertTrue( "Failed to return Group: " + groupId + "\nResponse:\n" + responseText,
-                           response.getStatus().isSuccess() );
+                                response.getStatus().isSuccess() );
 
         // this should use call to: getResourceFromResponse
         XStreamRepresentation representation =
@@ -213,15 +214,21 @@ public class GroupMessageUtil
 
     /**
      * This should be replaced with a REST Call, but the REST client does not set the Accept correctly on GET's/
-     *
+     * 
      * @return
      * @throws IOException
      */
     public List<RepositoryGroupListResource> getList()
         throws IOException
     {
-        String responseText = RequestFacade.doGetRequest( SERVICE_PART ).getEntity().getText();
+        Response response = RequestFacade.doGetRequest( SERVICE_PART );
+        String responseText = response.getEntity().getText();
         LOG.debug( "responseText: \n" + responseText );
+
+        if ( !response.getStatus().isSuccess() )
+        {
+            Assert.fail( response.getStatus() + "\n" + responseText );
+        }
 
         XStreamRepresentation representation =
             new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );

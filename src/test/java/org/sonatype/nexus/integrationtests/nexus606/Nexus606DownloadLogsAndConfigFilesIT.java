@@ -42,7 +42,6 @@ public class Nexus606DownloadLogsAndConfigFilesIT
     extends AbstractNexusIntegrationTest
 {
 
-    @SuppressWarnings( "unchecked" )
     @Test
     public void getLogsTest()
         throws Exception

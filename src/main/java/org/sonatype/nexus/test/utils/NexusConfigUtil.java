@@ -63,7 +63,7 @@ public class NexusConfigUtil
 
     public static File getNexusFile()
     {
-        return new File( TestContainer.getInstance().getTestContext().getNexusBaseUrl() + "/conf", "nexus.xml" );
+        return new File( TestContainer.getInstance().getTestContext().getNexusWorkDir() + "/conf", "nexus.xml" );
     }
 
     public static CPathMappingItem getRoute( String id )

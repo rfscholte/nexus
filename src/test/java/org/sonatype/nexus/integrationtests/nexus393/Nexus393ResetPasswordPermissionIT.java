@@ -62,8 +62,13 @@ public class Nexus393ResetPasswordPermissionIT
         // NOT Shouldn't be able to reset anyone password
         String username = "another-user";
         Response response = ResetPasswordUtils.resetPassword( username );
+
+        TestContainer.getInstance().getTestContext().useAdminForRequests();
         AssertJUnit.assertEquals( "Status: " + response.getStatus() + "\n" + response.getEntity().getText() + "\n"
             + getUserRoles( "test-user" ), 401, response.getStatus().getCode() );
+
+        TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
+        TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         // NOT Should be able to reset my own password
         username = TEST_USER_NAME;

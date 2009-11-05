@@ -29,6 +29,7 @@ import org.sonatype.nexus.integrationtests.RequestFacade;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.MavenDeployer;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -68,6 +69,7 @@ public class Nexus429WagonDeployPrivilegeIT
         this.deployPrivWithWagon( gav, this.getNexusTestRepoUrl() );
     }
 
+    @BeforeMethod
     @Override
     public void resetTestUserPrivs()
         throws Exception

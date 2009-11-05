@@ -102,12 +102,12 @@ public class Nexus385RoutesPermissionIT
         route.setPattern( ".*testUpdatePermission2.*" );
         response = this.routeUtil.sendMessage( Method.PUT, route );
         // log.debug( "PROBLEM: "+ this.userUtil.getUser( TEST_USER_NAME ) );
+        TestContainer.getInstance().getTestContext().useAdminForRequests();
         AssertJUnit.assertEquals( "Response status: " + "\n" + getUserRoles( "test-user" ), 403,
                                   response.getStatus().getCode() );
 
         // use admin
-        TestContainer.getInstance().getTestContext().setUsername( "admin" );
-        TestContainer.getInstance().getTestContext().setPassword( "admin123" );
+        TestContainer.getInstance().getTestContext().useAdminForRequests();
 
         // now give update
         this.giveUserPrivilege( TEST_USER_NAME, "24" );
@@ -157,12 +157,12 @@ public class Nexus385RoutesPermissionIT
         TestContainer.getInstance().getTestContext().setPassword( "admin123" );
 
         response = this.routeUtil.sendMessage( Method.PUT, route );
+        TestContainer.getInstance().getTestContext().useAdminForRequests();
         AssertJUnit.assertEquals( "Response status: " + "\n" + getUserRoles( "test-user" ), 403,
                                   response.getStatus().getCode() );
 
         // use admin
-        TestContainer.getInstance().getTestContext().setUsername( "admin" );
-        TestContainer.getInstance().getTestContext().setPassword( "admin123" );
+        TestContainer.getInstance().getTestContext().useAdminForRequests();
 
         // now give read
         this.giveUserPrivilege( TEST_USER_NAME, "23" );

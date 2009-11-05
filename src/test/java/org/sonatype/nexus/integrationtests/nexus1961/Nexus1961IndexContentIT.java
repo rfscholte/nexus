@@ -1,14 +1,13 @@
 package org.sonatype.nexus.integrationtests.nexus1961;
 
-import java.util.List;
-
 import org.restlet.data.MediaType;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.sonatype.nexus.index.treeview.TreeNode;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.RequestFacade;
-import org.sonatype.nexus.rest.model.ContentListResource;
-import org.sonatype.nexus.rest.model.ContentListResourceResponse;
+import org.sonatype.nexus.rest.indextreeview.IndexBrowserTreeNode;
+import org.sonatype.nexus.rest.indextreeview.IndexBrowserTreeViewResponseDTO;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
@@ -36,7 +35,6 @@ public class Nexus1961IndexContentIT
         RepositoryMessageUtil.updateIndexes( REPO_TEST_HARNESS_REPO );
     }
 
-    @SuppressWarnings( "unchecked" )
     @Test
     public void getIndexContent()
         throws Exception
@@ -50,13 +48,13 @@ public class Nexus1961IndexContentIT
 
         XStreamRepresentation re =
             new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );
-        ContentListResourceResponse resourceResponse =
-            (ContentListResourceResponse) re.getPayload( new ContentListResourceResponse() );
+        IndexBrowserTreeViewResponseDTO resourceResponse =
+            (IndexBrowserTreeViewResponseDTO) re.getPayload( new IndexBrowserTreeViewResponseDTO() );
 
-        List<ContentListResource> content = resourceResponse.getData();
-        for ( ContentListResource contentListResource : content )
+        IndexBrowserTreeNode content = resourceResponse.getData();
+        for ( TreeNode contentListResource : content.getChildren() )
         {
-            AssertJUnit.assertEquals( "nexus1961", contentListResource.getText() );
+            AssertJUnit.assertEquals( "nexus1961", contentListResource.getGroupId() );
         }
 
     }

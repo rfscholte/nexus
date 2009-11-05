@@ -126,6 +126,7 @@ public class Nexus537RepoTargetsIT
     }
 
     @Override
+    @BeforeMethod
     public void resetTestUserPrivs()
         throws Exception
     {

@@ -38,8 +38,7 @@ public class Nexus133TargetValidationIT
 
     public Nexus133TargetValidationIT()
     {
-        this.messageUtil =
-            new TargetMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
+        this.messageUtil = new TargetMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
     }
 
     @Test
@@ -66,7 +65,7 @@ public class Nexus133TargetValidationIT
             AssertJUnit.fail( "Target should not have been created: " + response.getStatus() + "\n" + responseText );
         }
         AssertJUnit.assertTrue( "Response text did not contain an error message. \nResponse Text:\n " + responseText,
-                           responseText.startsWith( "{\"errors\":" ) );
+                                responseText.startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -92,7 +91,7 @@ public class Nexus133TargetValidationIT
             AssertJUnit.fail( "Target should not have been created: " + response.getStatus() + "\n" + responseText );
         }
         AssertJUnit.assertTrue( "Response text did not contain an error message. \nResponse Text:\n " + responseText,
-                           responseText.startsWith( "{\"errors\":" ) );
+                                responseText.startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -118,7 +117,7 @@ public class Nexus133TargetValidationIT
             AssertJUnit.fail( "Target should not have been created: " + response.getStatus() + "\n" + responseText );
         }
         AssertJUnit.assertTrue( "Response text did not contain an error message. \nResponse Text:\n " + responseText,
-                           responseText.startsWith( "{\"errors\":" ) );
+                                responseText.startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -144,7 +143,7 @@ public class Nexus133TargetValidationIT
             AssertJUnit.fail( "Target should not have been created: " + response.getStatus() + "\n" + responseText );
         }
         AssertJUnit.assertTrue( "Response text did not contain an error message. \nResponse Text:\n " + responseText,
-                           responseText.startsWith( "{\"errors\":" ) );
+                                responseText.startsWith( "{\"errors\":" ) );
     }
 
     @Test
@@ -245,7 +244,8 @@ public class Nexus133TargetValidationIT
             AssertJUnit.fail( "Target should not have been created: " + response.getStatus() );
         }
         String responseText = response.getEntity().getText();
-        AssertJUnit.assertTrue("responseText does not contain an error message:\n"+ responseText, responseText.startsWith( "{\"errors\":" ) );
+        AssertJUnit.assertTrue( "responseText does not contain an error message:\n" + responseText,
+                                responseText.startsWith( "{\"errors\":" ) );
 
         /*
          * Invalid RegEx
@@ -367,8 +367,8 @@ public class Nexus133TargetValidationIT
         this.messageUtil.verifyTargetsConfig( responseResource );
     }
 
-    //@Test
-    // eclipseContentClass is disabled for beta5!
+    @Test( enabled = false )
+    // FIXME eclipseContentClass is disabled for beta5!
     public void eclipseContentClassTest()
         throws IOException
     {
@@ -403,8 +403,8 @@ public class Nexus133TargetValidationIT
         this.messageUtil.verifyTargetsConfig( responseResource );
     }
 
-    //@Test
-    // m2NamespaceContentclass is disabled for beta5!
+    @Test( enabled = false )
+    // FIXME m2NamespaceContentclass is disabled for beta5!
     public void m2NamespaceContentClassTest()
         throws IOException
     {

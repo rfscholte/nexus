@@ -263,12 +263,6 @@ public class Nexus2351DisableRedeployUploadIT
 
     }
 
-    @Override
-    public boolean isSecureTest()
-    {
-        return true;
-    }
-
     private RepositoryResource setWritePolicy( String repoId, RepositoryWritePolicy policy )
         throws Exception
     {

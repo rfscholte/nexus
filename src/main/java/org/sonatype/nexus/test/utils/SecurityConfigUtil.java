@@ -48,7 +48,6 @@ public class SecurityConfigUtil
         verifyRoles( roles );
     }
 
-    @SuppressWarnings( "unchecked" )
     public static void verifyRoles( List<RoleResource> roles )
         throws IOException
     {
@@ -135,7 +134,6 @@ public class SecurityConfigUtil
         }
     }
 
-    @SuppressWarnings( "unchecked" )
     public static CRole getCRole( String roleId )
         throws IOException
     {

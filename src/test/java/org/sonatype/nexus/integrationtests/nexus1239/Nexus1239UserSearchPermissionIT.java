@@ -28,85 +28,90 @@ import org.sonatype.security.rest.model.PlexusUserResource;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-public class Nexus1239UserSearchPermissionIT extends AbstractPrivilegeTest
+public class Nexus1239UserSearchPermissionIT
+    extends AbstractPrivilegeTest
 {
 
     @Test
-    public void userExactSearchTest() throws IOException
+    public void userExactSearchTest()
+        throws IOException
     {
         this.giveUserPrivilege( TEST_USER_NAME, "39" );
-        
+
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
-        
-        UserMessageUtil userUtil = new UserMessageUtil(this.getJsonXStream(), MediaType.APPLICATION_JSON);
+
+        UserMessageUtil userUtil = new UserMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
         List<PlexusUserResource> users = userUtil.searchPlexusUsers( "default", "admin" );
-        
+
         AssertJUnit.assertEquals( 1, users.size() );
         PlexusUserResource user = users.get( 0 );
         AssertJUnit.assertEquals( "admin", user.getUserId() );
         AssertJUnit.assertEquals( "changeme@yourcompany.com", user.getEmail() );
         AssertJUnit.assertEquals( "Administrator", user.getName() );
         AssertJUnit.assertEquals( "default", user.getSource() );
-        
+
         List<PlexusRoleResource> roles = user.getRoles();
         AssertJUnit.assertEquals( 1, roles.size() );
-        
+
         PlexusRoleResource role = roles.get( 0 );
         AssertJUnit.assertEquals( "Nexus Administrator Role", role.getName() );
         AssertJUnit.assertEquals( "admin", role.getRoleId() );
         AssertJUnit.assertEquals( "default", role.getSource() );
     }
-    
+
     @Test
-    public void userSearchTest() throws IOException
+    public void userSearchTest()
+        throws IOException
     {
-        
+
         this.giveUserPrivilege( TEST_USER_NAME, "39" );
-        
+
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
-        
-        UserMessageUtil userUtil = new UserMessageUtil(this.getJsonXStream(), MediaType.APPLICATION_JSON);
+
+        UserMessageUtil userUtil = new UserMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
         List<PlexusUserResource> users = userUtil.searchPlexusUsers( "default", "a" );
-        
+
         List<String> userIds = new ArrayList<String>();
-        
+
         for ( PlexusUserResource plexusUserResource : users )
         {
             userIds.add( plexusUserResource.getUserId() );
         }
-        
+
         AssertJUnit.assertEquals( 2, users.size() );
         AssertJUnit.assertTrue( userIds.contains( "admin" ) );
         AssertJUnit.assertTrue( userIds.contains( "anonymous" ) );
     }
-    
+
     @Test
-    public void emptySearchTest() throws IOException
+    public void emptySearchTest()
+        throws IOException
     {
         this.giveUserPrivilege( TEST_USER_NAME, "39" );
-        
+
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
-        
-        UserMessageUtil userUtil = new UserMessageUtil(this.getJsonXStream(), MediaType.APPLICATION_JSON);
+
+        UserMessageUtil userUtil = new UserMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
         List<PlexusUserResource> users = userUtil.searchPlexusUsers( "default", "VOID" );
         AssertJUnit.assertEquals( 0, users.size() );
     }
-    
-    public void noAccessTest() throws IOException
+
+    protected void noAccessTest()
+        throws IOException
     {
-    
+
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
-        
+
         String uriPart = RequestFacade.SERVICE_LOCAL + "user_search/default/a";
 
         Response response = RequestFacade.doGetRequest( uriPart );
-        
+
         AssertJUnit.assertEquals( 403, response.getStatus().getCode() );
-        
+
     }
-    
+
 }

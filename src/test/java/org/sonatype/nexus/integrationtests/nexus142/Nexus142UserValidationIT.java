@@ -36,14 +36,14 @@ public class Nexus142UserValidationIT
 
     public Nexus142UserValidationIT()
     {
-        this.messageUtil =
-            new UserMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
+        this.messageUtil = new UserMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
     }
-    
+
     @Test
-    public void createUserWithNoRoles() throws IOException
+    public void createUserWithNoRoles()
+        throws IOException
     {
-        
+
         UserResource resource = new UserResource();
 
         resource.setName( "createUserWithNoRoles" );
@@ -51,7 +51,7 @@ public class Nexus142UserValidationIT
         resource.setStatus( "active" );
         resource.setEmail( "nexus@user.com" );
         // no roles
-//        resource.addRole( "role1" );
+        // resource.addRole( "role1" );
 
         Response response = this.messageUtil.sendMessage( Method.POST, resource );
 
@@ -60,15 +60,15 @@ public class Nexus142UserValidationIT
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         String responseText = response.getEntity().getText();
-        AssertJUnit.assertTrue( "Error message: "+ responseText, responseText.startsWith( "{\"errors\":" ) );
-        
+        AssertJUnit.assertTrue( "Error message: " + responseText, responseText.startsWith( "{\"errors\":" ) );
+
     }
-    
 
     @Test
-    public void updateUsersPasswordTest() throws IOException
+    public void updateUsersPasswordTest()
+        throws IOException
     {
-        
+
         UserResource resource = new UserResource();
 
         resource.setName( "updateUsersPasswordTest" );
@@ -81,21 +81,23 @@ public class Nexus142UserValidationIT
 
         resource.setPassword( "SHOULD-FAIL" );
         Response response = this.messageUtil.sendMessage( Method.PUT, resource );
-        
+
         String responseText = response.getEntity().getText();
-        AssertJUnit.assertFalse( "Expected failure: Satus: "+ response.getStatus()+"\n Response Text:" + responseText, response.getStatus().isSuccess() );
-        AssertJUnit.assertTrue( "Error message: "+ responseText, responseText.startsWith( "{\"errors\":" ) );
-        
+        AssertJUnit.assertFalse( "Expected failure: Satus: " + response.getStatus() + "\n Response Text:"
+            + responseText, response.getStatus().isSuccess() );
+        AssertJUnit.assertTrue( "Error message: " + responseText, responseText.startsWith( "{\"errors\":" ) );
+
     }
-    
+
     @Test
-    public void createUserWithNoUserId() throws IOException
+    public void createUserWithNoUserId()
+        throws IOException
     {
-        
+
         UserResource resource = new UserResource();
 
         resource.setName( "createUserWithNoUserId" );
-//        resource.setUserId( "createUserWithNoUserId" );
+        // resource.setUserId( "createUserWithNoUserId" );
         resource.setStatus( "active" );
         resource.setEmail( "nexus@user.com" );
         resource.addRole( "role1" );
@@ -107,15 +109,16 @@ public class Nexus142UserValidationIT
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
-        
+
     }
-    
+
     @Test
-    public void createUserWithNoUserName() throws IOException
+    public void createUserWithNoUserName()
+        throws IOException
     {
         UserResource resource = new UserResource();
 
-//        resource.setName( "createUserWithNoUserName" );
+        // resource.setName( "createUserWithNoUserName" );
         resource.setUserId( "createUserWithNoUserName" );
         resource.setStatus( "active" );
         resource.setEmail( "nexus@user.com" );
@@ -128,20 +131,20 @@ public class Nexus142UserValidationIT
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
-        
+
     }
-    
-    
+
     @Test
-    public void createUserWithNoEmail() throws IOException
+    public void createUserWithNoEmail()
+        throws IOException
     {
-        
+
         UserResource resource = new UserResource();
 
         resource.setName( "createUserWithNoEmail" );
         resource.setUserId( "createUserWithNoEmail" );
         resource.setStatus( "active" );
-//        resource.setEmail( "nexus@user.com" );
+        // resource.setEmail( "nexus@user.com" );
         resource.addRole( "role1" );
 
         Response response = this.messageUtil.sendMessage( Method.POST, resource );
@@ -152,12 +155,12 @@ public class Nexus142UserValidationIT
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
-    
-    
+
     @Test
-    public void createUserInvalidRole() throws IOException
+    public void createUserInvalidRole()
+        throws IOException
     {
-        
+
         UserResource resource = new UserResource();
 
         resource.setName( "createUserInvalidRole" );
@@ -174,33 +177,34 @@ public class Nexus142UserValidationIT
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
-    
+
     @Test
-    public void createUserDuplicateUserId() throws IOException
+    public void createUserDuplicateUserId()
+        throws IOException
     {
         UserResource resource = new UserResource();
-        
+
         resource.setEmail( "test@email.com" );
         resource.setName( "name" );
         resource.setStatus( "active" );
         resource.setUserId( "dup-user" );
         resource.addRole( "role1" );
-        
+
         Response response = this.messageUtil.sendMessage( Method.POST, resource );
 
         if ( !response.getStatus().isSuccess() )
         {
             AssertJUnit.fail( "User should have been created: " + response.getStatus() );
         }
-        
+
         resource = new UserResource();
-        
+
         resource.setEmail( "test2@email.com" );
         resource.setName( "name" );
         resource.setStatus( "active" );
         resource.setUserId( "dup-user" );
         resource.addRole( "role1" );
-        
+
         response = this.messageUtil.sendMessage( Method.POST, resource );
 
         if ( response.getStatus().isSuccess() )
@@ -209,32 +213,33 @@ public class Nexus142UserValidationIT
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
-    
-    public void createUserDuplicateEmail() throws IOException
+
+    protected void createUserDuplicateEmail()
+        throws IOException
     {
         UserResource resource = new UserResource();
-        
+
         resource.setEmail( "dup@email.com" );
         resource.setName( "name" );
         resource.setStatus( "active" );
         resource.setUserId( "user1" );
         resource.addRole( "role1" );
-        
+
         Response response = this.messageUtil.sendMessage( Method.POST, resource );
 
         if ( !response.getStatus().isSuccess() )
         {
             AssertJUnit.fail( "User should have been created: " + response.getStatus() );
         }
-        
+
         resource = new UserResource();
-        
+
         resource.setEmail( "dup@email.com" );
         resource.setName( "name" );
         resource.setStatus( "active" );
         resource.setUserId( "user2" );
         resource.addRole( "role1" );
-        
+
         response = this.messageUtil.sendMessage( Method.POST, resource );
 
         if ( response.getStatus().isSuccess() )
@@ -243,8 +248,7 @@ public class Nexus142UserValidationIT
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
     }
-    
-    
+
     @Test
     public void updateValidation()
         throws IOException
@@ -275,8 +279,8 @@ public class Nexus142UserValidationIT
         AssertJUnit.assertEquals( resource.getRoles(), responseResource.getRoles() );
 
         SecurityConfigUtil.verifyUser( resource );
-        
-     // update the user
+
+        // update the user
 
         resource.setName( "updateValidation" );
         resource.setUserId( "updateValidation" );
@@ -285,15 +289,13 @@ public class Nexus142UserValidationIT
         resource.addRole( "role1" );
 
         response = this.messageUtil.sendMessage( Method.PUT, resource );
-        
 
         if ( response.getStatus().isSuccess() )
         {
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
-        
-        
+
         /**
          * NO STATUS
          */
@@ -304,40 +306,35 @@ public class Nexus142UserValidationIT
         resource.addRole( "role1" );
 
         response = this.messageUtil.sendMessage( Method.PUT, resource );
-        
 
         if ( response.getStatus().isSuccess() )
         {
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        
+
         String errorText = response.getEntity().getText();
-        
-        AssertJUnit.assertTrue( "expected error, but was: "+errorText, errorText.startsWith( "{\"errors\":" ) );
-        
-        
-        // FIXME: should we keep supporting this?        
-//        /**
-//         * NO ROLES
-//         */
-//        resource.setName( "updateValidation" );
-//        resource.setUserId( "updateValidation" );
-//        resource.setStatus( "active" );
-//        resource.setEmail( "nexus@user.com" );
-//        resource.getRoles().clear();
-//
-//        response = this.messageUtil.sendMessage( Method.PUT, resource );
-//        
-//
-//        if ( response.getStatus().isSuccess() )
-//        {
-//            AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
-//        }
-//        AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
-        
-        
-        
-        
+
+        AssertJUnit.assertTrue( "expected error, but was: " + errorText, errorText.startsWith( "{\"errors\":" ) );
+
+        // FIXME: should we keep supporting this?
+        // /**
+        // * NO ROLES
+        // */
+        // resource.setName( "updateValidation" );
+        // resource.setUserId( "updateValidation" );
+        // resource.setStatus( "active" );
+        // resource.setEmail( "nexus@user.com" );
+        // resource.getRoles().clear();
+        //
+        // response = this.messageUtil.sendMessage( Method.PUT, resource );
+        //        
+        //
+        // if ( response.getStatus().isSuccess() )
+        // {
+        // AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
+        // }
+        // AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
+
         /**
          * INVALID ROLE
          */
@@ -348,18 +345,13 @@ public class Nexus142UserValidationIT
         resource.addRole( "INVALID_ROLE" );
 
         response = this.messageUtil.sendMessage( Method.PUT, resource );
-        
 
         if ( response.getStatus().isSuccess() )
         {
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
-        
-        
-        
-        
-        
+
         /**
          * NO NAME
          */
@@ -370,17 +362,13 @@ public class Nexus142UserValidationIT
         resource.addRole( "role1" );
 
         response = this.messageUtil.sendMessage( Method.PUT, resource );
-        
 
         if ( response.getStatus().isSuccess() )
         {
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
         AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
-        
 
-        
-        
         /**
          * NO USER ID
          */
@@ -391,37 +379,37 @@ public class Nexus142UserValidationIT
         resource.addRole( "role1" );
 
         response = this.messageUtil.sendMessage( Method.PUT, resource );
-        
 
         if ( response.getStatus().isSuccess() )
         {
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
-        
-        // This is actually not a validation error, but a 'not found' error, so result will NOT contain the validation errors
+
+        // This is actually not a validation error, but a 'not found' error, so result will NOT contain the validation
+        // errors
         // AssertJUnit.assertTrue( response.getEntity().getText().startsWith( "{\"errors\":" ) );
-        
+
         /**
          * DUPLICATE EMAIL
          */
         UserResource duplicateResource = new UserResource();
-        
+
         duplicateResource.setEmail( "dup@email.com" );
         duplicateResource.setName( "dupname" );
         duplicateResource.setStatus( "active" );
         duplicateResource.setUserId( "dup-user2" );
         duplicateResource.addRole( "role1" );
-        
+
         response = this.messageUtil.sendMessage( Method.POST, duplicateResource );
 
         if ( !response.getStatus().isSuccess() )
         {
             AssertJUnit.fail( "User should have been created: " + response.getStatus() );
         }
-        
+
         resource.setUserId( responseResource.getUserId() );
         resource.setEmail( "dup@email.com" );
-        
+
         response = this.messageUtil.sendMessage( Method.PUT, resource );
 
         if ( response.getStatus().isSuccess() )
@@ -429,6 +417,5 @@ public class Nexus142UserValidationIT
             AssertJUnit.fail( "User should not have been created: " + response.getStatus() );
         }
     }
-    
 
 }

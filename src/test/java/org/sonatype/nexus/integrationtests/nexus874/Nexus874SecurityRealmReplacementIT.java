@@ -127,7 +127,7 @@ public class Nexus874SecurityRealmReplacementIT
         }
     }
 
-    public void getNexusStatus()
+    protected void getNexusStatus()
         throws IOException
     {
         Response response = RequestFacade.doGetRequest( "service/local/status" );

@@ -37,8 +37,7 @@ public class Nexus156RolesCrudJsonIT
 
     public Nexus156RolesCrudJsonIT()
     {
-        this.messageUtil =
-            new RoleMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
+        this.messageUtil = new RoleMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
     }
 
     @Test
@@ -56,7 +55,7 @@ public class Nexus156RolesCrudJsonIT
 
         this.messageUtil.createRole( resource );
     }
-    
+
     @Test
     public void createRoleWithIdTest()
         throws IOException
@@ -97,7 +96,7 @@ public class Nexus156RolesCrudJsonIT
 
     }
 
-    public void readTest()
+    protected void readTest()
         throws IOException
     {
 

@@ -69,7 +69,7 @@ public class Nexus1286RoleListIT
         AssertJUnit.assertTrue( ids.contains( "anonymous" ) );
     }
 
-    public void getdefaultExternalRoleMap()
+    protected void getdefaultExternalRoleMap()
         throws IOException
     {
         RoleMessageUtil roleUtil = new RoleMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
