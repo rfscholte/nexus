@@ -3,24 +3,24 @@
  * Sonatype Nexus (TM) Open Source Version.
  * Copyright (c) 2008 Sonatype, Inc. All rights reserved.
  * Includes the third-party code listed at http://nexus.sonatype.org/dev/attributions.html
- * This program is licensed to you under Version 3 only of the GNU General Public License as published by the Free Software Foundation.
+ * This program is licensed to you under Version 3 only of the GNU General protected License as published by the Free Software Foundation.
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the GNU General Public License Version 3 for more details.
- * You should have received a copy of the GNU General Public License Version 3 along with this program.
+ * See the GNU General protected License Version 3 for more details.
+ * You should have received a copy of the GNU General protected License Version 3 along with this program.
  * If not, see http://www.gnu.org/licenses/.
  * Sonatype Nexus (TM) Professional Version is available from Sonatype, Inc.
  * "Sonatype" and "Sonatype Nexus" are trademarks of Sonatype, Inc.
  */
 package org.sonatype.nexus.integrationtests;
 
+import static org.sonatype.nexus.test.utils.PortUtil.getRandomPort;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -49,13 +49,16 @@ import org.restlet.data.Status;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.proxy.registry.RepositoryTypeRegistry;
+import org.sonatype.nexus.rest.model.GlobalConfigurationResource;
+import org.sonatype.nexus.test.launcher.ForkedNexusInstancesFactory;
+import org.sonatype.nexus.test.launcher.INexusInstancesFactory;
+import org.sonatype.nexus.test.launcher.NexusContext;
 import org.sonatype.nexus.test.utils.DeployUtils;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.sonatype.nexus.test.utils.GavUtil;
 import org.sonatype.nexus.test.utils.MavenProjectFileFilter;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
-import org.sonatype.nexus.test.utils.NexusStatusUtil;
-import org.sonatype.nexus.test.utils.TaskScheduleUtil;
+import org.sonatype.nexus.test.utils.SettingsMessageUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.testng.Assert;
@@ -65,7 +68,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.Test;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -74,78 +78,70 @@ import com.thoughtworks.xstream.XStream;
  * this class is not really abstract so I can work around a the <code>@BeforeClass</code>, <code>@AfterClass</code>
  * issues, this should be refactored a little, but it might be ok, if we switch to TestNg
  */
-// @RunWith(ConsoleLoggingRunner.class)
+@Test( sequential = true, timeOut = 120000 )
 public class AbstractNexusIntegrationTest
 {
 
-    public static final String REPO_TEST_HARNESS_REPO = "nexus-test-harness-repo";
+    protected static final String REPO_TEST_HARNESS_REPO = "nexus-test-harness-repo";
 
-    public static final String REPO_TEST_HARNESS_REPO2 = "nexus-test-harness-repo2";
+    protected static final String REPO_TEST_HARNESS_REPO2 = "nexus-test-harness-repo2";
 
-    public static final String REPO_TEST_HARNESS_RELEASE_REPO = "nexus-test-harness-release-repo";
+    protected static final String REPO_TEST_HARNESS_RELEASE_REPO = "nexus-test-harness-release-repo";
 
-    public static final String REPO_TEST_HARNESS_SNAPSHOT_REPO = "nexus-test-harness-snapshot-repo";
+    protected static final String REPO_TEST_HARNESS_SNAPSHOT_REPO = "nexus-test-harness-snapshot-repo";
 
-    public static final String REPO_RELEASE_PROXY_REPO1 = "release-proxy-repo-1";
+    protected static final String REPO_RELEASE_PROXY_REPO1 = "release-proxy-repo-1";
 
-    public static final String REPO_TEST_HARNESS_SHADOW = "nexus-test-harness-shadow";
+    protected static final String REPO_TEST_HARNESS_SHADOW = "nexus-test-harness-shadow";
 
     protected PlexusContainer container;
 
     protected static PlexusContainer staticContainer;
 
-    private static boolean NEEDS_INIT = false;
+    protected static final String REPOSITORY_RELATIVE_URL = "content/repositories/";
 
-    public static final String REPOSITORY_RELATIVE_URL = "content/repositories/";
-
-    public static final String GROUP_REPOSITORY_RELATIVE_URL = "content/groups/";
-
-    public String testRepositoryId;
-
-    public static String nexusBaseDir;
-
-    @Deprecated
-    public static final String baseNexusUrl;
-
-    public static final String nexusBaseUrl;
-
-    public static final String nexusWorkDir;
-
-    public static final String RELATIVE_CONF_DIR = "runtime/apps/nexus/conf";
-
-    public static final String WORK_CONF_DIR;
-
-    protected static final String nexusLogDir;
+    protected static final String GROUP_REPOSITORY_RELATIVE_URL = "content/groups/";
 
     protected static Logger log = Logger.getLogger( AbstractNexusIntegrationTest.class );
 
-    private static File nexusLog;
+    protected static final String RELATIVE_CONF_DIR = "runtime/apps/nexus/conf";
 
-    public static final Integer nexusControlPort;
+    protected String testRepositoryId;
 
-    public static final int nexusApplicationPort;
+    protected static final String nexusBaseDir;
+
+    @Deprecated
+    protected String baseNexusUrl;
+
+    protected String nexusBaseUrl;
+
+    protected String nexusWorkDir;
+
+    protected String WORK_CONF_DIR;
+
+    protected int nexusApplicationPort;
 
     /**
      * Flag that says if we should verify the config before startup, we do not want to do this for upgrade tests.
      */
     private boolean verifyNexusConfigBeforeStart = true;
 
+    protected File nexusLog;
+
+    private NexusContext context;
+
     private static boolean INVALID_STATE;
 
     private static File testResourcesFolder;
 
+    private static PlexusContainer globalContainer;
+
+    private static INexusInstancesFactory factory;
+
     static
     {
-        nexusApplicationPort = TestProperties.getInteger( "nexus.application.port" );
-        nexusControlPort = TestProperties.getInteger( "nexus.control.port" );
-        nexusBaseDir = TestProperties.getString( "nexus.base.dir" );
-        nexusWorkDir = TestProperties.getString( "nexus.work.dir" );
-        WORK_CONF_DIR = nexusWorkDir + "/conf";
-        nexusLogDir = TestProperties.getString( "nexus.log.dir" );
-        nexusBaseUrl = TestProperties.getString( "nexus.base.url" );
-        baseNexusUrl = nexusBaseUrl;
-        nexusLog = new File( TestProperties.getFile( "nexus.log.dir" ), "nexus.log" );
         testResourcesFolder = new File( TestProperties.getString( "test.resources.folder" ) );
+        nexusBaseDir = TestProperties.getString( "nexus.base.dir" );
     }
 
     protected AbstractNexusIntegrationTest()
@@ -161,7 +157,29 @@ public class AbstractNexusIntegrationTest
 
         // configure the logging
         SLF4JBridgeHandler.install();
+    }
 
+    @BeforeSuite
+    public static final void setupNexusFactory()
+    {
+        globalContainer = setupContainer( BeforeSuite.class );
+        // must be able to pick another factories
+        factory = new ForkedNexusInstancesFactory( globalContainer );
+    }
+
+    @AfterSuite
+    public static final void tearDownNexusFactory()
+        throws Exception
+    {
+        factory.shutdown();
+        factory = null;
+        globalContainer.dispose();
+        globalContainer = null;
+    }
+
+    public boolean isSecureTest()
+    {
+        return false;
     }
 
     /**
@@ -172,51 +190,88 @@ public class AbstractNexusIntegrationTest
      * find resources for additional setup. NOTE: With this setup running multiple Test at the same time is not
      * possible.
      * 
-     * @throws Exception
+     * @throws Throwable
      */
-    @BeforeMethod
-    public final void oncePerClassSetUp()
+    @BeforeClass
+    public final void createTestEnv()
+        throws Throwable
+    {
+        if ( INVALID_STATE )
+        {
+            throw new SkipException( "Nexus entered into an invalid state" );
+        }
+
+        boolean isSecureTest = isSecureTest();
+
+        try
+        {
+            nexusWorkDir = TestProperties.getPath( "nexus.work.dir" ) + "-" + getClass().getSimpleName();
+            WORK_CONF_DIR = nexusWorkDir + "/conf";
+            nexusLog = new File( nexusWorkDir, "nexus.log" );
+            nexusApplicationPort = getRandomPort();
+            nexusBaseUrl = "http://localhost:" + nexusApplicationPort + "/nexus/";
+            baseNexusUrl = nexusBaseUrl;
+
+            TestContext testContext = TestContainer.getInstance().getTestContext();
+            testContext.setThreadContext( nexusApplicationPort, nexusWorkDir, nexusBaseUrl );
+
+            copyTestResources();
+
+            this.copyConfigFiles();
+
+            // set security state
+            NexusConfigUtil.enableSecurity( isSecureTest );
+
+            context = factory.createInstance( nexusApplicationPort, new File( nexusWorkDir ) );
+
+            testContext.useAdminForRequests();
+            testContext.setSecureTest( true );
+            GlobalConfigurationResource set = SettingsMessageUtil.getCurrentSettings();
+            // check if security is as expected
+            if ( set.isSecurityEnabled() != isSecureTest )
+            {
+                set.setSecurityEnabled( isSecureTest );
+                SettingsMessageUtil.save( set );
+            }
+            testContext.setSecureTest( isSecureTest );
+
+            // tell the console what we are doing, now that there is no output its
+            log.info( "Running Test: " + this.getClass().getSimpleName() );
+
+            HashMap<String, String> variables = new HashMap<String, String>();
+            variables.put( "test-harness-id", this.getTestId() );
+
+            // we need to make sure the config is valid, so we don't need to hunt through log files
+            if ( this.verifyNexusConfigBeforeStart )
+            {
+                NexusConfigUtil.validateConfig();
+            }
+
+            // deploy artifacts
+            this.deployArtifacts();
+
+            runOnce();
+        }
+        catch ( Throwable e )
+        {
+            factory.destroyInstance( context );
+            throw e;
+        }
+    }
+
+    @AfterClass( alwaysRun = true )
+    public void destroyTestEnv()
         throws Exception
     {
-        synchronized ( AbstractNexusIntegrationTest.class )
+        TestContainer.getInstance().getTestContext().setThreadContext( null, null, null );
+
+        factory.destroyInstance( context );
+
+        if ( staticContainer != null )
         {
-            log.debug( "oncePerClassSetUp is init: " + NEEDS_INIT );
-            if ( NEEDS_INIT )
-            {
-                // tell the console what we are doing, now that there is no output its
-                log.info( "Running Test: " + this.getClass().getSimpleName() );
-
-                HashMap<String, String> variables = new HashMap<String, String>();
-                variables.put( "test-harness-id", this.getTestId() );
-
-                // clean common work dir
-                // this.cleanWorkDir();
-
-                this.copyConfigFiles();
-
-                // we need to make sure the config is valid, so we don't need to hunt through log files
-                if ( this.verifyNexusConfigBeforeStart )
-                {
-                    NexusConfigUtil.validateConfig();
-                }
-
-                // the validation needs to happen before we enable security it triggers an upgrade.
-
-                NexusConfigUtil.enableSecurity( TestContainer.getInstance().getTestContext().isSecureTest()
-                    || Boolean.valueOf( System.getProperty( "secure.test" ) ) );
-
-                // start nexus
-                this.startNexus();
-
-                // deploy artifacts
-                this.deployArtifacts();
-
-                runOnce();
-
-                // TODO: we can remove this now that we have the soft restart
-                NEEDS_INIT = false;
-            }
+            staticContainer.dispose();
         }
+        staticContainer = null;
     }
 
     protected void copyTestResources()
@@ -251,50 +306,57 @@ public class AbstractNexusIntegrationTest
         // must override
     }
 
+    /**
+     * @deprecated this is no longer necessary, each test does have its own workdir
+     * @throws Exception
+     */
+    @Deprecated
     protected static void cleanWorkDir()
         throws Exception
     {
-        // must wait for all tasks, some do file locking
-        TaskScheduleUtil.waitForAllTasksToStop();
-
-        Assert.assertTrue( NexusStatusUtil.isNexusStopped() );
-
-        final File workDir = new File( AbstractNexusIntegrationTest.nexusWorkDir );
-
-        // to make sure I don't delete all my MP3's and pictures, or totally screw anyone.
-        // check for 'target' and not allow any '..'
-        if ( workDir.getAbsolutePath().lastIndexOf( "target" ) != -1
-            && workDir.getAbsolutePath().lastIndexOf( ".." ) == -1 )
-        {
-            // we cannot delete the plugin-repository or the tests will fail
-
-            File[] filesToDelete = workDir.listFiles( new FilenameFilter()
-            {
-                public boolean accept( File dir, String name )
-                {
-                    // anything but the plugin-repository directory
-                    return ( !name.contains( "plugin-repository" ) );
-                }
-            } );
-
-            if ( filesToDelete != null )
-            {
-                for ( File fileToDelete : filesToDelete )
-                {
-                    // delete work dir
-                    if ( fileToDelete != null )
-                    {
-                        FileUtils.deleteDirectory( fileToDelete );
-                    }
-                }
-            }
-
-        }
+        // // must wait for all tasks, some do file locking
+        // TaskScheduleUtil.waitForAllTasksToStop();
+        //
+        // Assert.assertTrue( NexusStatusUtil.isNexusStopped() );
+        //
+        // final File workDir = new File( AbstractNexusIntegrationTest.nexusWorkDir );
+        //
+        // // to make sure I don't delete all my MP3's and pictures, or totally screw anyone.
+        // // check for 'target' and not allow any '..'
+        // if ( workDir.getAbsolutePath().lastIndexOf( "target" ) != -1
+        // && workDir.getAbsolutePath().lastIndexOf( ".." ) == -1 )
+        // {
+        // // we cannot delete the plugin-repository or the tests will fail
+        //
+        // File[] filesToDelete = workDir.listFiles( new FilenameFilter()
+        // {
+        // protected boolean accept( File dir, String name )
+        // {
+        // // anything but the plugin-repository directory
+        // return ( !name.contains( "plugin-repository" ) );
+        // }
+        // } );
+        //
+        // if ( filesToDelete != null )
+        // {
+        // for ( File fileToDelete : filesToDelete )
+        // {
+        // // delete work dir
+        // if ( fileToDelete != null )
+        // {
+        // FileUtils.deleteDirectory( fileToDelete );
+        // }
+        // }
+        // }
+        //
+        // }
     }
 
     protected void deployArtifacts()
         throws Exception
     {
+        TestContainer.getInstance().getTestContext().useAdminForRequests();
+
         // test the test directory
         File projectsDir = this.getTestResourceAsFile( "projects" );
         log.debug( "projectsDir: " + projectsDir );
@@ -410,69 +472,6 @@ public class AbstractNexusIntegrationTest
     {
         // reset this for each test
         TestContainer.getInstance().getTestContext().useAdminForRequests();
-
-    }
-
-    private void startNexus()
-        throws Exception
-    {
-
-        log.info( "starting nexus" );
-
-        TestContainer.getInstance().getTestContext().useAdminForRequests();
-
-        log.info( "***************************" );
-        log.info( "*\n*" );
-        log.info( "*  DOING A HARD START OF NEXUS." );
-        log.info( "*\n*" );
-        log.info( "***************************" );
-
-        try
-        {
-            NexusStatusUtil.doSoftStart();
-        }
-        catch ( Exception e )
-        {
-            INVALID_STATE = true;
-            log.fatal( e.getMessage(), e );
-            if ( nexusLog.exists() )
-            {
-                File testNexusLog = new File( nexusLogDir, getTestId() + "/nexus.log" );
-                testNexusLog.getParentFile().mkdirs();
-                FileUtils.copyFile( nexusLog, testNexusLog );
-            }
-            throw e;
-        }
-    }
-
-    @AfterMethod
-    public void appendLogs()
-        throws Exception
-    {
-        if ( nexusLog.exists() )
-        {
-            File testNexusLog = new File( nexusLogDir, getClass().getSimpleName() + "/nexus.log" );
-            testNexusLog.getParentFile().mkdirs();
-            String data = FileUtils.fileRead( nexusLog );
-            FileUtils.fileAppend( testNexusLog.getAbsolutePath(), data );
-        }
-    }
-
-    private static void resetLog()
-        throws Exception
-    {
-        if ( nexusLog.exists() )
-        {
-            FileUtils.fileWrite( nexusLog.getAbsolutePath(), "" );
-        }
-    }
-
-    private static void stopNexus()
-        throws Exception
-    {
-        log.info( "stopping Nexus" );
-
-        NexusStatusUtil.doSoftStop();
     }
 
     protected File getOverridableFile( String file )
@@ -558,7 +557,7 @@ public class AbstractNexusIntegrationTest
         return this.getTestResourceAsFile( "files/" + relativePath );
     }
 
-    public static File getResource( String resource )
+    protected static File getResource( String resource )
     {
         log.debug( "Looking for resource: " + resource );
         // URL classURL = Thread.currentThread().getContextClassLoader().getResource( resource );
@@ -575,27 +574,6 @@ public class AbstractNexusIntegrationTest
         return file;
     }
 
-    /**
-     * See oncePerClassSetUp.
-     * 
-     * @throws Exception
-     */
-    @BeforeClass
-    public final void staticOncePerClassSetUp()
-        throws Exception
-    {
-        if ( INVALID_STATE )
-        {
-            throw new SkipException( "Nexus entered into an invalid state" );
-        }
-
-        copyTestResources();
-
-        log.debug( "staticOncePerClassSetUp" );
-        // hacky state machine
-        NEEDS_INIT = true;
-    }
-
     @BeforeClass
     public final void createContainer()
     {
@@ -603,22 +581,6 @@ public class AbstractNexusIntegrationTest
     }
 
     @AfterClass
-    public static void oncePerClassTearDown()
-        throws Exception
-    {
-        // stop nexus
-        stopNexus();
-
-        if ( staticContainer != null )
-        {
-            staticContainer.dispose();
-        }
-        staticContainer = null;
-
-        resetLog();
-    }
-
-    @AfterSuite
     public void killContainer()
         throws Exception
     {
@@ -722,7 +684,7 @@ public class AbstractNexusIntegrationTest
         }
     }
 
-    public static String getBasedir()
+    protected static String getBasedir()
     {
         String basedir = System.getProperty( "basedir" );
 
@@ -854,17 +816,17 @@ public class AbstractNexusIntegrationTest
     protected File downloadArtifactFromRepository( String repoId, Gav gav, String targetDirectory )
         throws IOException
     {
-        return this.downloadArtifact( AbstractNexusIntegrationTest.baseNexusUrl + REPOSITORY_RELATIVE_URL + repoId
-            + "/", gav.getGroupId(), gav.getArtifactId(), gav.getVersion(), gav.getExtension(), gav.getClassifier(),
+        return this.downloadArtifact( baseNexusUrl + REPOSITORY_RELATIVE_URL + repoId + "/", gav.getGroupId(),
+                                      gav.getArtifactId(), gav.getVersion(), gav.getExtension(), gav.getClassifier(),
                                       targetDirectory );
     }
 
     protected File downloadArtifactFromGroup( String groupId, Gav gav, String targetDirectory )
         throws IOException
     {
-        return this.downloadArtifact( AbstractNexusIntegrationTest.baseNexusUrl + GROUP_REPOSITORY_RELATIVE_URL
-            + groupId + "/", gav.getGroupId(), gav.getArtifactId(), gav.getVersion(), gav.getExtension(),
-                                      gav.getClassifier(), targetDirectory );
+        return this.downloadArtifact( baseNexusUrl + GROUP_REPOSITORY_RELATIVE_URL + groupId + "/", gav.getGroupId(),
+                                      gav.getArtifactId(), gav.getVersion(), gav.getExtension(), gav.getClassifier(),
+                                      targetDirectory );
     }
 
     protected File downloadArtifact( String baseUrl, String groupId, String artifact, String version, String type,
@@ -922,27 +884,27 @@ public class AbstractNexusIntegrationTest
         return deleted;
     }
 
-    public String getBaseNexusUrl()
+    protected String getBaseNexusUrl()
     {
         return baseNexusUrl;
     }
 
-    public String getNexusTestRepoUrl( String repo )
+    protected String getNexusTestRepoUrl( String repo )
     {
         return baseNexusUrl + REPOSITORY_RELATIVE_URL + repo + "/";
     }
 
-    public String getNexusTestRepoUrl()
+    protected String getNexusTestRepoUrl()
     {
         return getNexusTestRepoUrl( testRepositoryId );
     }
 
-    public String getNexusTestRepoServiceUrl()
+    protected String getNexusTestRepoServiceUrl()
     {
         return baseNexusUrl + "service/local/repositories/" + testRepositoryId + "/content/";
     }
 
-    public PlexusContainer getContainer()
+    protected PlexusContainer getContainer()
     {
         if ( this.container == null )
         {
@@ -951,27 +913,27 @@ public class AbstractNexusIntegrationTest
         return this.container;
     }
 
-    public String getNexusBaseDir()
+    protected String getNexusBaseDir()
     {
         return nexusBaseDir;
     }
 
-    public String getTestRepositoryId()
+    protected String getTestRepositoryId()
     {
         return testRepositoryId;
     }
 
-    public void setTestRepositoryId( String repoId )
+    protected void setTestRepositoryId( String repoId )
     {
         this.testRepositoryId = repoId;
     }
 
-    public String getRepositoryUrl( String repoId )
+    protected String getRepositoryUrl( String repoId )
     {
         return baseNexusUrl + REPOSITORY_RELATIVE_URL + repoId + "/";
     }
 
-    public String getGroupUrl( String groupId )
+    protected String getGroupUrl( String groupId )
     {
         return baseNexusUrl + GROUP_REPOSITORY_RELATIVE_URL + groupId + "/";
     }
@@ -1006,22 +968,23 @@ public class AbstractNexusIntegrationTest
         return true;
     }
 
-    public XStream getXMLXStream()
+    protected XStream getXMLXStream()
     {
         return XStreamFactory.getXmlXStream();
     }
 
-    public XStream getJsonXStream()
+    protected XStream getJsonXStream()
     {
         return XStreamFactory.getJsonXStream();
     }
 
-    public RepositoryTypeRegistry getRepositoryTypeRegistry()
+    protected RepositoryTypeRegistry getRepositoryTypeRegistry()
         throws ComponentLookupException
     {
         return getContainer().lookup( RepositoryTypeRegistry.class );
     }
 
+    @Test( enabled = false )
     public static final PlexusContainer getStaticContainer()
     {
         if ( staticContainer == null )

@@ -22,8 +22,6 @@ import org.apache.log4j.Logger;
 import org.restlet.data.Method;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.sonatype.appbooter.PlexusAppBooter;
-import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.RequestFacade;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.rest.model.StatusResourceResponse;
@@ -192,12 +190,12 @@ public class NexusStatusUtil
         // APP_BOOTER_SERVICE = null;
         // }
 
-        PlexusAppBooter appBooter = TestContainer.getInstance().getPlexusAppBooter();
-        if ( appBooter.isStarted() )
-        {
-            appBooter.stopContainer();
-
-        }
+        // PlexusAppBooter appBooter = TestContainer.getInstance().getPlexusAppBooter();
+        // if ( appBooter.isStarted() )
+        // {
+        // appBooter.stopContainer();
+        //
+        // }
 
         if ( !waitForStop() )
         {
@@ -208,16 +206,15 @@ public class NexusStatusUtil
 
     public static boolean isNexusAlive()
     {
-        return isNexusAlive( new int[] { AbstractNexusIntegrationTest.nexusControlPort,
-            AbstractNexusIntegrationTest.nexusApplicationPort } );
+        return isNexusAlive( TestContainer.getInstance().getTestContext().getNexusApplicationPort() );
     }
 
     public static boolean isNexusControllerPortAlive()
     {
-        return isNexusAlive( new int[] { AbstractNexusIntegrationTest.nexusControlPort } );
+        return isNexusAlive( TestContainer.getInstance().getTestContext().getNexusApplicationPort() );
     }
 
-    public static boolean isNexusAlive( int[] ports )
+    public static boolean isNexusAlive( int... ports )
     {
         ServerSocket ss = null;
         for ( int i = 0; i < ports.length; i++ )

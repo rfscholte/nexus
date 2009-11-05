@@ -29,6 +29,7 @@ import org.sonatype.nexus.configuration.model.CRepository;
 import org.sonatype.nexus.configuration.model.Configuration;
 import org.sonatype.nexus.configuration.validator.ApplicationConfigurationValidator;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
+import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.proxy.maven.maven2.M2GroupRepositoryConfiguration;
 import org.sonatype.nexus.proxy.maven.maven2.M2LayoutedM1ShadowRepositoryConfiguration;
 import org.sonatype.nexus.proxy.maven.maven2.M2RepositoryConfiguration;
@@ -62,7 +63,7 @@ public class NexusConfigUtil
 
     public static File getNexusFile()
     {
-        return new File( AbstractNexusIntegrationTest.WORK_CONF_DIR, "nexus.xml" );
+        return new File( TestContainer.getInstance().getTestContext().getNexusBaseUrl() + "/conf", "nexus.xml" );
     }
 
     public static CPathMappingItem getRoute( String id )

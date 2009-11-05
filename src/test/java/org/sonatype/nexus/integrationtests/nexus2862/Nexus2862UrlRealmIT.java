@@ -28,7 +28,12 @@ public class Nexus2862UrlRealmIT
         System.setProperty( "plexus.authentication-url", "http://localhost:" + proxyPort );
         System.setProperty( "plexus.url-authentication-default-role", "admin" );
         System.setProperty( "plexus.url-authentication-email-domain", "sonatype.com" );
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
+    }
+
+    @Override
+    public boolean isSecureTest()
+    {
+        return true;
     }
 
     @BeforeClass

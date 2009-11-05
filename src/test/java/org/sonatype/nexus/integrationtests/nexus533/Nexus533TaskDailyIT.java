@@ -28,7 +28,7 @@ public class Nexus533TaskDailyIT
     private static ScheduledServiceDailyResource scheduledTask;
 
     @Override
-    public ScheduledServiceDailyResource getTaskScheduled()
+    protected ScheduledServiceDailyResource getTaskScheduled()
     {
         if ( scheduledTask == null )
         {
@@ -54,7 +54,7 @@ public class Nexus533TaskDailyIT
     }
 
     @Override
-    public void updateTask( ScheduledServiceDailyResource scheduledTask )
+    protected void updateTask( ScheduledServiceDailyResource scheduledTask )
     {
         scheduledTask.setRecurringTime( "00:00" );
     }

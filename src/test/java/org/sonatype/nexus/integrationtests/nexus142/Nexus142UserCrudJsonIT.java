@@ -69,7 +69,7 @@ public class Nexus142UserCrudJsonIT
         this.messageUtil.createUser( resource );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "createUserTest" } )
     public void createTestWithPassword()
         throws IOException, ComponentLookupException
     {
@@ -94,7 +94,7 @@ public class Nexus142UserCrudJsonIT
 
     }
 
-    @Test
+    @Test( dependsOnMethods = { "createTestWithPassword" } )
     public void listTest()
         throws IOException
     {
@@ -117,6 +117,7 @@ public class Nexus142UserCrudJsonIT
 
     }
 
+    @Test( dependsOnMethods = { "createTestWithPassword" } )
     public void readTest()
         throws IOException
     {
@@ -149,7 +150,7 @@ public class Nexus142UserCrudJsonIT
         AssertJUnit.assertEquals( resource.getRoles(), responseResource.getRoles() );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "createTestWithPassword" } )
     public void updateTest()
         throws IOException
     {
@@ -178,7 +179,7 @@ public class Nexus142UserCrudJsonIT
 
     }
 
-    @Test
+    @Test( dependsOnMethods = { "updateTest", "readTest", "listTest" } )
     public void deleteTest()
         throws IOException
     {

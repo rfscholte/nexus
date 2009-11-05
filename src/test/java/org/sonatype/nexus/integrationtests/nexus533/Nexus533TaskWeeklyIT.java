@@ -30,7 +30,7 @@ public class Nexus533TaskWeeklyIT
     private static ScheduledServiceWeeklyResource scheduledTask;
 
     @Override
-    public ScheduledServiceWeeklyResource getTaskScheduled()
+    protected ScheduledServiceWeeklyResource getTaskScheduled()
     {
         if ( scheduledTask == null )
         {
@@ -57,7 +57,7 @@ public class Nexus533TaskWeeklyIT
     }
 
     @Override
-    public void updateTask( ScheduledServiceWeeklyResource scheduledTask )
+    protected void updateTask( ScheduledServiceWeeklyResource scheduledTask )
     {
         scheduledTask.setRecurringTime( "00:00" );
     }

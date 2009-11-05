@@ -14,6 +14,7 @@
 package org.sonatype.nexus.test.utils;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -63,9 +64,9 @@ public class RoleMessageUtil
 
         // get the Resource object
         RoleResource responseResource = this.getResourceFromResponse( responseString );
-        
+
         // make sure the id != null
-        AssertJUnit.assertNotNull( "Result:\n"+ this.xStream.toXML( responseResource ), responseResource.getId() );
+        AssertJUnit.assertNotNull( "Result:\n" + this.xStream.toXML( responseResource ), responseResource.getId() );
 
         if ( role.getId() != null )
         {
@@ -127,7 +128,7 @@ public class RoleMessageUtil
 
     /**
      * This should be replaced with a REST Call, but the REST client does not set the Accept correctly on GET's/
-     *
+     * 
      * @return
      * @throws IOException
      */
@@ -135,13 +136,14 @@ public class RoleMessageUtil
     public List<RoleResource> getList()
         throws IOException
     {
-        
+
         Response response = RequestFacade.doGetRequest( "service/local/roles" );
-        
+
         String responseText = response.getEntity().getText();
 
-        AssertJUnit.assertTrue( "Request failed: "+ response.getStatus() +"\n"+ responseText, response.getStatus().isSuccess() );
-        
+        AssertJUnit.assertTrue( "Request failed: " + response.getStatus() + "\n" + responseText,
+                                response.getStatus().isSuccess() );
+
         XStreamRepresentation representation =
             new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );
 
@@ -220,7 +222,7 @@ public class RoleMessageUtil
             RequestFacade.sendMessage( uriPart, Method.GET, new StringRepresentation( "", this.mediaType ) );
         String responseString = response.getEntity().getText();
         AssertJUnit.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
-                           response.getStatus().isSuccess() );
+                                response.getStatus().isSuccess() );
 
         ExternalRoleMappingResourceResponse result =
             (ExternalRoleMappingResourceResponse) this.parseResponseText( responseString,
@@ -240,7 +242,7 @@ public class RoleMessageUtil
             RequestFacade.sendMessage( uriPart, Method.GET, new StringRepresentation( "", this.mediaType ) );
         String responseString = response.getEntity().getText();
         AssertJUnit.assertTrue( "Status: " + response.getStatus() + "\nResponse:\n" + responseString,
-                           response.getStatus().isSuccess() );
+                                response.getStatus().isSuccess() );
 
         LOG.debug( "response: " + responseString );
 
@@ -257,6 +259,26 @@ public class RoleMessageUtil
         XStreamRepresentation representation = new XStreamRepresentation( xstream, responseString, mediaType );
 
         return representation.getPayload( responseType );
+    }
+
+    public RoleResource getOrCreateRole( String roleId, String... privs )
+        throws IOException
+    {
+        Response response = this.sendMessage( Method.GET, null, roleId );
+
+        if ( !response.getStatus().isSuccess() )
+        {
+            RoleResource role = new RoleResource();
+            role.setId( roleId );
+            role.setName( roleId );
+            role.setDescription( roleId );
+            role.setPrivileges( Arrays.asList( privs ) );
+            role.setSessionTimeout( 60 );
+            return createRole( role );
+        }
+
+        // get the Resource object
+        return this.getResourceFromResponse( response );
     }
 
 }

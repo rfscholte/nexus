@@ -28,10 +28,10 @@ public class Nexus533TaskCronIT
     private static ScheduledServiceAdvancedResource scheduledTask;
 
     @Override
-    public ScheduledServiceAdvancedResource getTaskScheduled()
+    protected ScheduledServiceAdvancedResource getTaskScheduled()
     {
         if ( scheduledTask == null )
-        {   
+        {
             scheduledTask = new ScheduledServiceAdvancedResource();
             scheduledTask.setEnabled( true );
             scheduledTask.setId( null );
@@ -53,7 +53,7 @@ public class Nexus533TaskCronIT
     }
 
     @Override
-    public void updateTask( ScheduledServiceAdvancedResource scheduledTask )
+    protected void updateTask( ScheduledServiceAdvancedResource scheduledTask )
     {
         scheduledTask.setCronCommand( "0 0 12 ? * WED,FRI" );
     }

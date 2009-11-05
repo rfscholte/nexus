@@ -18,17 +18,15 @@ import java.util.HashMap;
 public class TestContext
 {
 
-    private boolean secureTest = false;
+    private boolean secureTest;
 
     private String username = "admin";
 
     private String password = "admin123";
-    
+
     private String adminUsername = "admin";
 
     private String adminPassword = "admin123";
-    
-    private boolean useAdminForRequests = true;
 
     private HashMap<String, Object> map = new HashMap<String, Object>();
 
@@ -102,13 +100,37 @@ public class TestContext
         this.adminPassword = adminPassword;
     }
 
-
     public void useAdminForRequests()
     {
         this.username = this.adminUsername;
         this.password = this.adminPassword;
     }
-    
-    
 
+    private Integer nexusApplicationPort;
+
+    private String nexusWorkDir;
+
+    private String nexusBaseUrl;
+
+    public void setThreadContext( Integer nexusApplicationPort, String nexusWorkDir, String nexusBaseUrl )
+    {
+        this.nexusApplicationPort = nexusApplicationPort;
+        this.nexusWorkDir = nexusWorkDir;
+        this.nexusBaseUrl = nexusBaseUrl;
+    }
+
+    public Integer getNexusApplicationPort()
+    {
+        return nexusApplicationPort;
+    }
+
+    public String getNexusWorkDir()
+    {
+        return nexusWorkDir;
+    }
+
+    public String getNexusBaseUrl()
+    {
+        return nexusBaseUrl;
+    }
 }

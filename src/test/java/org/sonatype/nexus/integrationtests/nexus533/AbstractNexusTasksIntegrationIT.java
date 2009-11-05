@@ -37,7 +37,7 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
     extends AbstractNexusIntegrationTest
 {
 
-    public abstract E getTaskScheduled();
+    protected abstract E getTaskScheduled();
 
     @BeforeMethod
     public void scheduleTasks()
@@ -79,7 +79,7 @@ public abstract class AbstractNexusTasksIntegrationIT<E extends ScheduledService
         assertTasks();
     }
 
-    public abstract void updateTask( E scheduledTask );
+    protected abstract void updateTask( E scheduledTask );
 
     @Test
     public void changeScheduling()

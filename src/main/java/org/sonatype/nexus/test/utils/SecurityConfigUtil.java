@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
+import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.security.model.CPrivilege;
 import org.sonatype.security.model.CProperty;
 import org.sonatype.security.model.CRole;
@@ -64,9 +64,9 @@ public class SecurityConfigUtil
             XStream xStream = new XStream();
             String secRoleDebugString = xStream.toXML( secRole );
             String roleDebugString = xStream.toXML( role );
-            
-            
-            AssertJUnit.assertTrue("Role:\n"+ roleDebugString +"\nsecRole:\n"+ secRoleDebugString, new RoleComparator().compare( role, secRole ) == 0 );
+
+            AssertJUnit.assertTrue( "Role:\n" + roleDebugString + "\nsecRole:\n" + secRoleDebugString,
+                                    new RoleComparator().compare( role, secRole ) == 0 );
 
         }
     }
@@ -87,10 +87,10 @@ public class SecurityConfigUtil
         for ( Iterator<UserResource> outterIter = users.iterator(); outterIter.hasNext(); )
         {
             UserResource userResource = outterIter.next();
-            
+
             CUser secUser = getCUser( userResource.getUserId() );
 
-            AssertJUnit.assertNotNull( "Cannot find user: "+ userResource.getUserId(), secUser );
+            AssertJUnit.assertNotNull( "Cannot find user: " + userResource.getUserId(), secUser );
 
             CUser user = UserConverter.toCUser( userResource );
 
@@ -101,7 +101,7 @@ public class SecurityConfigUtil
 
     public static String getPrivilegeProperty( PrivilegeStatusResource priv, String key )
     {
-        for ( PrivilegeProperty prop : (List<PrivilegeProperty>) priv.getProperties() )
+        for ( PrivilegeProperty prop : priv.getProperties() )
         {
             if ( prop.getKey().equals( key ) )
             {
@@ -128,7 +128,7 @@ public class SecurityConfigUtil
             AssertJUnit.assertEquals( privResource.getName(), secPriv.getName() );
             AssertJUnit.assertEquals( privResource.getDescription(), secPriv.getDescription() );
 
-            for ( CProperty prop : (List<CProperty>) secPriv.getProperties() )
+            for ( CProperty prop : secPriv.getProperties() )
             {
                 AssertJUnit.assertEquals( getPrivilegeProperty( privResource, prop.getKey() ), prop.getValue() );
             }
@@ -214,7 +214,8 @@ public class SecurityConfigUtil
     public static Configuration getSecurityConfig()
         throws IOException
     {
-        File secConfigFile = new File( AbstractNexusIntegrationTest.WORK_CONF_DIR, "security.xml" );
+        File secConfigFile =
+            new File( TestContainer.getInstance().getTestContext().getNexusWorkDir() + "/conf", "security.xml" );
 
         Reader fr = null;
         Configuration configuration = null;
@@ -237,8 +238,9 @@ public class SecurityConfigUtil
 
             Configuration staticConfiguration = null;
 
-            fr = new InputStreamReader( SecurityConfigUtil.class
-                .getResourceAsStream( "/META-INF/nexus/static-security.xml" ) );
+            fr =
+                new InputStreamReader(
+                                       SecurityConfigUtil.class.getResourceAsStream( "/META-INF/nexus/static-security.xml" ) );
 
             try
             {
@@ -249,15 +251,15 @@ public class SecurityConfigUtil
                 fr.close();
             }
 
-            for ( CUser user : (List<CUser>) staticConfiguration.getUsers() )
+            for ( CUser user : staticConfiguration.getUsers() )
             {
                 configuration.addUser( user );
             }
-            for ( CRole role : (List<CRole>) staticConfiguration.getRoles() )
+            for ( CRole role : staticConfiguration.getRoles() )
             {
                 configuration.addRole( role );
             }
-            for ( CPrivilege priv : (List<CPrivilege>) staticConfiguration.getPrivileges() )
+            for ( CPrivilege priv : staticConfiguration.getPrivileges() )
             {
                 configuration.addPrivilege( priv );
             }

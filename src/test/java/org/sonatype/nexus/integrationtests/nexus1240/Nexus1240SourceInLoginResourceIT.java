@@ -20,7 +20,6 @@ import org.restlet.data.Method;
 import org.restlet.data.Response;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.RequestFacade;
-import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
 import org.sonatype.security.rest.model.AuthenticationClientPermissions;
@@ -32,36 +31,36 @@ import org.testng.annotations.Test;
 public class Nexus1240SourceInLoginResourceIT
     extends AbstractNexusIntegrationTest
 {
-    public Nexus1240SourceInLoginResourceIT()
+    @Override
+    public boolean isSecureTest()
     {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
+        return true;
     }
 
     @Test
-    public void sourceInLoginResourceTest() throws IOException
-    {     
+    public void sourceInLoginResourceTest()
+        throws IOException
+    {
         AuthenticationClientPermissions clientPermissions = this.getPermissions();
-        
+
         AssertJUnit.assertEquals( "default", clientPermissions.getLoggedInUserSource() );
     }
 
     private AuthenticationClientPermissions getPermissions()
         throws IOException
     {
-        Response response = RequestFacade
-            .sendMessage( RequestFacade.SERVICE_LOCAL + "authentication/login", Method.GET );
+        Response response =
+            RequestFacade.sendMessage( RequestFacade.SERVICE_LOCAL + "authentication/login", Method.GET );
 
-        AssertJUnit.assertTrue( "Status: "+ response.getStatus(), response.getStatus().isSuccess()  );
-        
+        AssertJUnit.assertTrue( "Status: " + response.getStatus(), response.getStatus().isSuccess() );
+
         String responseText = response.getEntity().getText();
 
-        XStreamRepresentation representation = new XStreamRepresentation(
-            XStreamFactory.getXmlXStream(),
-            responseText,
-            MediaType.APPLICATION_XML );
+        XStreamRepresentation representation =
+            new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );
 
-        AuthenticationLoginResourceResponse resourceResponse = (AuthenticationLoginResourceResponse) representation
-            .getPayload( new AuthenticationLoginResourceResponse() );
+        AuthenticationLoginResourceResponse resourceResponse =
+            (AuthenticationLoginResourceResponse) representation.getPayload( new AuthenticationLoginResourceResponse() );
 
         AuthenticationLoginResource resource = resourceResponse.getData();
 

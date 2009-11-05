@@ -21,17 +21,17 @@ import org.sonatype.nexus.test.utils.SettingsMessageUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-
 /**
- * Saving the Nexus config needs to validate the anonymous user information 
+ * Saving the Nexus config needs to validate the anonymous user information
  */
 public class Nexus586ValidateConfigurationIT
     extends AbstractNexusIntegrationTest
 {
 
-    static
+    @Override
+    public boolean isSecureTest()
     {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
+        return true;
     }
 
     @Test

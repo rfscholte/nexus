@@ -258,7 +258,7 @@ public abstract class AbstractNexus1923
 
     private File getRepositoryLocalIndexDirectory( String repositoryId )
     {
-        return new File( AbstractNexusIntegrationTest.nexusWorkDir + "/indexer/" + repositoryId + "-local/" );
+        return new File( nexusWorkDir + "/indexer/" + repositoryId + "-local/" );
     }
 
     protected File getHostedRepositoryLocalIndexDirectory()
@@ -288,7 +288,7 @@ public abstract class AbstractNexus1923
 
     private File getRepositoryRemoteIndexDirectory( String repositoryId )
     {
-        return new File( AbstractNexusIntegrationTest.nexusWorkDir + "/indexer/" + repositoryId + "-remote/" );
+        return new File( nexusWorkDir + "/indexer/" + repositoryId + "-remote/" );
     }
 
     protected File getHostedRepositoryRemoteIndexDirectory()
@@ -318,7 +318,7 @@ public abstract class AbstractNexus1923
 
     protected File getRepositoryStorageDirectory( String repositoryId )
     {
-        return new File( AbstractNexusIntegrationTest.nexusWorkDir + "/storage/" + repositoryId + "/" );
+        return new File( nexusWorkDir + "/storage/" + repositoryId + "/" );
     }
 
     protected File getHostedRepositoryStorageDirectory()
@@ -460,7 +460,7 @@ public abstract class AbstractNexus1923
 
     protected File getRepositoryStorageIndexDirectory( String repositoryId )
     {
-        return new File( AbstractNexusIntegrationTest.nexusWorkDir + "/storage/" + repositoryId + "/.index/" );
+        return new File( nexusWorkDir + "/storage/" + repositoryId + "/.index/" );
     }
 
     protected File getHostedRepositoryStorageIndexDirectory()
@@ -498,7 +498,7 @@ public abstract class AbstractNexus1923
         else
         {
             AssertJUnit.assertEquals( properties.getProperty( IndexingContext.INDEX_CHUNK_COUNTER ),
-                                 Integer.toString( current ) );
+                                      Integer.toString( current ) );
         }
     }
 

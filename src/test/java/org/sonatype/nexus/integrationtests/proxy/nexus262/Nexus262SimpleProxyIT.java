@@ -21,27 +21,31 @@ import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-
 /**
- * One step above the Sample Test, this one adds a 'remote repository': <a href='https://docs.sonatype.com/display/NX/Nexus+Test-Harness'>Nexus Test-Harness</a>
+ * One step above the Sample Test, this one adds a 'remote repository': <a
+ * href='https://docs.sonatype.com/display/NX/Nexus+Test-Harness'>Nexus Test-Harness</a>
  */
-public class Nexus262SimpleProxyIT extends AbstractNexusProxyIntegrationTest
+public class Nexus262SimpleProxyIT
+    extends AbstractNexusProxyIntegrationTest
 {
 
     public Nexus262SimpleProxyIT()
     {
         super( "release-proxy-repo-1" );
     }
-    
+
     @Test
-    public void downloadFromProxy() throws IOException
+    public void downloadFromProxy()
+        throws IOException
     {
-        File localFile = this.getLocalFile( "release-proxy-repo-1", "simple.artifact", "simpleXMLArtifact", "1.0.0", "xml" );
-                                                                                              
-        log.debug( "localFile: "+ localFile.getAbsolutePath() );
-        
-        File artifact = this.downloadArtifact( "simple.artifact", "simpleXMLArtifact", "1.0.0", "xml", null, "target/downloads" );
-        
+        File localFile =
+            this.getLocalFile( "release-proxy-repo-1", "simple.artifact", "simpleXMLArtifact", "1.0.0", "xml" );
+
+        log.debug( "localFile: " + localFile.getAbsolutePath() );
+
+        File artifact =
+            this.downloadArtifact( "simple.artifact", "simpleXMLArtifact", "1.0.0", "xml", null, "target/downloads" );
+
         AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( artifact, localFile ) );
     }
 

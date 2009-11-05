@@ -6,7 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
@@ -14,14 +13,12 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.integrationtests.AbstractMavenNexusIT;
-import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.proxy.repository.RepositoryWritePolicy;
 import org.sonatype.nexus.rest.model.RepositoryResource;
 import org.sonatype.nexus.test.utils.DeployUtils;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class Nexus2351DisableRedeployUploadIT
@@ -86,7 +83,8 @@ public class Nexus2351DisableRedeployUploadIT
 
     }
 
-    // @Test FIXME: BROKEN NEXUS-2395
+    @Test( enabled = false )
+    // FIXME: BROKEN NEXUS-2395
     public void disableReleaseAllowRedeployWithUploadTest()
         throws Exception
     {
@@ -98,13 +96,15 @@ public class Nexus2351DisableRedeployUploadIT
 
         File fileToDeploy = getTestFile( "artifact.jar" );
 
-        AssertJUnit.assertEquals( 201, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav, fileToDeploy ) );
+        AssertJUnit.assertEquals( 201, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav,
+                                                                           fileToDeploy ) );
         Metadata metadata = this.downloadMetadataFromRepository( gav, this.getTestRepositoryId() );
         Date firstDeployDate = this.getLastDeployTimeStamp( metadata );
         // we need to sleep 1 second, because we are dealing with a one second accuracy
         Thread.sleep( 1000 );
 
-        AssertJUnit.assertEquals( 201, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav, fileToDeploy ) );
+        AssertJUnit.assertEquals( 201, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav,
+                                                                           fileToDeploy ) );
         metadata = this.downloadMetadataFromRepository( gav, this.getTestRepositoryId() );
         Date secondDeployDate = this.getLastDeployTimeStamp( metadata );
         AssertJUnit.assertTrue( "deploy date was not updated, or is incorrect, first: " + firstDeployDate + " second: "
@@ -112,7 +112,8 @@ public class Nexus2351DisableRedeployUploadIT
         // we need to sleep 1 second, because we are dealing with a one second accuracy
         Thread.sleep( 1000 );
 
-        AssertJUnit.assertEquals( 201, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav, fileToDeploy ) );
+        AssertJUnit.assertEquals( 201, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav,
+                                                                           fileToDeploy ) );
         metadata = this.downloadMetadataFromRepository( gav, this.getTestRepositoryId() );
         Date thirdDeployDate = this.getLastDeployTimeStamp( metadata );
         AssertJUnit.assertTrue( "deploy date was not updated, or is incorrect, second: " + firstDeployDate + " third: "
@@ -131,8 +132,10 @@ public class Nexus2351DisableRedeployUploadIT
 
         File fileToDeploy = getTestFile( "artifact.jar" );
 
-        AssertJUnit.assertEquals( 400, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav, fileToDeploy ) );
-        AssertJUnit.assertEquals( 400, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav, fileToDeploy ) );
+        AssertJUnit.assertEquals( 400, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav,
+                                                                           fileToDeploy ) );
+        AssertJUnit.assertEquals( 400, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav,
+                                                                           fileToDeploy ) );
     }
 
     @Test
@@ -151,7 +154,8 @@ public class Nexus2351DisableRedeployUploadIT
         this.deployWithMavenExpectFailure( mavenProject );
     }
 
-    // @Test FIXME: BROKEN NEXUS-2351
+    @Test( enabled = false )
+    // FIXME: BROKEN NEXUS-2351
     public void disableReleaseNoRedeployWithUploadTest()
         throws Exception
     {
@@ -163,12 +167,16 @@ public class Nexus2351DisableRedeployUploadIT
 
         File fileToDeploy = getTestFile( "artifact.jar" );
 
-        AssertJUnit.assertEquals( 201, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav, fileToDeploy ) );
-        AssertJUnit.assertEquals( 400, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav, fileToDeploy ) );
-        AssertJUnit.assertEquals( 400, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav, fileToDeploy ) );
+        AssertJUnit.assertEquals( 201, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav,
+                                                                           fileToDeploy ) );
+        AssertJUnit.assertEquals( 400, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav,
+                                                                           fileToDeploy ) );
+        AssertJUnit.assertEquals( 400, DeployUtils.deployUsingGavWithRest( this.getTestRepositoryId(), gav,
+                                                                           fileToDeploy ) );
     }
 
-    // @Test FIXME: BROKEN NEXUS-2351
+    @Test( enabled = false )
+    // FIXME: BROKEN NEXUS-2351
     public void disableReleaseNoRedeployWithMavenTest()
         throws Exception
     {
@@ -230,12 +238,6 @@ public class Nexus2351DisableRedeployUploadIT
 
         catch ( VerificationException e )
         {
-            File logs = new File( nexusLogDir );
-            File bkp = new File( "./target/logs/nexus2351-bkp" );
-            bkp.mkdirs();
-
-            FileUtils.copyDirectory( logs, bkp );
-
             failTest( verifier );
         }
 
@@ -261,16 +263,10 @@ public class Nexus2351DisableRedeployUploadIT
 
     }
 
-    @BeforeClass
-    public static void clean()
-        throws Exception
+    @Override
+    public boolean isSecureTest()
     {
-        cleanWorkDir();
-
-        FileUtils.writeStringToFile( new File( nexusLogDir, "nexus.log" ), "" );
-        FileUtils.writeStringToFile( new File( nexusLogDir, "tests.log" ), "" );
-
-        TestContainer.getInstance().getTestContext().setSecureTest( false );
+        return true;
     }
 
     private RepositoryResource setWritePolicy( String repoId, RepositoryWritePolicy policy )

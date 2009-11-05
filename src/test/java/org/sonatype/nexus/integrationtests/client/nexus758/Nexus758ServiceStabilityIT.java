@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 /**
  * Tests the Soft Start, Stop, Restart, and isNexusStarted methods in the rest-client.
  */
+@Test( enabled = false )
 public class Nexus758ServiceStabilityIT
 {
     private static NexusClient client;
@@ -36,11 +37,10 @@ public class Nexus758ServiceStabilityIT
     {
         client = (NexusClient) AbstractNexusIntegrationTest.getStaticContainer().lookup( NexusClient.ROLE );
         TestContext context = TestContainer.getInstance().getTestContext();
-        client.connect( AbstractNexusIntegrationTest.baseNexusUrl, context.getAdminUsername(),
-                        context.getAdminPassword() );
+        // client.connect( baseNexusUrl, context.getAdminUsername(), context.getAdminPassword() );
     }
 
-    @Test
+    @Test( enabled = false )
     public void hardRestarts()
         throws Exception
     {

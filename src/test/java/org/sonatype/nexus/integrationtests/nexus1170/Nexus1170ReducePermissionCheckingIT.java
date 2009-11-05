@@ -42,12 +42,15 @@ public class Nexus1170ReducePermissionCheckingIT
     extends AbstractNexusIntegrationTest
 {
 
-    private int getExpectedPrivilegeCount() throws Exception
+    private int getExpectedPrivilegeCount()
+        throws Exception
     {
         NexusConfiguration configuration = container.lookup( NexusConfiguration.class );
-        ( ( FileConfigurationSource )configuration.getConfigurationSource()).setConfigurationFile( new File( getBasedir(), "target/plexus-home/nexus-work/conf/nexus.xml" ) );
+        ( (FileConfigurationSource) configuration.getConfigurationSource() ).setConfigurationFile( new File(
+                                                                                                             getBasedir(),
+                                                                                                             "target/plexus-home/nexus-work/conf/nexus.xml" ) );
         configuration.loadConfiguration();
-        ConfigurationManager configManager = container.lookup( ConfigurationManager.class, "resourceMerging");
+        ConfigurationManager configManager = container.lookup( ConfigurationManager.class, "resourceMerging" );
 
         Set<String> privIds = new HashSet<String>();
         for ( SecurityPrivilege priv : configManager.listPrivileges() )
@@ -63,9 +66,10 @@ public class Nexus1170ReducePermissionCheckingIT
         return privIds.size();
     }
 
-    public Nexus1170ReducePermissionCheckingIT()
+    @Override
+    public boolean isSecureTest()
     {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
+        return true;
     }
 
     @Test
@@ -113,7 +117,7 @@ public class Nexus1170ReducePermissionCheckingIT
         this.checkPermission( permissions, "security:users", 0 );
         this.checkPermission( permissions, "nexus:logs", 0 );
         this.checkPermission( permissions, "nexus:configuration", 0 );
-		// no longer available by default
+        // no longer available by default
         this.checkPermission( permissions, "nexus:feeds", 1 );
         this.checkPermission( permissions, "nexus:targets", 0 );
 
@@ -141,18 +145,17 @@ public class Nexus1170ReducePermissionCheckingIT
             int count = 0;
             for ( ClientPermission inPermission : permissions )
             {
-              if(outPermission.getId().equals( inPermission.getId() ))
-              {
-                  count++;
-              }
-              if(count > 1)
-              {
-                  AssertJUnit.fail( "Duplicate privilege: "+ outPermission.getId() +" found count: "+ count);
-              }
+                if ( outPermission.getId().equals( inPermission.getId() ) )
+                {
+                    count++;
+                }
+                if ( count > 1 )
+                {
+                    AssertJUnit.fail( "Duplicate privilege: " + outPermission.getId() + " found count: " + count );
+                }
             }
 
         }
-
 
     }
 
@@ -174,18 +177,16 @@ public class Nexus1170ReducePermissionCheckingIT
     private List<ClientPermission> getPermissions()
         throws IOException
     {
-        Response response = RequestFacade
-            .sendMessage( RequestFacade.SERVICE_LOCAL + "authentication/login", Method.GET );
+        Response response =
+            RequestFacade.sendMessage( RequestFacade.SERVICE_LOCAL + "authentication/login", Method.GET );
 
         String responseText = response.getEntity().getText();
 
-        XStreamRepresentation representation = new XStreamRepresentation(
-            XStreamFactory.getXmlXStream(),
-            responseText,
-            MediaType.APPLICATION_XML );
+        XStreamRepresentation representation =
+            new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );
 
-        AuthenticationLoginResourceResponse resourceResponse = (AuthenticationLoginResourceResponse) representation
-            .getPayload( new AuthenticationLoginResourceResponse() );
+        AuthenticationLoginResourceResponse resourceResponse =
+            (AuthenticationLoginResourceResponse) representation.getPayload( new AuthenticationLoginResourceResponse() );
 
         AuthenticationLoginResource resource = resourceResponse.getData();
 

@@ -48,6 +48,8 @@ public abstract class AbstractLegacyRulesIT
         repo2.setId( "repositoryOrGroupId" );
         repo2.setValue( "repo_" + REPO_TEST_HARNESS_REPO2 );
         TaskScheduleUtil.runTask( "nexus1560-repo2", RebuildMavenMetadataTaskDescriptor.ID, repo2 );
+
+        disableAnonymousUser();
     }
 
     protected Response download( String downloadUrl )
@@ -64,7 +66,7 @@ public abstract class AbstractLegacyRulesIT
     {
         Response response = download( downloadUrl );
         Status status = response.getStatus();
-        AssertJUnit.assertTrue( "Unable to download artifact from repository: " + status, status.isError() );
+        AssertJUnit.assertTrue( "Nexus should deny artifact download from repository: " + status, status.isError() );
         return response;
     }
 

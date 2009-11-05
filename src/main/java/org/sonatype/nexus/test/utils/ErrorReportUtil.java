@@ -7,7 +7,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.codehaus.plexus.util.FileUtils;
-import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
+import org.sonatype.nexus.integrationtests.TestContainer;
 import org.testng.AssertJUnit;
 
 public class ErrorReportUtil
@@ -16,35 +16,35 @@ public class ErrorReportUtil
         throws IOException
     {
         File errorBundleDir = new File( directory + "/error-report-bundles" );
-        
+
         if ( errorBundleDir.exists() )
         {
             FileUtils.deleteDirectory( errorBundleDir );
         }
     }
-    
+
     public static void validateNoZip( String directory )
     {
         File errorBundleDir = new File( directory + "/error-report-bundles" );
-        
+
         AssertJUnit.assertFalse( errorBundleDir.exists() );
     }
-    
+
     public static void validateZipContents( String directory )
         throws IOException
     {
         File errorBundleDir = new File( directory + "/error-report-bundles" );
-        
+
         File[] files = errorBundleDir.listFiles();
-        
+
         AssertJUnit.assertTrue( files != null );
         AssertJUnit.assertEquals( 1, files.length );
         AssertJUnit.assertTrue( files[0].getName().startsWith( "nexus-error-bundle." ) );
         AssertJUnit.assertTrue( files[0].getName().endsWith( ".zip" ) );
-        
+
         validateZipContents( files[0] );
     }
-    
+
     public static void validateZipContents( File file )
         throws IOException
     {
@@ -94,11 +94,11 @@ public class ErrorReportUtil
                 foundSecurityConfigXml = true;
             }
             else
-            {   
-                String confDir = AbstractNexusIntegrationTest.WORK_CONF_DIR;
-                
+            {
+                String confDir = TestContainer.getInstance().getTestContext().getNexusWorkDir() + "/conf";
+
                 // any extra plugin config goes in the zip, so if we find something from the conf dir that is ok.
-                if(! new File( confDir, entry.getName()).exists())
+                if ( !new File( confDir, entry.getName() ).exists() )
                 {
                     foundOthers = true;
                 }

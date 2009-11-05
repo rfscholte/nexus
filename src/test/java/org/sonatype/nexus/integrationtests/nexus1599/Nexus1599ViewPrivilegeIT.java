@@ -23,7 +23,6 @@ import org.sonatype.nexus.test.utils.FeedUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.SearchMessageUtil;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -42,18 +41,16 @@ public class Nexus1599ViewPrivilegeIT
     {
         super( REPO_TEST_HARNESS_REPO );
 
-        this.repoMsgUtil = new RepositoryMessageUtil(
-            this.getJsonXStream(),
-            MediaType.APPLICATION_JSON,
-            getRepositoryTypeRegistry() );
+        this.repoMsgUtil =
+            new RepositoryMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON, getRepositoryTypeRegistry() );
 
         this.searchMsgUtil = new SearchMessageUtil();
     }
 
-    @BeforeClass
-    public static void enableSecureContext()
+    @Override
+    public boolean isSecureTest()
     {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
+        return true;
     }
 
     @Test
@@ -133,7 +130,8 @@ public class Nexus1599ViewPrivilegeIT
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        AssertJUnit.assertFalse( "Repo '" + repoId + "' should be hidden!", containsRepo( repoMsgUtil.getList(), repoId ) );
+        AssertJUnit.assertFalse( "Repo '" + repoId + "' should be hidden!",
+                                 containsRepo( repoMsgUtil.getList(), repoId ) );
     }
 
     private boolean containsRepo( List<RepositoryListResource> repos, String repoId )

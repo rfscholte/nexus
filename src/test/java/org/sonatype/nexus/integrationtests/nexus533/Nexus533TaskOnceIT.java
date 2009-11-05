@@ -28,7 +28,7 @@ public class Nexus533TaskOnceIT
     private static ScheduledServiceOnceResource scheduledTask;
 
     @Override
-    public ScheduledServiceOnceResource getTaskScheduled()
+    protected ScheduledServiceOnceResource getTaskScheduled()
     {
         if ( scheduledTask == null )
         {
@@ -54,7 +54,7 @@ public class Nexus533TaskOnceIT
     }
 
     @Override
-    public void updateTask( ScheduledServiceOnceResource scheduledTask )
+    protected void updateTask( ScheduledServiceOnceResource scheduledTask )
     {
         scheduledTask.setStartTime( "00:00" );
     }

@@ -7,14 +7,14 @@ import org.sonatype.nexus.tasks.descriptors.ExpireCacheTaskDescriptor;
 import org.sonatype.nexus.test.utils.RepositoryStatusMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class Nexus1883OOSRepoExpireTaskIT
     extends AbstractNexusIntegrationTest
 {
 
-    @BeforeClass
+    @BeforeMethod
     public void putOutOfService()
         throws Exception
     {

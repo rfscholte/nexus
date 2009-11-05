@@ -33,8 +33,7 @@ public class Nexus758StatusService
 
         NexusClient client = (NexusClient) container.lookup( NexusClient.ROLE );
         TestContext context = TestContainer.getInstance().getTestContext();
-        client.connect( AbstractNexusIntegrationTest.baseNexusUrl, context.getAdminUsername(),
-                        context.getAdminPassword() );
+        client.connect( baseNexusUrl, context.getAdminUsername(), context.getAdminPassword() );
 
         return client;
     }

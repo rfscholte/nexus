@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import org.sonatype.nexus.configuration.model.Configuration;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
-import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
 import org.sonatype.nexus.test.utils.SecurityConfigUtil;
 import org.sonatype.security.configuration.model.SecurityConfiguration;
@@ -32,11 +31,15 @@ public class Nexus652Beta5To10UpgradeIT
     extends AbstractNexusIntegrationTest
 {
 
+    @Override
+    public boolean isSecureTest()
+    {
+        return true;
+    }
+
     public Nexus652Beta5To10UpgradeIT()
     {
         this.setVerifyNexusConfigBeforeStart( false );
-
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
     }
 
     @Test
@@ -44,7 +47,7 @@ public class Nexus652Beta5To10UpgradeIT
         throws Exception
     {
         // if we made it this far the upgrade worked...
-        
+
         SecurityConfigurationSource securitySource = container.lookup( SecurityConfigurationSource.class, "file" );
         SecurityConfiguration securityConfig = securitySource.loadConfiguration();
 
@@ -65,8 +68,7 @@ public class Nexus652Beta5To10UpgradeIT
 
         AssertJUnit.assertEquals( "http proxy:", true, nexusConfig.getHttpProxy().isEnabled() );
 
-        AssertJUnit.assertEquals( "Base url:", AbstractNexusIntegrationTest.baseNexusUrl,
-                             nexusConfig.getRestApi().getBaseUrl() );
+        AssertJUnit.assertEquals( "Base url:", baseNexusUrl, nexusConfig.getRestApi().getBaseUrl() );
 
         // we will glance over the repos, because the unit tests cover this.
         AssertJUnit.assertEquals( "Repository Count:", 9, nexusConfig.getRepositories().size() );
@@ -82,15 +84,14 @@ public class Nexus652Beta5To10UpgradeIT
 
     }
 
-
     @Test
     public void checkSecurityConfig()
         throws IOException
     {
         org.sonatype.security.model.Configuration secConfig = SecurityConfigUtil.getSecurityConfig();
 
-        AssertJUnit.assertEquals( "User Count:", 7, secConfig.getUsers().size());
-        AssertJUnit.assertEquals( "Roles Count:", 22, secConfig.getRoles().size());
+        AssertJUnit.assertEquals( "User Count:", 7, secConfig.getUsers().size() );
+        AssertJUnit.assertEquals( "Roles Count:", 22, secConfig.getRoles().size() );
 
         // again, everything should have been upgraded.
     }

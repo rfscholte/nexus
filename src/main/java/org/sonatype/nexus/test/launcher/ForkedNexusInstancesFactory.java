@@ -1,9 +1,9 @@
 package org.sonatype.nexus.test.launcher;
 
+import static org.sonatype.nexus.test.utils.PortUtil.getRandomPort;
+
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -23,14 +23,15 @@ import org.sonatype.nexus.test.utils.NexusIllegalStateException;
 import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 
-public class NexusInstancesFactory
+public class ForkedNexusInstancesFactory
+    implements INexusInstancesFactory
 {
 
     private List<NexusContext> contexts;
 
     private PlexusContainer container;
 
-    public NexusInstancesFactory( PlexusContainer container )
+    public ForkedNexusInstancesFactory( PlexusContainer container )
     {
         this.contexts = new ArrayList<NexusContext>();
         this.container = container;
@@ -61,33 +62,28 @@ public class NexusInstancesFactory
         }
     }
 
-    private Integer getRandomPort()
-        throws IOException
-    {
-        ServerSocket ss = new ServerSocket( 0 );
-        try
-        {
-            return ss.getLocalPort();
-        }
-        finally
-        {
-            try
-            {
-                ss.close();
-            }
-            catch ( IOException e )
-            {
-                // no problem
-            }
-        }
-    }
-
     public NexusContext createInstance()
         throws Exception
     {
         Integer nexusPort = getRandomPort();
-        Integer controllerPort = getRandomPort();
         String nexusWorkDir = TestProperties.getPath( "nexus.work.dir" ) + nexusPort;
+        return createInstance( nexusPort, nexusWorkDir );
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see org.sonatype.nexus.test.launcher.INexusInstancesFactory#createInstance()
+     */
+    public NexusContext createInstance( Integer nexusPort, File nexusWorkDir )
+        throws Exception
+    {
+        return createInstance( nexusPort, nexusWorkDir.getAbsolutePath() );
+    }
+
+    private NexusContext createInstance( Integer nexusPort, String nexusWorkDir )
+        throws Exception
+    {
+        Integer controllerPort = getRandomPort();
         String nexusBaseDir = TestProperties.getPath( "nexus.base.dir" );
         String nexusApp = nexusBaseDir + "/runtime/apps/nexus";
 
@@ -206,6 +202,10 @@ public class NexusInstancesFactory
         throw new NexusIllegalStateException( "Failed to start nexus after: " + cycles );
     }
 
+    /*
+     * (non-Javadoc)
+     * @see org.sonatype.nexus.test.launcher.INexusInstancesFactory#shutdown()
+     */
     public void shutdown()
         throws Exception
     {
@@ -233,9 +233,20 @@ public class NexusInstancesFactory
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see
+     * org.sonatype.nexus.test.launcher.INexusInstancesFactory#destroyInstance(org.sonatype.nexus.test.launcher.NexusContext
+     * )
+     */
     public void destroyInstance( NexusContext context )
         throws Exception
     {
+        if ( context == null )
+        {
+            return;
+        }
+
         ForkedAppBooter appBooter = context.getForkedAppBooter();
         appBooter.shutdown();
 

@@ -17,7 +17,6 @@ import java.io.File;
 
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
-import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.rest.model.LogConfigResource;
 import org.sonatype.nexus.test.utils.LogConfigMessageUtil;
 import org.testng.AssertJUnit;
@@ -32,13 +31,15 @@ public class Nexus1375LogConfigIT
 
     protected LogConfigMessageUtil messageUtil;
 
+    @Override
+    public boolean isSecureTest()
+    {
+        return true;
+    }
+
     public Nexus1375LogConfigIT()
     {
         messageUtil = new LogConfigMessageUtil( this.getXMLXStream(), MediaType.APPLICATION_XML );
-
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
-
-        TestContainer.getInstance().getTestContext().useAdminForRequests();
     }
 
     @Test
@@ -51,7 +52,8 @@ public class Nexus1375LogConfigIT
 
         AssertJUnit.assertEquals( "logfile, record", resource.getRootLoggerAppenders() );
 
-        AssertJUnit.assertEquals( "%4d{yyyy-MM-dd HH:mm:ss} %-5p [%-15.15t] - %c - %m%n", resource.getFileAppenderPattern() );
+        AssertJUnit.assertEquals( "%4d{yyyy-MM-dd HH:mm:ss} %-5p [%-15.15t] - %c - %m%n",
+                                  resource.getFileAppenderPattern() );
 
         File expectedLoggerLocation = new File( "target/logs/nexus.log" ).getCanonicalFile();
 
@@ -75,7 +77,7 @@ public class Nexus1375LogConfigIT
 
         AssertJUnit.assertEquals( "ERROR", resource.getRootLoggerLevel() );
 
-        resource.setRootLoggerLevel( "DEBUG");
+        resource.setRootLoggerLevel( "DEBUG" );
 
         messageUtil.updateLogConfig( resource );
 

@@ -10,10 +10,10 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class NexusInstancesFactoryTest
+public class ForkedNexusInstancesFactoryTest
 {
 
-    private static NexusInstancesFactory factory;
+    private static INexusInstancesFactory factory;
 
     private static DefaultPlexusContainer container;
 
@@ -23,7 +23,7 @@ public class NexusInstancesFactoryTest
     {
         container = new DefaultPlexusContainer();
 
-        factory = new NexusInstancesFactory( container );
+        factory = new ForkedNexusInstancesFactory( container );
     }
 
     @Test

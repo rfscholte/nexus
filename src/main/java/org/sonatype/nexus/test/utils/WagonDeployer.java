@@ -14,6 +14,7 @@
 package org.sonatype.nexus.test.utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -69,6 +70,7 @@ public class WagonDeployer
 
     public WagonDeployer( String protocol, String username, String password, String repositoryUrl, File fileToDeploy,
                           String artifactPath )
+        throws IOException
     {
         super();
         this.protocol = protocol;
@@ -310,6 +312,11 @@ public class WagonDeployer
         {
             e.printStackTrace();
             System.exit( 7 );
+        }
+        catch ( IOException e )
+        {
+            e.printStackTrace();
+            System.exit( 8 );
         }
     }
 }

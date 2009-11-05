@@ -20,7 +20,6 @@ import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractMavenNexusIT;
-import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.test.utils.UserMessageUtil;
 import org.sonatype.security.rest.model.UserResource;
 import org.testng.annotations.BeforeMethod;
@@ -33,9 +32,10 @@ public class Nexus502MavenExecutionIT
     extends AbstractMavenNexusIT
 {
 
-    static
+    @Override
+    public boolean isSecureTest()
     {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
+        return true;
     }
 
     private Verifier verifier;

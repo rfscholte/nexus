@@ -53,7 +53,8 @@ public class Nexus606DownloadLogsAndConfigFilesIT
 
         AssertJUnit.assertEquals( "Status: \n" + responseText, 200, response.getStatus().getCode() );
 
-        LogsListResourceResponse logListResponse = (LogsListResourceResponse) this.getXMLXStream().fromXML( responseText );
+        LogsListResourceResponse logListResponse =
+            (LogsListResourceResponse) this.getXMLXStream().fromXML( responseText );
         List<LogsListResource> logList = logListResponse.getData();
         AssertJUnit.assertTrue( "Log List should contain at least 1 log.", logList.size() > 0 );
 
@@ -80,19 +81,19 @@ public class Nexus606DownloadLogsAndConfigFilesIT
         ConfigurationsListResourceResponse logListResponse =
             (ConfigurationsListResourceResponse) this.getXMLXStream().fromXML( responseText );
         List<ConfigurationsListResource> configList = logListResponse.getData();
-        AssertJUnit.assertTrue( "Config List should contain at least 2 config file: "+ configList, configList.size() >= 2 );
+        AssertJUnit.assertTrue( "Config List should contain at least 2 config file: " + configList,
+                                configList.size() >= 2 );
 
-        ConfigurationsListResource nexusXmlConfigResource = getConfigFromList(configList, "nexus.xml");
+        ConfigurationsListResource nexusXmlConfigResource = getConfigFromList( configList, "nexus.xml" );
         AssertJUnit.assertNotNull( "nexus.xml", nexusXmlConfigResource );
-        
-        ConfigurationsListResource securityXmlConfigResource = this.getConfigFromList(configList, "security.xml");
+
+        ConfigurationsListResource securityXmlConfigResource = this.getConfigFromList( configList, "security.xml" );
         AssertJUnit.assertNotNull( "security.xml", securityXmlConfigResource );
 
         // check the config now...
         response = RequestFacade.sendMessage( new URL( nexusXmlConfigResource.getResourceURI() ), Method.GET, null );
         AssertJUnit.assertEquals( "Status: ", 200, response.getStatus().getCode() );
 
-        
         String sha1Expected = FileTestingUtils.createSHA1FromStream( response.getEntity().getStream() );
         String sha1Actual = FileTestingUtils.createSHA1FromFile( NexusConfigUtil.getNexusFile() );
 
@@ -103,25 +104,27 @@ public class Nexus606DownloadLogsAndConfigFilesIT
         throws Exception
     {
         Response response = RequestFacade.sendMessage( new URL( logURI ), Method.GET, null );
-        AssertJUnit.assertEquals( "Request URI: "+ logURI +" Status: ", 200, response.getStatus().getCode() );
-        
-        File logFile = new File( nexusLogDir, name );
-        
+        AssertJUnit.assertEquals( "Request URI: " + logURI + " Status: ", 200, response.getStatus().getCode() );
+
+        File logFile = new File( nexusWorkDir, name );
+
         // get the first 10000 chars from the downloaded log
-        InputStreamReader reader = new InputStreamReader(response.getEntity().getStream());
-        BufferedReader bReader = new BufferedReader(reader);
-        
+        InputStreamReader reader = new InputStreamReader( response.getEntity().getStream() );
+        BufferedReader bReader = new BufferedReader( reader );
+
         StringBuffer downloadedLog = new StringBuffer();
-        
+
         int lineCount = 10000;
-        while(bReader.ready() && lineCount-- > 0)
+        while ( bReader.ready() && lineCount-- > 0 )
         {
             downloadedLog.append( (char) bReader.read() );
         }
         String logOnDisk = FileUtils.fileRead( logFile );
-        AssertJUnit.assertTrue( "Downloaded log should be similar to log file from disk.\nNOTE: its possible the file could have rolled over.\nTrying to match:\n"+ downloadedLog, logOnDisk.contains( downloadedLog ) );
+        AssertJUnit.assertTrue(
+                                "Downloaded log should be similar to log file from disk.\nNOTE: its possible the file could have rolled over.\nTrying to match:\n"
+                                    + downloadedLog, logOnDisk.contains( downloadedLog ) );
     }
-    
+
     private ConfigurationsListResource getConfigFromList( List<ConfigurationsListResource> configList, String name )
     {
         for ( ConfigurationsListResource configurationsListResource : configList )
@@ -133,6 +136,5 @@ public class Nexus606DownloadLogsAndConfigFilesIT
         }
         return null;
     }
-    
 
 }

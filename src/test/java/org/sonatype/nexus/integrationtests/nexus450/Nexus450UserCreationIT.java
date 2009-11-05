@@ -43,10 +43,10 @@ public class Nexus450UserCreationIT
 
     private static final String USER_ID = "velo";
 
-    @BeforeClass
-    public static void enableSecureContext()
+    @Override
+    public boolean isSecureTest()
     {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
+        return true;
     }
 
     @BeforeClass

@@ -46,10 +46,15 @@ public class Nexus874SecurityRealmReplacementIT
 
     private UserMessageUtil userUtil;
 
+    @Override
+    public boolean isSecureTest()
+    {
+        return true;
+    }
+
     public Nexus874SecurityRealmReplacementIT()
         throws ComponentLookupException
     {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
         groupUtil = new GroupMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
         repoUtil =
             new RepositoryMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON, getRepositoryTypeRegistry() );
@@ -169,10 +174,10 @@ public class Nexus874SecurityRealmReplacementIT
         TestContainer.getInstance().getTestContext().setPassword( "deployment123" );
 
         String serviceURI = "service/local/schedules";
-        
+
         Response response = RequestFacade.doGetRequest( "service/local/repo_targets" );
         AssertJUnit.assertEquals( 403, response.getStatus().getCode() );
-        
+
         response = RequestFacade.doGetRequest( serviceURI );
         AssertJUnit.assertEquals( 403, response.getStatus().getCode() );
 

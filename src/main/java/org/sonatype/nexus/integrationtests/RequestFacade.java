@@ -67,7 +67,7 @@ public class RequestFacade
         throws IOException
     {
 
-        String serviceURI = AbstractNexusIntegrationTest.baseNexusUrl + serviceURIpart;
+        String serviceURI = TestContainer.getInstance().getTestContext().getNexusBaseUrl() + serviceURIpart;
         return sendMessage( new URL( serviceURI ), method, representation );
     }
 
@@ -85,12 +85,13 @@ public class RequestFacade
         }
 
         // change the MediaType if this is a GET, default to application/xml
-        if( Method.GET.equals( method ) )
+        if ( Method.GET.equals( method ) )
         {
-            if( representation != null)
+            if ( representation != null )
             {
-                request.getClientInfo().getAcceptedMediaTypes().
-                add(new Preference<MediaType>(representation.getMediaType()));
+                request.getClientInfo().getAcceptedMediaTypes().add(
+                                                                     new Preference<MediaType>(
+                                                                                                representation.getMediaType() ) );
             }
         }
 
@@ -99,10 +100,8 @@ public class RequestFacade
         if ( context.isSecureTest() )
         {
             // ChallengeScheme scheme = new ChallengeScheme( "HTTP_NxBasic", "NxBasic", "Nexus Basic" );
-            ChallengeResponse authentication = new ChallengeResponse(
-                ChallengeScheme.HTTP_BASIC,
-                context.getUsername(),
-                context.getPassword() );
+            ChallengeResponse authentication =
+                new ChallengeResponse( ChallengeScheme.HTTP_BASIC, context.getUsername(), context.getPassword() );
             request.setChallengeResponse( authentication );
         }
 
@@ -150,8 +149,7 @@ public class RequestFacade
     }
 
     public static HttpMethod executeHTTPClientMethod( URL url, HttpMethod method )
-        throws HttpException,
-            IOException
+        throws HttpException, IOException
     {
 
         HttpClient client = new HttpClient();
@@ -162,8 +160,9 @@ public class RequestFacade
         if ( context.isSecureTest() )
         {
             client.getState().setCredentials(
-                AuthScope.ANY,
-                new UsernamePasswordCredentials( context.getUsername(), context.getPassword() ) );
+                                              AuthScope.ANY,
+                                              new UsernamePasswordCredentials( context.getUsername(),
+                                                                               context.getPassword() ) );
 
             List<String> authPrefs = new ArrayList<String>( 1 );
             authPrefs.add( AuthPolicy.BASIC );

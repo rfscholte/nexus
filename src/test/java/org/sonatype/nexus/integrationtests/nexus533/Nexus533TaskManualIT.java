@@ -28,7 +28,7 @@ public class Nexus533TaskManualIT
     private static ScheduledServiceBaseResource scheduledTask;
 
     @Override
-    public ScheduledServiceBaseResource getTaskScheduled()
+    protected ScheduledServiceBaseResource getTaskScheduled()
     {
         if ( scheduledTask == null )
         {
@@ -52,7 +52,7 @@ public class Nexus533TaskManualIT
     }
 
     @Override
-    public void updateTask( ScheduledServiceBaseResource scheduledTask )
+    protected void updateTask( ScheduledServiceBaseResource scheduledTask )
     {
         scheduledTask.getProperties().clear();
 
@@ -61,5 +61,5 @@ public class Nexus533TaskManualIT
         prop.setValue( "repo_nexus-test-harness-repo" );
         scheduledTask.addProperty( prop );
     }
-  
+
 }

@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.sonatype.nexus.integrationtests.TestContainer;
+
 public class TestProperties
 {
 
@@ -74,6 +76,20 @@ public class TestProperties
         {
             properties.put( key, bundle.getProperty( key ) );
         }
+
+        properties.put( "nexus.application.port",
+                        String.valueOf( TestContainer.getInstance().getTestContext().getNexusApplicationPort() ) );
+        properties.put( "nexus-application-port",
+                        String.valueOf( TestContainer.getInstance().getTestContext().getNexusApplicationPort() ) );
+        properties.put( "nexus.base.url", TestContainer.getInstance().getTestContext().getNexusBaseUrl() );
+        properties.put( "nexus-base-url", TestContainer.getInstance().getTestContext().getNexusBaseUrl() );
+        properties.put( "application-conf", TestContainer.getInstance().getTestContext().getNexusWorkDir() + "/conf" );
+        properties.put( "nexus.work.dir", TestContainer.getInstance().getTestContext().getNexusWorkDir() );
+        properties.put( "nexus-work-dir", TestContainer.getInstance().getTestContext().getNexusWorkDir() );
+        properties.put( "nexus-work", TestContainer.getInstance().getTestContext().getNexusWorkDir() );
+        properties.put( "security-xml-file", TestContainer.getInstance().getTestContext().getNexusWorkDir()
+            + "/conf/security.xml" );
+
         return properties;
     }
 

@@ -35,7 +35,6 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.sonatype.nexus.artifact.Gav;
-import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.RequestFacade;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.integrationtests.TestContext;
@@ -68,7 +67,7 @@ public class DeployUtils
     public static void forkDeployWithWagon( PlexusContainer container, String wagonHint, String repositoryUrl,
                                             File fileToDeploy, String artifactPath )
         throws ComponentLookupException, ConnectionException, AuthenticationException, TransferFailedException,
-        ResourceDoesNotExistException, AuthorizationException, InterruptedException, CommandLineException
+        ResourceDoesNotExistException, AuthorizationException, InterruptedException, CommandLineException, IOException
     {
         // must fork due to bug: http://forums.sun.com/thread.jspa?threadID=567697&messageID=2805259
         new WagonDeployer( wagonHint, TestContainer.getInstance().getTestContext().getUsername(),
@@ -80,7 +79,7 @@ public class DeployUtils
     public static int deployUsingGavWithRest( String repositoryId, Gav gav, File fileToDeploy )
         throws HttpException, IOException
     {
-        return deployUsingGavWithRest( AbstractNexusIntegrationTest.baseNexusUrl
+        return deployUsingGavWithRest( TestContainer.getInstance().getTestContext().getNexusBaseUrl()
             + "service/local/artifact/maven/content", repositoryId, gav, fileToDeploy );
     }
 
@@ -108,7 +107,7 @@ public class DeployUtils
                                               String extention )
         throws HttpException, IOException
     {
-        return deployUsingPomWithRest( AbstractNexusIntegrationTest.baseNexusUrl
+        return deployUsingPomWithRest( TestContainer.getInstance().getTestContext().getNexusBaseUrl()
             + "service/local/artifact/maven/content", repositoryId, fileToDeploy, pomFile, classifier, extention );
     }
 
@@ -116,7 +115,7 @@ public class DeployUtils
                                                                  String classifier, String extention )
         throws HttpException, IOException
     {
-        return deployUsingPomWithRestReturnResult( AbstractNexusIntegrationTest.baseNexusUrl
+        return deployUsingPomWithRestReturnResult( TestContainer.getInstance().getTestContext().getNexusBaseUrl()
             + "service/local/artifact/maven/content", repositoryId, fileToDeploy, pomFile, classifier, extention );
     }
 

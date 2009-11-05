@@ -70,13 +70,13 @@ public abstract class AbstractNexusProxyIntegrationTest
         server.stop();
     }
 
-    public File getLocalFile( String repositoryId, Gav gav )
+    protected File getLocalFile( String repositoryId, Gav gav )
     {
         return this.getLocalFile( repositoryId, gav.getGroupId(), gav.getArtifactId(), gav.getVersion(),
                                   gav.getExtension() );
     }
 
-    public File getLocalFile( String repositoryId, String groupId, String artifact, String version, String type )
+    protected File getLocalFile( String repositoryId, String groupId, String artifact, String version, String type )
     {
         File result =
             new File( this.localStorageDir, repositoryId + "/" + groupId.replace( '.', '/' ) + "/" + artifact + "/"
@@ -87,7 +87,7 @@ public abstract class AbstractNexusProxyIntegrationTest
 
     // TODO: Refactor this into the AbstractNexusIntegrationTest or some util class, to make more generic
 
-    public void setBlockProxy( String nexusBaseUrl, String repoId, boolean block )
+    protected void setBlockProxy( String nexusBaseUrl, String repoId, boolean block )
         throws IOException
     {
         RepositoryStatusResource status = new RepositoryStatusResource();
@@ -113,7 +113,7 @@ public abstract class AbstractNexusProxyIntegrationTest
         }
     }
 
-    public void setOutOfServiceProxy( String nexusBaseUrl, String repoId, boolean outOfService )
+    protected void setOutOfServiceProxy( String nexusBaseUrl, String repoId, boolean outOfService )
         throws IOException
     {
 

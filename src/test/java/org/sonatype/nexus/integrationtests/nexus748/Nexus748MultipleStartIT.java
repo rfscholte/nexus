@@ -27,6 +27,7 @@ import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+@Test( enabled = false )
 public class Nexus748MultipleStartIT
 {
 
@@ -41,8 +42,7 @@ public class Nexus748MultipleStartIT
 
         NexusClient client = (NexusClient) AbstractNexusIntegrationTest.getStaticContainer().lookup( NexusClient.ROLE );
         TestContext context = TestContainer.getInstance().getTestContext();
-        client.connect( AbstractNexusIntegrationTest.baseNexusUrl, context.getAdminUsername(),
-                        context.getAdminPassword() );
+        // client.connect( nexusBaseUrl, context.getAdminUsername(), context.getAdminPassword() );
 
         // enable security
         NexusConfigUtil.enableSecurity( true );

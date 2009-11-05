@@ -30,7 +30,7 @@ public class Nexus533TaskMonthlyIT
     private static ScheduledServiceMonthlyResource scheduledTask;
 
     @Override
-    public ScheduledServiceMonthlyResource getTaskScheduled()
+    protected ScheduledServiceMonthlyResource getTaskScheduled()
     {
         if ( scheduledTask == null )
         {
@@ -52,13 +52,13 @@ public class Nexus533TaskMonthlyIT
             prop.setId( "repositoryOrGroupId" );
             prop.setValue( "all_repo" );
             scheduledTask.addProperty( prop );
-           
+
         }
         return scheduledTask;
     }
 
     @Override
-    public void updateTask( ScheduledServiceMonthlyResource scheduledTask )
+    protected void updateTask( ScheduledServiceMonthlyResource scheduledTask )
     {
         scheduledTask.setRecurringTime( "00:00" );
     }

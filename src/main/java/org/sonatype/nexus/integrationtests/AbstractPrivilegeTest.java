@@ -19,14 +19,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.restlet.data.MediaType;
+import org.sonatype.nexus.rest.model.GlobalConfigurationResource;
 import org.sonatype.nexus.test.utils.GroupMessageUtil;
 import org.sonatype.nexus.test.utils.PrivilegesMessageUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.RoleMessageUtil;
 import org.sonatype.nexus.test.utils.RoutesMessageUtil;
 import org.sonatype.nexus.test.utils.SecurityConfigUtil;
+import org.sonatype.nexus.test.utils.SettingsMessageUtil;
 import org.sonatype.nexus.test.utils.TargetMessageUtil;
 import org.sonatype.nexus.test.utils.UserMessageUtil;
 import org.sonatype.security.model.CPrivilege;
@@ -43,6 +44,13 @@ import com.thoughtworks.xstream.XStream;
 public class AbstractPrivilegeTest
     extends AbstractNexusIntegrationTest
 {
+
+    @Override
+    public boolean isSecureTest()
+    {
+        return true;
+    }
+
     protected static Logger LOG = Logger.getLogger( AbstractPrivilegeTest.class );
 
     protected static final String TEST_USER_NAME = "test-user";
@@ -71,7 +79,7 @@ public class AbstractPrivilegeTest
         {
             this.init();
         }
-        catch ( ComponentLookupException e )
+        catch ( Exception e )
         {
             AssertJUnit.fail( e.getMessage() );
         }
@@ -83,18 +91,15 @@ public class AbstractPrivilegeTest
         {
             this.init();
         }
-        catch ( ComponentLookupException e )
+        catch ( Exception e )
         {
             AssertJUnit.fail( e.getMessage() );
         }
     }
 
     private void init()
-        throws ComponentLookupException
+        throws Exception
     {
-        // turn on security for the test
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
-
         XStream xstream = this.getXMLXStream();
 
         this.userUtil = new UserMessageUtil( xstream, MediaType.APPLICATION_XML );
@@ -115,7 +120,8 @@ public class AbstractPrivilegeTest
 
         UserResource testUser = this.userUtil.getUser( TEST_USER_NAME );
         testUser.getRoles().clear();
-        testUser.addRole( "anonymous" );
+        RoleResource role = this.roleUtil.getOrCreateRole( "test_user_role", "1" );
+        testUser.addRole( role.getId() );
         this.userUtil.updateUser( testUser );
     }
 
@@ -354,6 +360,14 @@ public class AbstractPrivilegeTest
     {
         UserResource user = userUtil.getUser( username );
         return user.getRoles();
+    }
+
+    protected void disableAnonymousUser()
+        throws Exception
+    {
+        GlobalConfigurationResource set = SettingsMessageUtil.getCurrentSettings();
+        set.setSecurityAnonymousAccessEnabled( false );
+        SettingsMessageUtil.save( set );
     }
 
 }

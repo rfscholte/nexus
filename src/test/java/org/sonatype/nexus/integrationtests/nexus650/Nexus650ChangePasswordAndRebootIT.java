@@ -29,8 +29,9 @@ public class Nexus650ChangePasswordAndRebootIT
     extends AbstractPrivilegeTest
 {
 
-    @Test
-    public void changePasswordAndReboot() throws Exception
+    @Test( enabled = false )
+    public void changePasswordAndReboot()
+        throws Exception
     {
         this.giveUserRole( TEST_USER_NAME, "admin" );
 
@@ -38,7 +39,6 @@ public class Nexus650ChangePasswordAndRebootIT
 
         context.setUsername( TEST_USER_NAME );
         context.setPassword( TEST_USER_PASSWORD );
-
 
         String newPassword = "123password";
         Status status = ChangePasswordUtils.changePassword( TEST_USER_NAME, TEST_USER_PASSWORD, newPassword );

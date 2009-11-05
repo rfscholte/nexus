@@ -7,18 +7,11 @@ import org.sonatype.nexus.integrationtests.TestContext;
 import org.sonatype.nexus.test.utils.UserCreationUtil;
 import org.sonatype.security.rest.model.RoleResource;
 import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class Nexus1563ExternalRealmsLoginIT
     extends AbstractPrivilegeTest
 {
-
-    @BeforeClass
-    public static void security()
-    {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
-    }
 
     @Test
     public void loginExternalUser()

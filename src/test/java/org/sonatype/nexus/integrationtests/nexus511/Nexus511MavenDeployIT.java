@@ -18,7 +18,6 @@ import java.io.File;
 import org.apache.maven.it.VerificationException;
 import org.apache.maven.it.Verifier;
 import org.sonatype.nexus.integrationtests.AbstractMavenNexusIT;
-import org.sonatype.nexus.integrationtests.TestContainer;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -29,9 +28,10 @@ public class Nexus511MavenDeployIT
     extends AbstractMavenNexusIT
 {
 
-    static
+    @Override
+    public boolean isSecureTest()
     {
-        TestContainer.getInstance().getTestContext().setSecureTest( true );
+        return true;
     }
 
     private Verifier verifier;

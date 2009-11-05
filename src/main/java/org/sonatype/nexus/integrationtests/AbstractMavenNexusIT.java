@@ -38,7 +38,7 @@ public class AbstractMavenNexusIT
         super( testRepositoryId );
     }
 
-    public Verifier createVerifier( File mavenProject )
+    protected Verifier createVerifier( File mavenProject )
         throws VerificationException, IOException
     {
         return createVerifier( mavenProject, null );
@@ -46,14 +46,14 @@ public class AbstractMavenNexusIT
 
     /**
      * Create a nexus verifier instance
-     *
+     * 
      * @param mavenProject Maven Project folder
      * @param settings A settings.xml file
      * @return
      * @throws VerificationException
      * @throws IOException
      */
-    public Verifier createVerifier( File mavenProject, File settings )
+    protected Verifier createVerifier( File mavenProject, File settings )
         throws VerificationException, IOException
     {
         Verifier verifier = new Verifier( mavenProject.getAbsolutePath(), false );
@@ -83,11 +83,11 @@ public class AbstractMavenNexusIT
 
     /**
      * Remove all artifacts on <code>testId</code> groupId
-     *
+     * 
      * @param verifier
      * @throws IOException
      */
-    public void cleanRepository( File mavenRepo )
+    protected void cleanRepository( File mavenRepo )
         throws IOException
     {
 
@@ -98,7 +98,7 @@ public class AbstractMavenNexusIT
 
     /**
      * Workaround to get some decent logging when tests fail
-     *
+     * 
      * @throws IOException
      */
     protected void failTest( Verifier verifier )
