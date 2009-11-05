@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.codehaus.plexus.PlexusContainer;
@@ -102,6 +103,20 @@ public class ForkedNexusInstancesFactory
         plexusProps.setProperty( "jetty.xml", nexusBaseDir + "/conf/jetty.xml" );
         plexusProps.setProperty( "index.template.file", "templates/index-debug.vm" );
         plexusProps.setProperty( "security-xml-file", nexusWorkDir + "/conf/security.xml" );
+
+        Set<String> sysProps = System.getProperties().stringPropertyNames();
+        for ( String prop : sysProps )
+        {
+            if ( prop.startsWith( "plexus." ) )
+            {
+                String propName = prop.substring( 7 );
+                if ( !plexusProps.containsKey( propName ) )
+                {
+                    plexusProps.setProperty( propName, System.getProperty( prop ) );
+                }
+            }
+        }
+
         File containerProperties = new File( nexusWorkDir, "plexus.properties" );
         containerProperties.getParentFile().mkdirs();
         FileOutputStream out = new FileOutputStream( containerProperties );

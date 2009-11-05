@@ -42,7 +42,8 @@ public class Nexus606DownloadLogsAndConfigFilesIT
     extends AbstractNexusIntegrationTest
 {
 
-    @Test
+    @Test( enabled = false )
+    // log4j is disabled for now
     public void getLogsTest()
         throws Exception
     {
@@ -66,7 +67,6 @@ public class Nexus606DownloadLogsAndConfigFilesIT
         }
     }
 
-    @SuppressWarnings( "unchecked" )
     @Test
     public void getConfigsTest()
         throws IOException

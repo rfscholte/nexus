@@ -1,5 +1,7 @@
 package org.sonatype.nexus.integrationtests.nexus1961;
 
+import java.util.List;
+
 import org.restlet.data.MediaType;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -14,6 +16,8 @@ import org.sonatype.plexus.rest.representation.XStreamRepresentation;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import com.thoughtworks.xstream.XStream;
 
 public class Nexus1961IndexContentIT
     extends AbstractNexusIntegrationTest
@@ -46,15 +50,21 @@ public class Nexus1961IndexContentIT
         Status status = response.getStatus();
         AssertJUnit.assertTrue( responseText + status, status.isSuccess() );
 
-        XStreamRepresentation re =
-            new XStreamRepresentation( XStreamFactory.getXmlXStream(), responseText, MediaType.APPLICATION_XML );
+        XStream xstream = XStreamFactory.getXmlXStream();
+
+        xstream.processAnnotations( IndexBrowserTreeNode.class );
+        xstream.processAnnotations( IndexBrowserTreeViewResponseDTO.class );
+
+        XStreamRepresentation re = new XStreamRepresentation( xstream, responseText, MediaType.APPLICATION_XML );
         IndexBrowserTreeViewResponseDTO resourceResponse =
             (IndexBrowserTreeViewResponseDTO) re.getPayload( new IndexBrowserTreeViewResponseDTO() );
 
         IndexBrowserTreeNode content = resourceResponse.getData();
-        for ( TreeNode contentListResource : content.getChildren() )
+
+        List<TreeNode> children = content.getChildren();
+        for ( TreeNode child : children )
         {
-            AssertJUnit.assertEquals( "nexus1961", contentListResource.getGroupId() );
+            AssertJUnit.assertEquals( "nexus1961", child.getNodeName() );
         }
 
     }

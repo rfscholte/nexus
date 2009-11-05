@@ -7,13 +7,13 @@ import org.sonatype.nexus.rest.model.ErrorReportingSettings;
 import org.sonatype.nexus.rest.model.GlobalConfigurationResource;
 import org.sonatype.nexus.test.utils.ErrorReportUtil;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class Nexus2213ErrorReportBundleIT
     extends AbstractNexusIntegrationTest
 {
-    @BeforeClass
+    @BeforeMethod
     public void cleanDirs()
         throws Exception
     {

@@ -47,8 +47,8 @@ public class Nexus1170ReducePermissionCheckingIT
     {
         NexusConfiguration configuration = container.lookup( NexusConfiguration.class );
         ( (FileConfigurationSource) configuration.getConfigurationSource() ).setConfigurationFile( new File(
-                                                                                                             getBasedir(),
-                                                                                                             "target/plexus-home/nexus-work/conf/nexus.xml" ) );
+                                                                                                             nexusWorkDir,
+                                                                                                             "conf/nexus.xml" ) );
         configuration.loadConfiguration();
         ConfigurationManager configManager = container.lookup( ConfigurationManager.class, "resourceMerging" );
 
@@ -118,7 +118,7 @@ public class Nexus1170ReducePermissionCheckingIT
         this.checkPermission( permissions, "nexus:logs", 0 );
         this.checkPermission( permissions, "nexus:configuration", 0 );
         // no longer available by default
-        this.checkPermission( permissions, "nexus:feeds", 1 );
+        // this.checkPermission( permissions, "nexus:feeds", 1 );
         this.checkPermission( permissions, "nexus:targets", 0 );
 
         this.checkPermission( permissions, "nexus:wastebasket", 0 );

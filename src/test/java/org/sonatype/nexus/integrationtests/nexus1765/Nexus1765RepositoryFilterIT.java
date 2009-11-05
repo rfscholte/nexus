@@ -13,6 +13,7 @@ import org.sonatype.nexus.rest.model.RepositoryGroupResource;
 import org.sonatype.nexus.rest.model.RepositoryListResource;
 import org.sonatype.nexus.test.utils.GroupMessageUtil;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class Nexus1765RepositoryFilterIT
@@ -118,12 +119,14 @@ public class Nexus1765RepositoryFilterIT
     public void getGroupListNoAccessTest()
         throws Exception
     {
+        super.resetTestUserPrivs();
+
         // use test user
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        List<RepositoryGroupListResource> groupList = groupUtil.getList();
-        AssertJUnit.assertEquals( 0, groupList.size() );
+        Response response = groupUtil.getListResponse();
+        AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
     @Test
@@ -143,7 +146,7 @@ public class Nexus1765RepositoryFilterIT
         AssertJUnit.assertEquals( 1, groupList.size() );
         AssertJUnit.assertEquals( repoId, groupList.get( 0 ).getId() );
     }
-    
+
     @Test
     public void getGroupNoAccessTest()
         throws Exception
@@ -153,10 +156,10 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
         String repoId = "public";
-        Response response = RequestFacade.doGetRequest( GroupMessageUtil.SERVICE_PART +"/" + repoId );
+        Response response = RequestFacade.doGetRequest( GroupMessageUtil.SERVICE_PART + "/" + repoId );
         AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
-    
+
     @Test
     public void updateGroupNoAccessTest()
         throws Exception
@@ -204,8 +207,17 @@ public class Nexus1765RepositoryFilterIT
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
 
-        Response response = RequestFacade.sendMessage( GroupMessageUtil.SERVICE_PART +"/" + repoId, Method.DELETE );
+        Response response = RequestFacade.sendMessage( GroupMessageUtil.SERVICE_PART + "/" + repoId, Method.DELETE );
         AssertJUnit.assertEquals( "Status: " + response.getStatus(), 403, response.getStatus().getCode() );
     }
 
+    @BeforeMethod
+    @Override
+    public void resetTestUserPrivs()
+        throws Exception
+    {
+        super.resetTestUserPrivs();
+
+        super.giveUserRole( TEST_USER_NAME, "anonymous" );
+    }
 }

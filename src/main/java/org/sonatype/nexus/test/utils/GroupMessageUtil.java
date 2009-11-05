@@ -221,7 +221,7 @@ public class GroupMessageUtil
     public List<RepositoryGroupListResource> getList()
         throws IOException
     {
-        Response response = RequestFacade.doGetRequest( SERVICE_PART );
+        Response response = getListResponse();
         String responseText = response.getEntity().getText();
         LOG.debug( "responseText: \n" + responseText );
 
@@ -238,6 +238,12 @@ public class GroupMessageUtil
 
         return resourceResponse.getData();
 
+    }
+
+    public Response getListResponse()
+        throws IOException
+    {
+        return RequestFacade.doGetRequest( SERVICE_PART );
     }
 
     public RepositoryGroupResource getResourceFromResponse( Response response )

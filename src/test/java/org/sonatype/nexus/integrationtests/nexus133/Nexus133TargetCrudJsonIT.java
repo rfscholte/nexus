@@ -39,8 +39,7 @@ public class Nexus133TargetCrudJsonIT
 
     public Nexus133TargetCrudJsonIT()
     {
-        this.messageUtil =
-            new TargetMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
+        this.messageUtil = new TargetMessageUtil( this.getJsonXStream(), MediaType.APPLICATION_JSON );
     }
 
     @Test
@@ -62,7 +61,7 @@ public class Nexus133TargetCrudJsonIT
         this.messageUtil.createTarget( resource );
     }
 
-    public void readTest()
+    protected void readTest()
         throws IOException
     {
 
@@ -112,7 +111,8 @@ public class Nexus133TargetCrudJsonIT
     }
 
     @Test
-    public void listTest() throws IOException
+    public void listTest()
+        throws IOException
     {
         RepositoryTargetResource resource = new RepositoryTargetResource();
 
@@ -142,12 +142,10 @@ public class Nexus133TargetCrudJsonIT
 
         // now that we have at least one element stored (more from other tests, most likely)
 
-
         // NEED to work around a GET problem with the REST client
         List<RepositoryTargetListResource> targets = TargetMessageUtil.getList();
         // the response is a list of RepositoryTargetListResource, so we need a different compare method.
         this.messageUtil.verifyCompleteTargetsConfig( targets );
-
 
     }
 
@@ -234,7 +232,5 @@ public class Nexus133TargetCrudJsonIT
 
         this.messageUtil.verifyTargetsConfig( new ArrayList<RepositoryTargetResource>() );
     }
-
-
 
 }

@@ -70,7 +70,8 @@ public class Nexus2862UrlRealmIT
     public void loginUrlRealm()
         throws IOException
     {
-        AssertJUnit.assertTrue( UserCreationUtil.login( "juka", "juk@" ).isSuccess() );
+        Status login = UserCreationUtil.login( "juka", "juk@" );
+        AssertJUnit.assertTrue( login + "", login.isSuccess() );
 
         AssertJUnit.assertTrue( UserCreationUtil.logout().isSuccess() );
     }

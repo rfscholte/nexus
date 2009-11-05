@@ -42,7 +42,8 @@ public class Nexus1375LogConfigIT
         messageUtil = new LogConfigMessageUtil( this.getXMLXStream(), MediaType.APPLICATION_XML );
     }
 
-    @Test
+    @Test( enabled = false )
+    // TODO log4j is disabled
     public void getLogConfig()
         throws Exception
     {
@@ -62,7 +63,8 @@ public class Nexus1375LogConfigIT
         AssertJUnit.assertEquals( expectedLoggerLocation.getAbsolutePath(), actualLoggerLocation.getAbsolutePath() );
     }
 
-    @Test
+    @Test( enabled = false )
+    // TODO log4j is disabled
     public void updateLogConfig()
         throws Exception
     {

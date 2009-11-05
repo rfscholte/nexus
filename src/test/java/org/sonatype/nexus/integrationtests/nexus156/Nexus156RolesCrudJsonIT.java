@@ -73,7 +73,7 @@ public class Nexus156RolesCrudJsonIT
         this.messageUtil.createRole( resource );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "createRoleTest", "createRoleWithIdTest" } )
     public void listTest()
         throws IOException
     {
@@ -96,6 +96,7 @@ public class Nexus156RolesCrudJsonIT
 
     }
 
+    @Test( dependsOnMethods = { "listTest" } )
     protected void readTest()
         throws IOException
     {
@@ -120,7 +121,7 @@ public class Nexus156RolesCrudJsonIT
         AssertJUnit.assertEquals( resource.getRoles(), responseResource.getRoles() );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "readTest" } )
     public void updateTest()
         throws IOException
     {
@@ -164,7 +165,7 @@ public class Nexus156RolesCrudJsonIT
         SecurityConfigUtil.verifyRole( resource );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "updateTest" } )
     public void deleteTest()
         throws IOException
     {

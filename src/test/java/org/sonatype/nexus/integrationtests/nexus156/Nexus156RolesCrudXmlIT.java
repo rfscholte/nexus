@@ -13,11 +13,8 @@
  */
 package org.sonatype.nexus.integrationtests.nexus156;
 
-import java.io.IOException;
-
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.test.utils.RoleMessageUtil;
-import org.testng.annotations.Test;
 
 /**
  * CRUD tests for XML request/response.
@@ -28,14 +25,7 @@ public class Nexus156RolesCrudXmlIT
 
     public Nexus156RolesCrudXmlIT()
     {
-        this.messageUtil = new RoleMessageUtil(this.getXMLXStream(), MediaType.APPLICATION_XML );
+        this.messageUtil = new RoleMessageUtil( this.getXMLXStream(), MediaType.APPLICATION_XML );
     }
-    
-    @Test
-    public void readTest()
-        throws IOException
-    {
-        super.readTest();
-    }
-    
+
 }

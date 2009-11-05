@@ -23,6 +23,7 @@ import org.sonatype.nexus.test.utils.FeedUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.SearchMessageUtil;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -144,6 +145,16 @@ public class Nexus1599ViewPrivilegeIT
             }
         }
         return false;
+    }
+
+    @Override
+    @BeforeMethod
+    public void resetTestUserPrivs()
+        throws Exception
+    {
+        super.resetTestUserPrivs();
+
+        giveUserRole( TEST_USER_NAME, "anonymous" );
     }
 
 }

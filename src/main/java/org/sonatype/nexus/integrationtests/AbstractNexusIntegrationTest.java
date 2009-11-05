@@ -215,15 +215,15 @@ public class AbstractNexusIntegrationTest
             TestContext testContext = TestContainer.getInstance().getTestContext();
             testContext.setThreadContext( nexusApplicationPort, nexusWorkDir, nexusBaseUrl );
 
+            this.container = setupContainer( getClass() );
+
             copyTestResources();
 
             this.copyConfigFiles();
 
-            // set security state
-            NexusConfigUtil.enableSecurity( isSecureTest );
-
             context = factory.createInstance( nexusApplicationPort, new File( nexusWorkDir ) );
 
+            // set security state
             testContext.useAdminForRequests();
             testContext.setSecureTest( true );
             GlobalConfigurationResource set = SettingsMessageUtil.getCurrentSettings();
@@ -572,12 +572,6 @@ public class AbstractNexusIntegrationTest
         log.debug( "found: " + file );
 
         return file;
-    }
-
-    @BeforeClass
-    public final void createContainer()
-    {
-        this.container = setupContainer( getClass() );
     }
 
     @AfterClass
