@@ -78,7 +78,6 @@ public class SecurityConfigUtil
         verifyUsers( users );
     }
 
-    @SuppressWarnings( "unchecked" )
     public static void verifyUsers( List<UserResource> users )
         throws IOException
     {
@@ -111,7 +110,6 @@ public class SecurityConfigUtil
         return null;
     }
 
-    @SuppressWarnings( "unchecked" )
     public static void verifyPrivileges( List<PrivilegeStatusResource> privs )
         throws IOException
     {
@@ -152,7 +150,6 @@ public class SecurityConfigUtil
         return null;
     }
 
-    @SuppressWarnings( "unchecked" )
     public static CPrivilege getCPrivilege( String privilegeId )
         throws IOException
     {
@@ -171,7 +168,6 @@ public class SecurityConfigUtil
         return null;
     }
 
-    @SuppressWarnings( "unchecked" )
     public static CPrivilege getCPrivilegeByName( String privilegeName )
         throws IOException
     {

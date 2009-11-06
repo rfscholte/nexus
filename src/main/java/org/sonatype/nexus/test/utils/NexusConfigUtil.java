@@ -23,10 +23,11 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.sonatype.configuration.validation.InvalidConfigurationException;
 import org.sonatype.configuration.validation.ValidationRequest;
 import org.sonatype.configuration.validation.ValidationResponse;
-import org.sonatype.nexus.configuration.application.NexusConfiguration;
 import org.sonatype.nexus.configuration.model.CPathMappingItem;
 import org.sonatype.nexus.configuration.model.CRepository;
 import org.sonatype.nexus.configuration.model.Configuration;
+import org.sonatype.nexus.configuration.source.ApplicationConfigurationSource;
+import org.sonatype.nexus.configuration.source.FileConfigurationSource;
 import org.sonatype.nexus.configuration.validator.ApplicationConfigurationValidator;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
@@ -46,11 +47,16 @@ public class NexusConfigUtil
     {
         // TestContainer.getInstance().getContainer().addContextValue( "nexus-work",
         // AbstractNexusIntegrationTest.nexusWorkDir );
-        NexusConfiguration config;
+        FileConfigurationSource config;
         try
         {
-            config = AbstractNexusIntegrationTest.getStaticContainer().lookup( NexusConfiguration.class );
-            config.loadConfiguration( true );
+            config =
+                (FileConfigurationSource) AbstractNexusIntegrationTest.getStaticContainer().lookup(
+                                                                                                    ApplicationConfigurationSource.class,
+                                                                                                    "file" );
+            config.setConfigurationFile( new File( TestContainer.getInstance().getTestContext().getNexusWorkDir()
+                + "/conf/nexus.xml" ) );
+            config.loadConfiguration();
         }
         catch ( Exception e )
         {
@@ -58,7 +64,7 @@ public class NexusConfigUtil
             AssertJUnit.fail( "Unable to load config " + e.getMessage() );
             config = null;
         }
-        return config.getConfigurationModel();
+        return config.getConfiguration();
     }
 
     public static File getNexusFile()

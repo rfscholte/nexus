@@ -69,10 +69,10 @@ public class Nexus1146RepositoryOverProxyIT
     public void proxyWithMaven()
         throws Exception
     {
+        System.setProperty( "maven.home", TestProperties.getString( "maven.instance" ) );
+
         File mavenProject = getTestFile( "pom.xml" ).getParentFile();
         Verifier verifier = new Verifier( mavenProject.getAbsolutePath(), false );
-
-        System.setProperty( "maven.home", TestProperties.getString( "maven.instance" ) );
 
         File mavenRepository = new File( TestProperties.getString( "maven.local.repo" ) );
         verifier.setLocalRepo( mavenRepository.getAbsolutePath() );
