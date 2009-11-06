@@ -15,36 +15,29 @@ package org.sonatype.nexus.integrationtests.webproxy;
 
 import org.sonatype.jettytestsuite.ProxyServer;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
-import org.sonatype.nexus.test.utils.TestProperties;
+import org.sonatype.nexus.test.utils.JettyInstaceFactory;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 
 public abstract class AbstractNexusWebProxyIntegrationTest
     extends AbstractNexusProxyIntegrationTest
 {
 
-    protected static final int webProxyPort;
+    protected ProxyServer webProxyServer;
 
-    protected ProxyServer server;
-
-    static
-    {
-        webProxyPort = TestProperties.getInteger( "webproxy.server.port" );
-    }
-
-    @BeforeClass
-    public void startWebProxy()
+    @Override
+    protected void startExtraServices()
         throws Exception
     {
-        server = (ProxyServer) lookup( ProxyServer.ROLE );
-        server.start();
+        super.startExtraServices();
+        webProxyServer = JettyInstaceFactory.getHttpProxyServer( webProxyPort );
+        webProxyServer.start();
     }
 
     @AfterClass
     public void stopWebProxy()
         throws Exception
     {
-        server.stop();
+        webProxyServer.stop();
     }
 
 }

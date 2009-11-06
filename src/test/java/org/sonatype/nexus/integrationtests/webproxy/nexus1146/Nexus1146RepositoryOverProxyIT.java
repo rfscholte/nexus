@@ -41,8 +41,8 @@ public class Nexus1146RepositoryOverProxyIT
         File jarArtifact = this.downloadArtifact( getTestId(), "artifact", "1.0", "jar", null, "target/downloads" );
         AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( jarArtifact, jarFile ) );
 
-        String artifactUrl = baseProxyURL + "release-proxy-repo-1/" + getTestId() + "/artifact/1.0/artifact-1.0.jar";
-        AssertJUnit.assertTrue( "Proxy was not accessed", server.getAccessedUris().contains( artifactUrl ) );
+        String artifactUrl = proxyBaseURL + "release-proxy-repo-1/" + getTestId() + "/artifact/1.0/artifact-1.0.jar";
+        AssertJUnit.assertTrue( "Proxy was not accessed", webProxyServer.getAccessedUris().contains( artifactUrl ) );
     }
 
     @Test( expectedExceptions = { FileNotFoundException.class } )
@@ -57,11 +57,11 @@ public class Nexus1146RepositoryOverProxyIT
         finally
         {
             String artifactUrl =
-                baseProxyURL
+                proxyBaseURL
                     + "release-proxy-repo-1/"
                     + getTestId()
                     + "/some-artifact-that-dont-exists/4.8.15.16.23.42/some-artifact-that-dont-exists-4.8.15.16.23.42.jar";
-            AssertJUnit.assertTrue( "Proxy was not accessed", server.getAccessedUris().contains( artifactUrl ) );
+            AssertJUnit.assertTrue( "Proxy was not accessed", webProxyServer.getAccessedUris().contains( artifactUrl ) );
         }
     }
 
@@ -89,8 +89,8 @@ public class Nexus1146RepositoryOverProxyIT
         verifier.verifyErrorFreeLog();
 
         String artifactUrl =
-            baseProxyURL + "release-proxy-repo-1/" + getTestId() + "/maven-artifact/1.0/maven-artifact-1.0.jar";
-        AssertJUnit.assertTrue( "Proxy was not accessed", server.getAccessedUris().contains( artifactUrl ) );
+            proxyBaseURL + "release-proxy-repo-1/" + getTestId() + "/maven-artifact/1.0/maven-artifact-1.0.jar";
+        AssertJUnit.assertTrue( "Proxy was not accessed", webProxyServer.getAccessedUris().contains( artifactUrl ) );
     }
 
 }

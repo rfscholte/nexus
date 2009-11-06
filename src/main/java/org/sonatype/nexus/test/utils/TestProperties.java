@@ -20,20 +20,20 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.sonatype.nexus.integrationtests.TestContainer;
-
 public class TestProperties
 {
 
-    private static Properties bundle;
+    private static Properties contextProperties;
+
+    private static ThreadLocal<Properties> runtimeProperties = new ThreadLocal<Properties>();
 
     // i hate doing this, but its really easy, and this is for tests. this class can be replaced easy, if we need to...
     static
     {
-        bundle = new Properties();
+        contextProperties = new Properties();
         try
         {
-            bundle.load( TestProperties.class.getResourceAsStream( "/baseTest.properties" ) );
+            contextProperties.load( TestProperties.class.getResourceAsStream( "/baseTest.properties" ) );
         }
         catch ( IOException e )
         {
@@ -43,18 +43,23 @@ public class TestProperties
 
     public static String getString( String key )
     {
-        return bundle.getProperty( key );
+        String value = contextProperties.getProperty( key );
+        if ( value == null && runtimeProperties.get() != null )
+        {
+            value = runtimeProperties.get().getProperty( key );
+        }
+        return value;
     }
 
     public static Integer getInteger( String key )
     {
-        String value = bundle.getProperty( key );
+        String value = getString( key );
         return new Integer( value );
     }
 
     public static Integer getInteger( String key, Integer defaultValue )
     {
-        String value = bundle.getProperty( key );
+        String value = getString( key );
         if ( value == null )
         {
             return defaultValue;
@@ -64,31 +69,32 @@ public class TestProperties
 
     public static Boolean getBoolean( String key )
     {
-        String value = bundle.getProperty( key );
+        String value = getString( key );
         return Boolean.parseBoolean( value );
     }
 
     public static Map<String, String> getAll()
     {
         Map<String, String> properties = new LinkedHashMap<String, String>();
-        Set<String> keys = bundle.stringPropertyNames();
+        Set<String> keys = contextProperties.stringPropertyNames();
         for ( String key : keys )
         {
-            properties.put( key, bundle.getProperty( key ) );
+            properties.put( key, contextProperties.getProperty( key ) );
         }
 
-        properties.put( "nexus.application.port",
-                        String.valueOf( TestContainer.getInstance().getTestContext().getNexusApplicationPort() ) );
-        properties.put( "nexus-application-port",
-                        String.valueOf( TestContainer.getInstance().getTestContext().getNexusApplicationPort() ) );
-        properties.put( "nexus.base.url", TestContainer.getInstance().getTestContext().getNexusBaseUrl() );
-        properties.put( "nexus-base-url", TestContainer.getInstance().getTestContext().getNexusBaseUrl() );
-        properties.put( "application-conf", TestContainer.getInstance().getTestContext().getNexusWorkDir() + "/conf" );
-        properties.put( "nexus.work.dir", TestContainer.getInstance().getTestContext().getNexusWorkDir() );
-        properties.put( "nexus-work-dir", TestContainer.getInstance().getTestContext().getNexusWorkDir() );
-        properties.put( "nexus-work", TestContainer.getInstance().getTestContext().getNexusWorkDir() );
-        properties.put( "security-xml-file", TestContainer.getInstance().getTestContext().getNexusWorkDir()
-            + "/conf/security.xml" );
+        Properties runProps = runtimeProperties.get();
+        if ( runProps != null )
+        {
+            keys = runProps.stringPropertyNames();
+            for ( String key : keys )
+            {
+                if ( properties.containsKey( key ) )
+                {
+                    properties.remove( key );
+                }
+                properties.put( key, runProps.getProperty( key ) );
+            }
+        }
 
         return properties;
     }
@@ -122,6 +128,11 @@ public class TestProperties
         {
             return file.getAbsolutePath();
         }
+    }
+
+    public static void setRuntimeProperties( Properties props )
+    {
+        runtimeProperties.set( props );
     }
 
 }

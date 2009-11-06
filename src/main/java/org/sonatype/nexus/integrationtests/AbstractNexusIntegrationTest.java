@@ -14,7 +14,6 @@
  */
 package org.sonatype.nexus.integrationtests;
 
-import static org.sonatype.nexus.test.utils.PortUtil.getRandomPort;
 import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
@@ -27,6 +26,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -58,6 +58,7 @@ import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.sonatype.nexus.test.utils.GavUtil;
 import org.sonatype.nexus.test.utils.MavenProjectFileFilter;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
+import org.sonatype.nexus.test.utils.PortUtil;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.XStreamFactory;
@@ -78,7 +79,7 @@ import com.thoughtworks.xstream.XStream;
  * this class is not really abstract so I can work around a the <code>@BeforeClass</code>, <code>@AfterClass</code>
  * issues, this should be refactored a little, but it might be ok, if we switch to TestNg
  */
-@Test( sequential = true, timeOut = 120000 )
+// @Test( sequential = true, timeOut = 120000 )
 public class AbstractNexusIntegrationTest
 {
 
@@ -132,7 +133,7 @@ public class AbstractNexusIntegrationTest
 
     private static boolean INVALID_STATE;
 
-    private static File testResourcesFolder;
+    private static final File testResourcesFolder;
 
     private static PlexusContainer globalContainer;
 
@@ -205,12 +206,8 @@ public class AbstractNexusIntegrationTest
 
         try
         {
-            nexusWorkDir = TestProperties.getPath( "nexus.work.dir" ) + "-" + getClass().getSimpleName();
-            WORK_CONF_DIR = nexusWorkDir + "/conf";
-            nexusLog = new File( nexusWorkDir, "nexus.log" );
-            nexusApplicationPort = getRandomPort();
-            nexusBaseUrl = "http://localhost:" + nexusApplicationPort + "/nexus/";
-            baseNexusUrl = nexusBaseUrl;
+            TestProperties.setRuntimeProperties( createRuntimeProperties() );
+            startExtraServices();
 
             TestContext testContext = TestContainer.getInstance().getTestContext();
             testContext.setThreadContext( nexusApplicationPort, nexusWorkDir, nexusBaseUrl );
@@ -259,6 +256,58 @@ public class AbstractNexusIntegrationTest
         }
     }
 
+    protected void startExtraServices()
+        throws Exception
+    {
+        // to be overwritten
+    }
+
+    protected Integer emailServerPort;
+
+    protected Integer proxyServerPort;
+
+    protected Integer webProxyPort;
+
+    protected String proxyBaseURL;
+
+    protected final Properties createRuntimeProperties()
+        throws Exception
+    {
+        nexusWorkDir = TestProperties.getPath( "nexus.work.dir" ) + "-" + getClass().getSimpleName();
+        WORK_CONF_DIR = nexusWorkDir + "/conf";
+        nexusLog = new File( nexusWorkDir, "nexus.log" );
+        nexusApplicationPort = PortUtil.getRandomPort();
+        nexusBaseUrl = "http://localhost:" + nexusApplicationPort + "/nexus/";
+        baseNexusUrl = nexusBaseUrl;
+        emailServerPort = PortUtil.getRandomPort();
+        proxyServerPort = PortUtil.getRandomPort();
+        webProxyPort = PortUtil.getRandomPort();
+        proxyBaseURL = "http://localhost:" + proxyServerPort + "/remote/";
+
+        Properties properties = new Properties();
+        properties.put( "nexus.application.port", String.valueOf( nexusApplicationPort ) );
+        properties.put( "nexus-application-port", String.valueOf( nexusApplicationPort ) );
+        properties.put( "nexus.base.url", nexusBaseUrl );
+        properties.put( "nexus-base-url", nexusBaseUrl );
+        properties.put( "application-conf", nexusWorkDir + "/conf" );
+        properties.put( "nexus.work.dir", nexusWorkDir );
+        properties.put( "nexus-work-dir", nexusWorkDir );
+        properties.put( "nexus-work", nexusWorkDir );
+        properties.put( "security-xml-file", nexusWorkDir + "/conf/security.xml" );
+        properties.put( "email-server-port", emailServerPort.toString() );
+        properties.setProperty( "nexus-proxy-port", proxyServerPort.toString() );
+        properties.setProperty( "proxy.server.port", proxyServerPort.toString() );
+        properties.setProperty( "proxy-repo-port", proxyServerPort.toString() );
+
+        properties.setProperty( "proxy.repo.base.url", proxyBaseURL );
+        properties.setProperty( "proxy-repo-base-url", proxyBaseURL );
+        properties.setProperty( "webproxy.server.port", webProxyPort.toString() );
+        properties.setProperty( "webproxy-server-port", webProxyPort.toString() );
+
+        return properties;
+
+    }
+
     @AfterClass( alwaysRun = true )
     public void destroyTestEnv()
         throws Exception
@@ -291,13 +340,17 @@ public class AbstractNexusIntegrationTest
     protected void copyConfigFiles()
         throws IOException
     {
-        this.copyConfigFile( "nexus.xml", WORK_CONF_DIR );
+        Map<String, String> allProps = TestProperties.getAll();
+        this.copyConfigFile( "nexus.xml", allProps, WORK_CONF_DIR );
 
         // copy security config
-        this.copyConfigFile( "security.xml", WORK_CONF_DIR );
-        this.copyConfigFile( "security-configuration.xml", WORK_CONF_DIR );
+        this.copyConfigFile( "security.xml", allProps, WORK_CONF_DIR );
+        this.copyConfigFile( "security-configuration.xml", allProps, WORK_CONF_DIR );
 
-        this.copyConfigFile( "log4j.properties", WORK_CONF_DIR );
+        this.copyConfigFile( "log4j.properties", allProps, WORK_CONF_DIR );
+
+        this.copyConfigFile( "settings.xml", allProps,
+                             new File( testResourcesFolder, getTestId() + "/test-config" ).getAbsolutePath() );
     }
 
     protected void runOnce()

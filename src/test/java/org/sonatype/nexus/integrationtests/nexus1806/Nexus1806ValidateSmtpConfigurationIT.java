@@ -13,10 +13,8 @@ import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.rest.model.SmtpSettingsResource;
 import org.sonatype.nexus.test.utils.EmailUtil;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
-import org.sonatype.nexus.test.utils.TestProperties;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.icegreen.greenmail.util.GreenMail;
@@ -27,39 +25,39 @@ public class Nexus1806ValidateSmtpConfigurationIT
     extends AbstractNexusIntegrationTest
 {
 
-    private static GreenMail changedServer;
+    private GreenMail changedServer;
 
-    private static int port;
+    private GreenMail originalServer;
 
-    private static GreenMail originalServer;
-
-    @BeforeClass
-    public static void init()
+    @Override
+    protected void startExtraServices()
+        throws Exception
     {
-        port = TestProperties.getInteger( "webproxy-server-port" );
+        super.startExtraServices();
+
         // it is necessary to change port to make sure it worked
-        ServerSetup smtp = new ServerSetup( port, null, ServerSetup.PROTOCOL_SMTP );
+        ServerSetup smtp = new ServerSetup( webProxyPort, null, ServerSetup.PROTOCOL_SMTP );
 
         changedServer = new GreenMail( smtp );
         changedServer.setUser( USER_EMAIL, USER_USERNAME, USER_PASSWORD );
         log.debug( "Starting e-mail server" );
         changedServer.start();
 
-        originalServer = EmailUtil.startEmailServer();
+        originalServer = EmailUtil.startEmailServer( emailServerPort );
     }
 
     @Test
     public void validateChangedSmtp()
         throws Exception
     {
-        run( port, changedServer );
+        run( webProxyPort, changedServer );
     }
 
     @Test
     public void validateOriginalSmtp()
         throws Exception
     {
-        run( EmailUtil.EMAIL_SERVER_PORT, originalServer );
+        run( emailServerPort, originalServer );
     }
 
     @Test
@@ -94,7 +92,7 @@ public class Nexus1806ValidateSmtpConfigurationIT
 
         SmtpSettingsResource smtpSettings = new SmtpSettingsResource();
         smtpSettings.setHost( "localhost" );
-        smtpSettings.setPort( port );
+        smtpSettings.setPort( webProxyPort );
         smtpSettings.setUsername( login );
         smtpSettings.setPassword( USER_PASSWORD );
         smtpSettings.setSystemEmailAddress( email );
@@ -129,9 +127,9 @@ public class Nexus1806ValidateSmtpConfigurationIT
     }
 
     @AfterClass
-    public static void stop()
+    public void stop()
     {
-        EmailUtil.stopEmailServer();
+        originalServer.stop();
         changedServer.stop();
     }
 }

@@ -7,28 +7,16 @@ import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
 import org.sonatype.nexus.integrationtests.TestContainer;
 import org.sonatype.nexus.rest.model.GlobalConfigurationResource;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
-import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.UserCreationUtil;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class Nexus2862UrlRealmIT
     extends AbstractNexusIntegrationTest
 {
 
-    private static Integer proxyPort;
-
-    private static AuthenticationServer server;
-
-    static
-    {
-        proxyPort = TestProperties.getInteger( "proxy.server.port" );
-        System.setProperty( "plexus.authentication-url", "http://localhost:" + proxyPort );
-        System.setProperty( "plexus.url-authentication-default-role", "admin" );
-        System.setProperty( "plexus.url-authentication-email-domain", "sonatype.com" );
-    }
+    private AuthenticationServer server;
 
     @Override
     public boolean isSecureTest()
@@ -36,17 +24,23 @@ public class Nexus2862UrlRealmIT
         return true;
     }
 
-    @BeforeClass
-    public static void startServer()
+    @Override
+    protected void startExtraServices()
         throws Exception
     {
-        server = new AuthenticationServer( proxyPort );
+        super.startExtraServices();
+
+        System.setProperty( "plexus.authentication-url", "http://localhost:" + proxyServerPort );
+        System.setProperty( "plexus.url-authentication-default-role", "admin" );
+        System.setProperty( "plexus.url-authentication-email-domain", "sonatype.com" );
+
+        server = new AuthenticationServer( proxyServerPort );
         server.addUser( "juka", "juk@", "admin" );
         server.start();
     }
 
     @AfterClass
-    public static void stopServer()
+    public void stopServer()
         throws Exception
     {
         server.stop();

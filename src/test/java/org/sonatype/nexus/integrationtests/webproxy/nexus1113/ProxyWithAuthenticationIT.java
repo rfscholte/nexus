@@ -24,10 +24,8 @@ import java.util.List;
 
 import org.codehaus.plexus.util.Base64;
 import org.sonatype.nexus.integrationtests.webproxy.AbstractNexusWebProxyIntegrationTest;
-import org.sonatype.nexus.test.utils.TestProperties;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class ProxyWithAuthenticationIT
@@ -35,23 +33,22 @@ public class ProxyWithAuthenticationIT
 {
 
     @Override
-    @BeforeMethod
-    public void startWebProxy()
+    protected void startExtraServices()
         throws Exception
     {
-        super.startWebProxy();
+        super.startExtraServices();
 
-        AssertJUnit.assertNotNull( server );
-        AssertJUnit.assertNotNull( server.getProxyServlet() );
-        server.getProxyServlet().setUseAuthentication( true );
-        server.getProxyServlet().getAuthentications().put( "admin", "123" );
+        AssertJUnit.assertNotNull( webProxyServer );
+        AssertJUnit.assertNotNull( webProxyServer.getProxyServlet() );
+        webProxyServer.getProxyServlet().setUseAuthentication( true );
+        webProxyServer.getProxyServlet().getAuthentications().put( "admin", "123" );
     }
 
     @Test
     public void validUser()
         throws Exception
     {
-        SocketAddress sa = new InetSocketAddress( "127.0.0.1", TestProperties.getInteger( "webproxy.server.port" ) );
+        SocketAddress sa = new InetSocketAddress( "127.0.0.1", webProxyPort );
         Proxy p = new Proxy( Proxy.Type.HTTP, sa );
 
         URL url = new URL( "http://www.google.com/index.html" );
@@ -65,7 +62,7 @@ public class ProxyWithAuthenticationIT
         {
             Thread.sleep( 200 );
 
-            List<String> uris = server.getAccessedUris();
+            List<String> uris = webProxyServer.getAccessedUris();
             for ( String uri : uris )
             {
                 if ( uri.contains( "google.com" ) )
@@ -82,7 +79,7 @@ public class ProxyWithAuthenticationIT
     public void invalidUser()
         throws Exception
     {
-        SocketAddress sa = new InetSocketAddress( "127.0.0.1", TestProperties.getInteger( "webproxy.server.port" ) );
+        SocketAddress sa = new InetSocketAddress( "127.0.0.1", webProxyPort );
         Proxy p = new Proxy( Proxy.Type.HTTP, sa );
 
         URL url = new URL( "http://www.google.com/index.html" );
@@ -99,7 +96,7 @@ public class ProxyWithAuthenticationIT
     public void withoutUser()
         throws Exception
     {
-        SocketAddress sa = new InetSocketAddress( "127.0.0.1", TestProperties.getInteger( "webproxy.server.port" ) );
+        SocketAddress sa = new InetSocketAddress( "127.0.0.1", webProxyPort );
         Proxy p = new Proxy( Proxy.Type.HTTP, sa );
 
         URL url = new URL( "http://www.google.com/index.html" );
@@ -115,8 +112,8 @@ public class ProxyWithAuthenticationIT
     public void stopWebProxy()
         throws Exception
     {
-        server.getProxyServlet().setUseAuthentication( false );
-        server.getProxyServlet().setAuthentications( null );
+        webProxyServer.getProxyServlet().setUseAuthentication( false );
+        webProxyServer.getProxyServlet().setAuthentications( null );
         super.stopWebProxy();
     }
 

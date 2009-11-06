@@ -17,10 +17,8 @@ import java.io.FileNotFoundException;
 
 import org.mortbay.jetty.Server;
 import org.sonatype.nexus.integrationtests.AbstractNexusIntegrationTest;
-import org.sonatype.nexus.test.utils.TestProperties;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class Nexus1197CheckUserAgentIT
@@ -36,13 +34,15 @@ public class Nexus1197CheckUserAgentIT
         super( "release-proxy-repo-1" );
     }
 
-    @BeforeClass
-    public static void setUp()
+    @Override
+    protected void startExtraServices()
         throws Exception
     {
+        super.startExtraServices();
+
         handler = new RequestHandler();
 
-        server = new Server( TestProperties.getInteger( "proxy.server.port" ) );
+        server = new Server( proxyServerPort );
         server.setHandler( handler );
         server.start();
     }

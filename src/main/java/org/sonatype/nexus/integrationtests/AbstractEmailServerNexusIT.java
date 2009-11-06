@@ -14,9 +14,8 @@
 package org.sonatype.nexus.integrationtests;
 
 import org.apache.log4j.Logger;
-import org.sonatype.nexus.test.utils.TestProperties;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
@@ -27,18 +26,10 @@ public abstract class AbstractEmailServerNexusIT
 
     private static final Logger LOG = Logger.getLogger( AbstractEmailServerNexusIT.class );
 
-    private static final int emailServerPort;
-
-    static
-    {
-        String port = TestProperties.getString( "email.server.port" );
-        emailServerPort = new Integer( port );
-    }
-
     protected static GreenMail server;
 
-    @BeforeClass
-    public static void startEmailServer()
+    @BeforeMethod
+    public void startEmailServer()
     {
         // ServerSetup smtp = new ServerSetup( 1234, null, ServerSetup.PROTOCOL_SMTP );
         ServerSetup smtp = new ServerSetup( emailServerPort, null, ServerSetup.PROTOCOL_SMTP );
@@ -49,8 +40,8 @@ public abstract class AbstractEmailServerNexusIT
         server.start();
     }
 
-    @AfterClass
-    public static void stopEmailServer()
+    @AfterMethod
+    public void stopEmailServer()
     {
         LOG.debug( "Stoping e-mail server" );
         server.stop();

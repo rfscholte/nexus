@@ -12,9 +12,9 @@ import org.sonatype.nexus.rest.indextreeview.IndexBrowserTreeNode;
 import org.sonatype.nexus.rest.indextreeview.IndexBrowserTreeViewResponseDTO;
 import org.sonatype.nexus.rest.model.RepositoryResource;
 import org.sonatype.nexus.tasks.ReindexTask;
+import org.sonatype.nexus.test.utils.JettyInstaceFactory;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
 import org.sonatype.nexus.test.utils.TaskScheduleUtil;
-import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.sonatype.plexus.rest.representation.XStreamRepresentation;
 import org.testng.AssertJUnit;
@@ -30,13 +30,6 @@ public class Nexus2120EnableDownloadRemoteIndexIT
 
     final String URI = "service/local/repositories/basic/index_content/";
 
-    protected static final int webProxyPort;
-
-    static
-    {
-        webProxyPort = TestProperties.getInteger( "webproxy-server-port" );
-    }
-
     @BeforeClass
     public static void init()
         throws Exception
@@ -48,11 +41,18 @@ public class Nexus2120EnableDownloadRemoteIndexIT
 
     private RepositoryMessageUtil repoUtil;
 
+    @Override
+    protected void startExtraServices()
+        throws Exception
+    {
+        server = JettyInstaceFactory.getHttpProxyWtihReturnCodeControlServer( webProxyPort );
+        server.start();
+    }
+
     @BeforeClass
     public void start()
         throws Exception
     {
-        server = (ControlledServer) lookup( ControlledServer.ROLE );
         repoUtil =
             new RepositoryMessageUtil( XStreamFactory.getXmlXStream(), MediaType.APPLICATION_XML,
                                        getRepositoryTypeRegistry() );
@@ -63,8 +63,6 @@ public class Nexus2120EnableDownloadRemoteIndexIT
         throws Exception
     {
         server.stop();
-        server = null;
-        repoUtil = null;
     }
 
     @Test

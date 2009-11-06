@@ -19,7 +19,6 @@ import org.sonatype.nexus.integrationtests.webproxy.AbstractNexusWebProxyIntegra
 import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class Nexus1113WebProxyWithAuthenticationIT
@@ -27,13 +26,15 @@ public class Nexus1113WebProxyWithAuthenticationIT
 {
 
     @Override
-    @BeforeMethod
-    public void startWebProxy()
+    protected void startExtraServices()
         throws Exception
     {
-        super.startWebProxy();
-        server.getProxyServlet().setUseAuthentication( true );
-        server.getProxyServlet().getAuthentications().put( "admin", "123" );
+        super.startExtraServices();
+
+        AssertJUnit.assertNotNull( webProxyServer );
+        AssertJUnit.assertNotNull( webProxyServer.getProxyServlet() );
+        webProxyServer.getProxyServlet().setUseAuthentication( true );
+        webProxyServer.getProxyServlet().getAuthentications().put( "admin", "123" );
     }
 
     @Test
@@ -50,8 +51,8 @@ public class Nexus1113WebProxyWithAuthenticationIT
             this.downloadArtifact( "nexus1113", "artifact", "1.0", "jar", null, "target/downloads/nexus1113" );
         AssertJUnit.assertTrue( FileTestingUtils.compareFileSHA1s( jarArtifact, jarFile ) );
 
-        String artifactUrl = baseProxyURL + "release-proxy-repo-1/nexus1113/artifact/1.0/artifact-1.0.jar";
-        AssertJUnit.assertTrue( "Proxy was not accessed", server.getAccessedUris().contains( artifactUrl ) );
+        String artifactUrl = proxyBaseURL + "release-proxy-repo-1/nexus1113/artifact/1.0/artifact-1.0.jar";
+        AssertJUnit.assertTrue( "Proxy was not accessed", webProxyServer.getAccessedUris().contains( artifactUrl ) );
     }
 
     @Override
@@ -59,12 +60,12 @@ public class Nexus1113WebProxyWithAuthenticationIT
     public void stopWebProxy()
         throws Exception
     {
-        if ( server != null )
+        if ( webProxyServer != null )
         {
-            if ( server.getProxyServlet() != null )
+            if ( webProxyServer.getProxyServlet() != null )
             {
-                server.getProxyServlet().setUseAuthentication( false );
-                server.getProxyServlet().setAuthentications( null );
+                webProxyServer.getProxyServlet().setUseAuthentication( false );
+                webProxyServer.getProxyServlet().setAuthentications( null );
             }
         }
 

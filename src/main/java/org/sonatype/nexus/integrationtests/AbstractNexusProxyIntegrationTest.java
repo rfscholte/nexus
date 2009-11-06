@@ -16,6 +16,7 @@ package org.sonatype.nexus.integrationtests;
 import java.io.File;
 import java.io.IOException;
 
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.StartingException;
 import org.restlet.data.Response;
 import org.sonatype.jettytestsuite.ServletServer;
 import org.sonatype.nexus.artifact.Gav;
@@ -24,21 +25,19 @@ import org.sonatype.nexus.proxy.repository.ProxyMode;
 import org.sonatype.nexus.proxy.repository.RemoteStatus;
 import org.sonatype.nexus.rest.model.RepositoryStatusResource;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.sonatype.nexus.test.utils.JettyInstaceFactory;
 import org.sonatype.nexus.test.utils.RepositoryStatusMessageUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 import org.testng.AssertJUnit;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.AfterClass;
 
 public abstract class AbstractNexusProxyIntegrationTest
     extends AbstractNexusIntegrationTest
 {
 
-    protected String baseProxyURL = null;
-
     protected String localStorageDir = null;
 
-    protected Integer proxyPort;
+    protected ServletServer server;
 
     protected AbstractNexusProxyIntegrationTest()
     {
@@ -49,24 +48,33 @@ public abstract class AbstractNexusProxyIntegrationTest
     {
         super( testRepositoryId );
 
-        this.baseProxyURL = TestProperties.getString( "proxy.repo.base.url" );
         this.localStorageDir = TestProperties.getString( "proxy.repo.base.dir" );
-        this.proxyPort = TestProperties.getInteger( "proxy.server.port" );
     }
 
-    @BeforeMethod
-    public void startProxy()
+    @Override
+    protected void startExtraServices()
         throws Exception
     {
-        ServletServer server = (ServletServer) this.lookup( ServletServer.ROLE );
+        server = createProxyServer();
+        startProxy();
+    }
+
+    public void startProxy()
+        throws StartingException
+    {
         server.start();
     }
 
-    @AfterMethod
+    protected ServletServer createProxyServer()
+        throws Exception
+    {
+        return JettyInstaceFactory.getDefaultFileServer( proxyServerPort );
+    }
+
+    @AfterClass
     public void stopProxy()
         throws Exception
     {
-        ServletServer server = (ServletServer) this.lookup( ServletServer.ROLE );
         server.stop();
     }
 

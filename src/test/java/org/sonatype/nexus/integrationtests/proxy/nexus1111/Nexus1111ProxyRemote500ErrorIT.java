@@ -14,7 +14,6 @@
 package org.sonatype.nexus.integrationtests.proxy.nexus1111;
 
 import org.mortbay.jetty.Server;
-import org.sonatype.jettytestsuite.ServletServer;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
 import org.sonatype.nexus.rest.model.ScheduledServicePropertyResource;
 import org.sonatype.nexus.tasks.descriptors.ExpireCacheTaskDescriptor;
@@ -42,7 +41,6 @@ public class Nexus1111ProxyRemote500ErrorIT
         downloadArtifact( "nexus1111", "artifact", "1.0", "jar", null, "target/downloads" );
 
         // stop the healthy server
-        ServletServer server = (ServletServer) this.lookup( ServletServer.ROLE );
         server.stop();
 
         int port = server.getPort();

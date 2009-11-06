@@ -18,31 +18,19 @@ import java.io.File;
 import org.sonatype.jettytestsuite.ServletServer;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
+import org.sonatype.nexus.test.utils.JettyInstaceFactory;
 import org.testng.AssertJUnit;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 public class Nexus1089SecureProxyIT
     extends AbstractNexusProxyIntegrationTest
 {
 
-    @BeforeMethod
     @Override
-    public void startProxy()
+    protected ServletServer createProxyServer()
         throws Exception
     {
-        ServletServer server = (ServletServer) this.lookup( ServletServer.ROLE, "secure" );
-        server.start();
-    }
-
-    @AfterMethod
-    @Override
-    public void stopProxy()
-        throws Exception
-    {
-        ServletServer server = (ServletServer) this.lookup( ServletServer.ROLE, "secure" );
-        server.stop();
+        return JettyInstaceFactory.getDefaultSecureFileServer( proxyServerPort );
     }
 
     @Test

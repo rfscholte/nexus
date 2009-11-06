@@ -20,8 +20,6 @@ import com.icegreen.greenmail.util.ServerSetup;
 
 public class EmailUtil
 {
-    public static final int EMAIL_SERVER_PORT;
-
     private static final Logger log = Logger.getLogger( EmailUtil.class );
 
     public static final String USER_USERNAME = "smtp-username";
@@ -30,34 +28,16 @@ public class EmailUtil
 
     public static final String USER_EMAIL = "system@nexus.org";
 
-    static
+    public static synchronized GreenMail startEmailServer( int serverPort )
     {
-        String port = TestProperties.getString( "email.server.port" );
-        EMAIL_SERVER_PORT = new Integer( port );
-    }
+        // ServerSetup smtp = new ServerSetup( 1234, null, ServerSetup.PROTOCOL_SMTP );
+        ServerSetup smtp = new ServerSetup( serverPort, null, ServerSetup.PROTOCOL_SMTP );
 
-    private static GreenMail server;
-
-    public static synchronized GreenMail startEmailServer()
-    {
-        if ( server == null )
-        {
-            // ServerSetup smtp = new ServerSetup( 1234, null, ServerSetup.PROTOCOL_SMTP );
-            ServerSetup smtp = new ServerSetup( EMAIL_SERVER_PORT, null, ServerSetup.PROTOCOL_SMTP );
-
-            server = new GreenMail( smtp );
-            server.setUser( USER_EMAIL, USER_USERNAME, USER_PASSWORD );
-            log.debug( "Starting e-mail server" );
-            server.start();
-        }
+        GreenMail server = new GreenMail( smtp );
+        server.setUser( USER_EMAIL, USER_USERNAME, USER_PASSWORD );
+        log.debug( "Starting e-mail server" );
+        server.start();
         return server;
-    }
-
-    public static synchronized void stopEmailServer()
-    {
-        log.debug( "Stoping e-mail server" );
-        server.stop();
-        server = null;
     }
 
 }
