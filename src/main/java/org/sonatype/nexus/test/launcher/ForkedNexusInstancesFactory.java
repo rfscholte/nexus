@@ -124,58 +124,61 @@ public class ForkedNexusInstancesFactory
         out.close();
 
         String forkedAppBooterHint = "TestForkedAppBooter" + nexusPort;
+
+        ComponentDescriptor<ForkedAppBooter> baseComp;
+        synchronized ( container )
+        {
+            baseComp =
+                container.getComponentDescriptor( ForkedAppBooter.class, ForkedAppBooter.class.getName(),
+                                                  "DefaultForkedAppBooter" );
+        }
+
+        PlexusConfiguration cfg = baseComp.getConfiguration();
+        addChild( cfg, "disable-blocking", Boolean.TRUE.toString() );
+        addChild( cfg, "debug", Boolean.FALSE.toString() );
+        addChild( cfg, "java-cmd", "java" );
+        addChild( cfg, "debug-port", TestProperties.getInteger( "debug-port", 5006 ).toString() );
+        addChild( cfg, "debug-suspend", Boolean.TRUE.toString() );
+        addChild(
+                  cfg,
+                  "debug-java-cmd",
+                  "java -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=@DEBUG_SUSPEND@,address=@DEBUG_PORT@ -Djava.compiler=NONE" );
+        addChild( cfg, "launcher-class", "org.sonatype.appbooter.PlexusContainerHost" );
+        addChild( cfg, "configuration", nexusBaseDir + "/conf/plexus.xml" );
+        addChild( cfg, "basedir", nexusBaseDir );
+        addChild( cfg, "temp-dir", TestProperties.getPath( "project.build.directory" ) + "/appbooter.tmp." + nexusPort );
+        addChild( cfg, "classworldsJar", nexusBaseDir + "/lib/plexus-classworlds-1.4.jar" );
+        addChild( cfg, "classworldsConf", nexusBaseDir + "/conf/classworlds.conf" );
+        addChild( cfg, "class-path-elements", nexusApp + "/conf, " + nexusApp + "/lib/*.jar" );
+        addChild( cfg, "sleep-after-start", "5000" );
+        addChild( cfg, "control-port", controllerPort.toString() );
+        addChild( cfg, "container-properties", containerProperties.getAbsolutePath() );
+
+        ComponentDescriptor<StreamConsumer> consumer = new ComponentDescriptor<StreamConsumer>();
+        consumer.setRoleClass( StreamConsumer.class );
+        consumer.setRoleHint( "FileConsumer" + nexusPort );
+        consumer.setImplementationClass( FileStreamConsumer.class );
+        XmlPlexusConfiguration consumeCfg = new XmlPlexusConfiguration();
+        consumeCfg.addChild( "destination", nexusWorkDir + "/nexus.log" );
+        consumer.setConfiguration( consumeCfg );
+
+        ComponentDescriptor<ForkedAppBooter> comp = new ComponentDescriptor<ForkedAppBooter>();
+        BeanUtils.copyProperties( comp, baseComp );
+        comp.setRoleClass( ForkedAppBooter.class );
+        comp.setRoleHint( forkedAppBooterHint );
+        comp.setImplementationClass( DefaultForkedAppBooter.class );
+
+        ComponentRequirement requirement = new ComponentRequirement();
+        requirement.setFieldName( "streamConsumer" );
+        requirement.setRole( StreamConsumer.class.getName() );
+        requirement.setRoleHint( "FileConsumer" + nexusPort );
+        comp.addRequirement( requirement );
+
         ForkedAppBooter appBooter;
         synchronized ( container )
         {
-            ComponentDescriptor<ForkedAppBooter> baseComp =
-                container.getComponentDescriptor( ForkedAppBooter.class, ForkedAppBooter.class.getName(),
-                                                  "DefaultForkedAppBooter" );
-
-            PlexusConfiguration cfg = baseComp.getConfiguration();
-            addChild( cfg, "disable-blocking", Boolean.TRUE.toString() );
-            addChild( cfg, "debug", Boolean.FALSE.toString() );
-            addChild( cfg, "java-cmd", "java" );
-            addChild( cfg, "debug-port", TestProperties.getInteger( "debug-port", 5006 ).toString() );
-            addChild( cfg, "debug-suspend", Boolean.TRUE.toString() );
-            addChild(
-                      cfg,
-                      "debug-java-cmd",
-                      "java -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,server=y,suspend=@DEBUG_SUSPEND@,address=@DEBUG_PORT@ -Djava.compiler=NONE" );
-            addChild( cfg, "launcher-class", "org.sonatype.appbooter.PlexusContainerHost" );
-            addChild( cfg, "configuration", nexusBaseDir + "/conf/plexus.xml" );
-            addChild( cfg, "basedir", nexusBaseDir );
-            addChild( cfg, "temp-dir", TestProperties.getPath( "project.build.directory" ) + "/appbooter.tmp."
-                + nexusPort );
-            addChild( cfg, "classworldsJar", nexusBaseDir + "/lib/plexus-classworlds-1.4.jar" );
-            addChild( cfg, "classworldsConf", nexusBaseDir + "/conf/classworlds.conf" );
-            addChild( cfg, "class-path-elements", nexusApp + "/conf, " + nexusApp + "/lib/*.jar" );
-            addChild( cfg, "sleep-after-start", "5000" );
-            addChild( cfg, "control-port", controllerPort.toString() );
-            addChild( cfg, "container-properties", containerProperties.getAbsolutePath() );
-
-            ComponentDescriptor<StreamConsumer> consumer = new ComponentDescriptor<StreamConsumer>();
-            consumer.setRoleClass( StreamConsumer.class );
-            consumer.setRoleHint( "FileConsumer" + nexusPort );
-            consumer.setImplementationClass( FileStreamConsumer.class );
-            XmlPlexusConfiguration consumeCfg = new XmlPlexusConfiguration();
-            consumeCfg.addChild( "destination", nexusWorkDir + "/nexus.log" );
-            consumer.setConfiguration( consumeCfg );
             container.addComponentDescriptor( consumer );
-
-            ComponentDescriptor<ForkedAppBooter> comp = new ComponentDescriptor<ForkedAppBooter>();
-            BeanUtils.copyProperties( comp, baseComp );
-            comp.setRoleClass( ForkedAppBooter.class );
-            comp.setRoleHint( forkedAppBooterHint );
-            comp.setImplementationClass( DefaultForkedAppBooter.class );
-
-            ComponentRequirement requirement = new ComponentRequirement();
-            requirement.setFieldName( "streamConsumer" );
-            requirement.setRole( StreamConsumer.class.getName() );
-            requirement.setRoleHint( "FileConsumer" + nexusPort );
-            comp.addRequirement( requirement );
-
             container.addComponentDescriptor( comp );
-
             appBooter = container.lookup( ForkedAppBooter.class, forkedAppBooterHint );
         }
 

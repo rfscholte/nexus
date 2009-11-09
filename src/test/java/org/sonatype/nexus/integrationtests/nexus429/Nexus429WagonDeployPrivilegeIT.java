@@ -58,7 +58,7 @@ public class Nexus429WagonDeployPrivilegeIT
         this.deployPrivWithWagon( gav, this.getNexusTestRepoUrl() );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "doReleaseArtifactTest" } )
     public void doSnapshotArtifactTest()
         throws Exception
     {
@@ -101,11 +101,10 @@ public class Nexus429WagonDeployPrivilegeIT
 
         // with pom should fail
 
+        File settings = this.getOverridableFile( "settings.xml" );
         try
         {
-            verifier =
-                MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy,
-                                                    this.getOverridableFile( "settings.xml" ) );
+            verifier = MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy, settings );
             failTest( verifier );
         }
         catch ( VerificationException e )
@@ -123,9 +122,7 @@ public class Nexus429WagonDeployPrivilegeIT
         // if this fails it will throw an error
         try
         {
-            verifier =
-                MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy,
-                                                    this.getOverridableFile( "settings.xml" ) );
+            verifier = MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy, settings );
             failTest( verifier );
         }
         catch ( VerificationException e )
@@ -141,8 +138,7 @@ public class Nexus429WagonDeployPrivilegeIT
         this.giveUserPrivilege( "test-user", "T5" );
 
         // if this fails it will throw an error
-        verifier =
-            MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy, this.getOverridableFile( "settings.xml" ) );
+        verifier = MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy, settings );
         verifier.verifyErrorFreeLog();
 
         // do it again as an update, this should fail
@@ -150,9 +146,7 @@ public class Nexus429WagonDeployPrivilegeIT
         // if this fails it will throw an error
         try
         {
-            verifier =
-                MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy,
-                                                    this.getOverridableFile( "settings.xml" ) );
+            verifier = MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy, settings );
             failTest( verifier );
         }
         catch ( VerificationException e )
@@ -167,8 +161,7 @@ public class Nexus429WagonDeployPrivilegeIT
         TestContainer.getInstance().getTestContext().setUsername( TEST_USER_NAME );
         TestContainer.getInstance().getTestContext().setPassword( TEST_USER_PASSWORD );
         // if this fails it will throw an error
-        verifier =
-            MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy, this.getOverridableFile( "settings.xml" ) );
+        verifier = MavenDeployer.deployAndGetVerifier( gav, repoUrl, fileToDeploy, settings );
         verifier.verifyErrorFreeLog();
 
         // check the services url too, ( just the GET for now )

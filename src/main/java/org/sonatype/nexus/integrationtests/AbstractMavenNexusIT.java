@@ -75,7 +75,7 @@ public class AbstractMavenNexusIT
         }
         else
         {
-            options.add( "-s " + this.getOverridableFile( "settings.xml" ) );
+            options.add( "-s " + settingsXml.getAbsolutePath() );
         }
         verifier.setCliOptions( options );
         return verifier;

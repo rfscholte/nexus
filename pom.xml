@@ -118,8 +118,8 @@
               <value>org.sonatype.nexus.test.ProgressListener</value>
             </property>
           </properties>
-          <parallel>tests</parallel>
-          <threadCount>5</threadCount>
+          <parallel>classes</parallel>
+          <threadCount>8</threadCount>
         </configuration>
       </plugin>
 

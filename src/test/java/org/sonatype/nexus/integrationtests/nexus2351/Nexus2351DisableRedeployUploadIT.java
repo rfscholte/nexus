@@ -120,7 +120,7 @@ public class Nexus2351DisableRedeployUploadIT
             + secondDeployDate, secondDeployDate.before( thirdDeployDate ) );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "disableReleaseAllowRedeployWithMavenTest" } )
     public void disableReleaseReadOnlyWithUploadTest()
         throws Exception
     {
@@ -138,7 +138,7 @@ public class Nexus2351DisableRedeployUploadIT
                                                                            fileToDeploy ) );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "disableReleaseReadOnlyWithUploadTest" } )
     public void disableReleaseReadOnlyWithMavenTest()
         throws Exception
     {
@@ -229,7 +229,7 @@ public class Nexus2351DisableRedeployUploadIT
         throws VerificationException, IOException
     {
         // deploy using maven
-        Verifier verifier = this.createVerifier( mavenProject );
+        Verifier verifier = this.createVerifier( mavenProject, settingsXml );
         try
         {
             verifier.executeGoal( "deploy" );

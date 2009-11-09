@@ -270,6 +270,8 @@ public class AbstractNexusIntegrationTest
 
     protected String proxyBaseURL;
 
+    protected File settingsXml;
+
     protected final Properties createRuntimeProperties()
         throws Exception
     {
@@ -349,8 +351,9 @@ public class AbstractNexusIntegrationTest
 
         this.copyConfigFile( "log4j.properties", allProps, WORK_CONF_DIR );
 
-        this.copyConfigFile( "settings.xml", allProps,
-                             new File( testResourcesFolder, getTestId() + "/test-config" ).getAbsolutePath() );
+        this.settingsXml =
+            this.copyConfigFile( "settings.xml", allProps,
+                                 new File( testResourcesFolder, getTestId() + "/test-config" ).getAbsolutePath() );
     }
 
     protected void runOnce()
@@ -545,7 +548,7 @@ public class AbstractNexusIntegrationTest
         return testConfigFile;
     }
 
-    protected void copyConfigFile( String configFile, String destShortName, Map<String, String> variables, String path )
+    protected File copyConfigFile( String configFile, String destShortName, Map<String, String> variables, String path )
         throws IOException
     {
         // the test can override the test config.
@@ -561,7 +564,7 @@ public class AbstractNexusIntegrationTest
         log.debug( "copying " + configFile + " to:  " + destFile );
 
         FileTestingUtils.interpolationFileCopy( testConfigFile, destFile, variables );
-
+        return destFile;
     }
 
     // Overloaded helpers
@@ -572,11 +575,10 @@ public class AbstractNexusIntegrationTest
         this.copyConfigFile( configFile, new HashMap<String, String>(), path );
     }
 
-    protected void copyConfigFile( String configFile, Map<String, String> variables, String path )
+    protected File copyConfigFile( String configFile, Map<String, String> variables, String path )
         throws IOException
     {
-        this.copyConfigFile( configFile, configFile, variables, path );
-
+        return this.copyConfigFile( configFile, configFile, variables, path );
     }
 
     /**

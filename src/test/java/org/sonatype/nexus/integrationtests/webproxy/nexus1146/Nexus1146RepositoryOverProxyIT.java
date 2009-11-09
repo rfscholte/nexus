@@ -22,6 +22,7 @@ import org.apache.maven.it.Verifier;
 import org.sonatype.nexus.integrationtests.webproxy.AbstractNexusWebProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.sonatype.nexus.test.utils.TestProperties;
+import org.testng.Assert;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
@@ -45,27 +46,16 @@ public class Nexus1146RepositoryOverProxyIT
         AssertJUnit.assertTrue( "Proxy was not accessed", webProxyServer.getAccessedUris().contains( artifactUrl ) );
     }
 
-    @Test( expectedExceptions = { FileNotFoundException.class } )
+    @Test( expectedExceptions = { FileNotFoundException.class }, dependsOnMethods = { "downloadArtifactOverWebProxy" } )
     public void unexistentArtifact()
         throws Exception
     {
-        try
-        {
-            this.downloadArtifact( getTestId(), "some-artifact-that-dont-exists", "4.8.15.16.23.42", "jar", null,
-                                   "target/downloads" );
-        }
-        finally
-        {
-            String artifactUrl =
-                proxyBaseURL
-                    + "release-proxy-repo-1/"
-                    + getTestId()
-                    + "/some-artifact-that-dont-exists/4.8.15.16.23.42/some-artifact-that-dont-exists-4.8.15.16.23.42.jar";
-            AssertJUnit.assertTrue( "Proxy was not accessed", webProxyServer.getAccessedUris().contains( artifactUrl ) );
-        }
+        this.downloadArtifact( getTestId(), "some-artifact-that-dont-exists", "4.8.15.16.23.42", "jar", null,
+                               "target/downloads" );
+        Assert.fail();
     }
 
-    @Test
+    @Test( dependsOnMethods = { "unexistentArtifact" } )
     public void proxyWithMaven()
         throws Exception
     {
@@ -82,7 +72,7 @@ public class Nexus1146RepositoryOverProxyIT
         List<String> options = new ArrayList<String>();
         options.add( "-X" );
         options.add( "-Dmaven.repo.local=" + mavenRepository.getAbsolutePath() );
-        options.add( "-s " + getOverridableFile( "settings.xml" ) );
+        options.add( "-s " + settingsXml.getAbsolutePath() );
         verifier.setCliOptions( options );
 
         verifier.executeGoal( "dependency:resolve" );

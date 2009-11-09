@@ -56,7 +56,7 @@ public class Nexus156RolesCrudJsonIT
         this.messageUtil.createRole( resource );
     }
 
-    @Test
+    @Test( dependsOnMethods = { "createRoleTest" } )
     public void createRoleWithIdTest()
         throws IOException
     {
@@ -73,7 +73,7 @@ public class Nexus156RolesCrudJsonIT
         this.messageUtil.createRole( resource );
     }
 
-    @Test( dependsOnMethods = { "createRoleTest", "createRoleWithIdTest" } )
+    @Test( dependsOnMethods = { "createRoleWithIdTest" } )
     public void listTest()
         throws IOException
     {
