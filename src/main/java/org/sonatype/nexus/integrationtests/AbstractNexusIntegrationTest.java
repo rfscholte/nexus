@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -59,10 +58,8 @@ import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.sonatype.nexus.test.utils.GavUtil;
 import org.sonatype.nexus.test.utils.MavenProjectFileFilter;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
-import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.sonatype.nexus.test.utils.PortUtil;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
-import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.testng.Assert;
@@ -281,6 +278,11 @@ public class AbstractNexusIntegrationTest
     protected final Properties createRuntimeProperties()
         throws Exception
     {
+        emailServerPort = PortUtil.getRandomPort();
+        proxyServerPort = PortUtil.getRandomPort();
+        webProxyPort = PortUtil.getRandomPort();
+        proxyBaseURL = "http://localhost:" + proxyServerPort + "/remote/";
+
         if ( properties == null )
         {
             nexusWorkDir = TestProperties.getPath( "nexus.work.dir" );
@@ -289,10 +291,6 @@ public class AbstractNexusIntegrationTest
             nexusApplicationPort = PortUtil.getRandomPort();
             nexusBaseUrl = "http://localhost:" + nexusApplicationPort + "/nexus/";
             baseNexusUrl = nexusBaseUrl;
-            emailServerPort = PortUtil.getRandomPort();
-            proxyServerPort = PortUtil.getRandomPort();
-            webProxyPort = PortUtil.getRandomPort();
-            proxyBaseURL = "http://localhost:" + proxyServerPort + "/remote/";
 
             properties = new Properties();
             properties.setProperty( "nexus.application.port", String.valueOf( nexusApplicationPort ) );
@@ -304,15 +302,7 @@ public class AbstractNexusIntegrationTest
             properties.setProperty( "nexus-work-dir", nexusWorkDir );
             properties.setProperty( "nexus-work", nexusWorkDir );
             properties.setProperty( "security-xml-file", nexusWorkDir + "/conf/security.xml" );
-            properties.setProperty( "email-server-port", emailServerPort.toString() );
-            properties.setProperty( "nexus-proxy-port", proxyServerPort.toString() );
-            properties.setProperty( "proxy.server.port", proxyServerPort.toString() );
-            properties.setProperty( "proxy-repo-port", proxyServerPort.toString() );
 
-            properties.setProperty( "proxy.repo.base.url", proxyBaseURL );
-            properties.setProperty( "proxy-repo-base-url", proxyBaseURL );
-            properties.setProperty( "webproxy.server.port", webProxyPort.toString() );
-            properties.setProperty( "webproxy-server-port", webProxyPort.toString() );
         }
         else
         {
@@ -322,11 +312,17 @@ public class AbstractNexusIntegrationTest
             nexusApplicationPort = new Integer( properties.getProperty( "nexus-application-port" ) );
             nexusBaseUrl = "http://localhost:" + nexusApplicationPort + "/nexus/";
             baseNexusUrl = nexusBaseUrl;
-            emailServerPort = new Integer( properties.getProperty( "email-server-port" ) );
-            proxyServerPort = new Integer( properties.getProperty( "proxy-repo-port" ) );
-            webProxyPort = new Integer( properties.getProperty( "webproxy-server-port" ) );
-            proxyBaseURL = "http://localhost:" + proxyServerPort + "/remote/";
         }
+
+        properties.setProperty( "email-server-port", emailServerPort.toString() );
+        properties.setProperty( "nexus-proxy-port", proxyServerPort.toString() );
+        properties.setProperty( "proxy.server.port", proxyServerPort.toString() );
+        properties.setProperty( "proxy-repo-port", proxyServerPort.toString() );
+
+        properties.setProperty( "proxy.repo.base.url", proxyBaseURL );
+        properties.setProperty( "proxy-repo-base-url", proxyBaseURL );
+        properties.setProperty( "webproxy.server.port", webProxyPort.toString() );
+        properties.setProperty( "webproxy-server-port", webProxyPort.toString() );
 
         return properties;
 
@@ -345,6 +341,8 @@ public class AbstractNexusIntegrationTest
             staticContainer.dispose();
         }
         staticContainer = null;
+
+        new File( nexusWorkDir ).renameTo( new File( nexusWorkDir + "-" + getClass().getSimpleName() ) );
     }
 
     protected void copyTestResources()
@@ -392,42 +390,42 @@ public class AbstractNexusIntegrationTest
     protected static void cleanWorkDir()
         throws Exception
     {
-        // must wait for all tasks, some do file locking
-        TaskScheduleUtil.waitForAllTasksToStop();
-
-        Assert.assertTrue( NexusStatusUtil.isNexusStopped() );
-
-        final File workDir = new File( TestProperties.getPath( "nexus.work.dir" ) );
-
-        // to make sure I don't delete all my MP3's and pictures, or totally screw anyone.
-        // check for 'target' and not allow any '..'
-        if ( workDir.getAbsolutePath().lastIndexOf( "target" ) != -1
-            && workDir.getAbsolutePath().lastIndexOf( ".." ) == -1 )
-        {
-            // we cannot delete the plugin-repository or the tests will fail
-
-            File[] filesToDelete = workDir.listFiles( new FilenameFilter()
-            {
-                public boolean accept( File dir, String name )
-                {
-                    // anything but the plugin-repository directory
-                    return ( !name.contains( "plugin-repository" ) );
-                }
-            } );
-
-            if ( filesToDelete != null )
-            {
-                for ( File fileToDelete : filesToDelete )
-                {
-                    // delete work dir
-                    if ( fileToDelete != null )
-                    {
-                        FileUtils.deleteDirectory( fileToDelete );
-                    }
-                }
-            }
-
-        }
+        // // must wait for all tasks, some do file locking
+        // TaskScheduleUtil.waitForAllTasksToStop();
+        //
+        // Assert.assertTrue( NexusStatusUtil.isNexusStopped() );
+        //
+        // final File workDir = new File( TestProperties.getPath( "nexus.work.dir" ) );
+        //
+        // // to make sure I don't delete all my MP3's and pictures, or totally screw anyone.
+        // // check for 'target' and not allow any '..'
+        // if ( workDir.getAbsolutePath().lastIndexOf( "target" ) != -1
+        // && workDir.getAbsolutePath().lastIndexOf( ".." ) == -1 )
+        // {
+        // // we cannot delete the plugin-repository or the tests will fail
+        //
+        // File[] filesToDelete = workDir.listFiles( new FilenameFilter()
+        // {
+        // public boolean accept( File dir, String name )
+        // {
+        // // anything but the plugin-repository directory
+        // return ( !name.contains( "plugin-repository" ) );
+        // }
+        // } );
+        //
+        // if ( filesToDelete != null )
+        // {
+        // for ( File fileToDelete : filesToDelete )
+        // {
+        // // delete work dir
+        // if ( fileToDelete != null )
+        // {
+        // FileUtils.deleteDirectory( fileToDelete );
+        // }
+        // }
+        // }
+        //
+        // }
     }
 
     protected void deployArtifacts()

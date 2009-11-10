@@ -25,7 +25,6 @@ import java.util.List;
 import org.codehaus.plexus.util.Base64;
 import org.sonatype.nexus.integrationtests.webproxy.AbstractNexusWebProxyIntegrationTest;
 import org.testng.AssertJUnit;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 public class ProxyWithAuthenticationIT
@@ -105,16 +104,6 @@ public class ProxyWithAuthenticationIT
         con.getInputStream();
 
         AssertJUnit.fail( "Proxy was not able to access google.com" );
-    }
-
-    @Override
-    @AfterMethod
-    public void stopWebProxy()
-        throws Exception
-    {
-        webProxyServer.getProxyServlet().setUseAuthentication( false );
-        webProxyServer.getProxyServlet().setAuthentications( null );
-        super.stopWebProxy();
     }
 
 }

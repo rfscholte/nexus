@@ -15,7 +15,6 @@ package org.sonatype.nexus.integrationtests.webproxy.nexus1155;
 
 import org.sonatype.nexus.integrationtests.webproxy.nexus1146.Nexus1146RepositoryOverProxyIT;
 import org.testng.AssertJUnit;
-import org.testng.annotations.AfterMethod;
 
 public class Nexus1155RepositoryOverProxyWithAuthenticationIT
     extends Nexus1146RepositoryOverProxyIT
@@ -31,16 +30,6 @@ public class Nexus1155RepositoryOverProxyWithAuthenticationIT
         AssertJUnit.assertNotNull( webProxyServer.getProxyServlet() );
         webProxyServer.getProxyServlet().setUseAuthentication( true );
         webProxyServer.getProxyServlet().getAuthentications().put( "admin", "123" );
-    }
-
-    @Override
-    @AfterMethod
-    public void stopWebProxy()
-        throws Exception
-    {
-        webProxyServer.getProxyServlet().setUseAuthentication( false );
-        webProxyServer.getProxyServlet().setAuthentications( null );
-        super.stopWebProxy();
     }
 
 }

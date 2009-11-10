@@ -18,7 +18,6 @@ import java.io.File;
 import org.sonatype.nexus.integrationtests.webproxy.AbstractNexusWebProxyIntegrationTest;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.testng.AssertJUnit;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 public class Nexus1113WebProxyWithAuthenticationIT
@@ -55,20 +54,4 @@ public class Nexus1113WebProxyWithAuthenticationIT
         AssertJUnit.assertTrue( "Proxy was not accessed", webProxyServer.getAccessedUris().contains( artifactUrl ) );
     }
 
-    @Override
-    @AfterMethod
-    public void stopWebProxy()
-        throws Exception
-    {
-        if ( webProxyServer != null )
-        {
-            if ( webProxyServer.getProxyServlet() != null )
-            {
-                webProxyServer.getProxyServlet().setUseAuthentication( false );
-                webProxyServer.getProxyServlet().setAuthentications( null );
-            }
-        }
-
-        super.stopWebProxy();
-    }
 }

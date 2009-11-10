@@ -34,7 +34,7 @@ public abstract class AbstractNexusWebProxyIntegrationTest
     }
 
     @AfterClass
-    public void stopWebProxy()
+    public final void stopWebProxy()
         throws Exception
     {
         webProxyServer.stop();
