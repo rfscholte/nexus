@@ -4,6 +4,7 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainerException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.sonatype.appbooter.ForkedAppBooter;
 import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -33,7 +34,7 @@ public class ForkedNexusInstancesFactoryTest
         NexusContext c1 = factory.createInstance();
         try
         {
-            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
+            Assert.assertTrue( ( (ForkedAppBooter) c1.getAppBooter() ).getControllerClient().isOpen() );
             Integer port = c1.getPort();
             MatcherAssert.assertThat( NexusStatusUtil.getNexusStatus( port ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
@@ -52,11 +53,11 @@ public class ForkedNexusInstancesFactoryTest
         NexusContext c2 = factory.createInstance();
         try
         {
-            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
+            Assert.assertTrue( ( (ForkedAppBooter) c1.getAppBooter() ).getControllerClient().isOpen() );
             MatcherAssert.assertThat( NexusStatusUtil.getNexusStatus( c1.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
 
-            Assert.assertTrue( c2.getForkedAppBooter().getControllerClient().isOpen() );
+            Assert.assertTrue( ( (ForkedAppBooter) c2.getAppBooter() ).getControllerClient().isOpen() );
             MatcherAssert.assertThat( NexusStatusUtil.getNexusStatus( c2.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
 
@@ -79,8 +80,8 @@ public class ForkedNexusInstancesFactoryTest
         NexusContext c1 = factory.createInstance();
         try
         {
-            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().isOpen() );
-            Assert.assertTrue( c1.getForkedAppBooter().getControllerClient().ping() );
+            Assert.assertTrue( ( (ForkedAppBooter) c1.getAppBooter() ).getControllerClient().isOpen() );
+            Assert.assertTrue( ( (ForkedAppBooter) c1.getAppBooter() ).getControllerClient().ping() );
             MatcherAssert.assertThat( NexusStatusUtil.getNexusStatus( c1.getPort() ).getData().getState(),
                                       CoreMatchers.equalTo( "STARTED" ) );
         }

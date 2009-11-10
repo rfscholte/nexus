@@ -118,9 +118,9 @@
               <value>org.sonatype.nexus.test.ProgressListener</value>
             </property>
           </properties>
-          <parallel>classes</parallel>
+          <!--<parallel>classes</parallel>
           <threadCount>8</threadCount>
-        </configuration>
+        --></configuration>
       </plugin>
 
       <plugin>

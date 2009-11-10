@@ -185,7 +185,7 @@ public class ForkedNexusInstancesFactory
         appBooter.start();
         NexusContext context = new NexusContext( appBooter, nexusPort, new File( nexusWorkDir ) );
 
-        ForkedAppBooter forkedAppBooter = context.getForkedAppBooter();
+        ForkedAppBooter forkedAppBooter = (ForkedAppBooter) context.getAppBooter();
 
         ControllerClient client = forkedAppBooter.getControllerClient();
         ping( client );
@@ -265,7 +265,7 @@ public class ForkedNexusInstancesFactory
             return;
         }
 
-        ForkedAppBooter appBooter = context.getForkedAppBooter();
+        ForkedAppBooter appBooter = (ForkedAppBooter) context.getAppBooter();
         appBooter.shutdown();
 
         synchronized ( container )

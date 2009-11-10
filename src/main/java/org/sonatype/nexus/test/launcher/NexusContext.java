@@ -2,28 +2,26 @@ package org.sonatype.nexus.test.launcher;
 
 import java.io.File;
 
-import org.sonatype.appbooter.ForkedAppBooter;
-
 public class NexusContext
 {
 
-    private ForkedAppBooter forkedAppBooter;
+    private Object appBooter;
 
     private Integer port;
 
     private File workDir;
 
-    public NexusContext( ForkedAppBooter forkedAppBooter, Integer port, File workDir )
+    public NexusContext( Object appBooter, Integer port, File workDir )
     {
         super();
-        this.forkedAppBooter = forkedAppBooter;
+        this.appBooter = appBooter;
         this.port = port;
         this.workDir = workDir;
     }
 
-    public ForkedAppBooter getForkedAppBooter()
+    public Object getAppBooter()
     {
-        return forkedAppBooter;
+        return appBooter;
     }
 
     public Integer getPort()
@@ -38,7 +36,7 @@ public class NexusContext
 
     public void release()
     {
-        forkedAppBooter = null;
+        appBooter = null;
     }
 
 }

@@ -50,9 +50,9 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.proxy.registry.RepositoryTypeRegistry;
 import org.sonatype.nexus.rest.model.GlobalConfigurationResource;
-import org.sonatype.nexus.test.launcher.ForkedNexusInstancesFactory;
 import org.sonatype.nexus.test.launcher.INexusInstancesFactory;
 import org.sonatype.nexus.test.launcher.NexusContext;
+import org.sonatype.nexus.test.launcher.UnforkedNexusInstancesFactory;
 import org.sonatype.nexus.test.utils.DeployUtils;
 import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.sonatype.nexus.test.utils.GavUtil;
@@ -163,9 +163,9 @@ public class AbstractNexusIntegrationTest
     @BeforeSuite
     public static final void setupNexusFactory()
     {
-        globalContainer = setupContainer( BeforeSuite.class );
+        // globalContainer = setupContainer( BeforeSuite.class );
         // must be able to pick another factories
-        factory = new ForkedNexusInstancesFactory( globalContainer );
+        factory = new UnforkedNexusInstancesFactory();
     }
 
     @AfterSuite
@@ -174,8 +174,8 @@ public class AbstractNexusIntegrationTest
     {
         factory.shutdown();
         factory = null;
-        globalContainer.dispose();
-        globalContainer = null;
+        // globalContainer.dispose();
+        // globalContainer = null;
     }
 
     public boolean isSecureTest()
@@ -272,39 +272,58 @@ public class AbstractNexusIntegrationTest
 
     protected File settingsXml;
 
+    // FIXME not made that static on forked tests
+    private static Properties properties;
+
     protected final Properties createRuntimeProperties()
         throws Exception
     {
-        nexusWorkDir = TestProperties.getPath( "nexus.work.dir" ) + "-" + getClass().getSimpleName();
-        WORK_CONF_DIR = nexusWorkDir + "/conf";
-        nexusLog = new File( nexusWorkDir, "nexus.log" );
-        nexusApplicationPort = PortUtil.getRandomPort();
-        nexusBaseUrl = "http://localhost:" + nexusApplicationPort + "/nexus/";
-        baseNexusUrl = nexusBaseUrl;
-        emailServerPort = PortUtil.getRandomPort();
-        proxyServerPort = PortUtil.getRandomPort();
-        webProxyPort = PortUtil.getRandomPort();
-        proxyBaseURL = "http://localhost:" + proxyServerPort + "/remote/";
+        if ( properties == null )
+        {
+            nexusWorkDir = TestProperties.getPath( "nexus.work.dir" );
+            WORK_CONF_DIR = nexusWorkDir + "/conf";
+            nexusLog = new File( nexusWorkDir, "nexus.log" );
+            nexusApplicationPort = PortUtil.getRandomPort();
+            nexusBaseUrl = "http://localhost:" + nexusApplicationPort + "/nexus/";
+            baseNexusUrl = nexusBaseUrl;
+            emailServerPort = PortUtil.getRandomPort();
+            proxyServerPort = PortUtil.getRandomPort();
+            webProxyPort = PortUtil.getRandomPort();
+            proxyBaseURL = "http://localhost:" + proxyServerPort + "/remote/";
 
-        Properties properties = new Properties();
-        properties.put( "nexus.application.port", String.valueOf( nexusApplicationPort ) );
-        properties.put( "nexus-application-port", String.valueOf( nexusApplicationPort ) );
-        properties.put( "nexus.base.url", nexusBaseUrl );
-        properties.put( "nexus-base-url", nexusBaseUrl );
-        properties.put( "application-conf", nexusWorkDir + "/conf" );
-        properties.put( "nexus.work.dir", nexusWorkDir );
-        properties.put( "nexus-work-dir", nexusWorkDir );
-        properties.put( "nexus-work", nexusWorkDir );
-        properties.put( "security-xml-file", nexusWorkDir + "/conf/security.xml" );
-        properties.put( "email-server-port", emailServerPort.toString() );
-        properties.setProperty( "nexus-proxy-port", proxyServerPort.toString() );
-        properties.setProperty( "proxy.server.port", proxyServerPort.toString() );
-        properties.setProperty( "proxy-repo-port", proxyServerPort.toString() );
+            properties = new Properties();
+            properties.setProperty( "nexus.application.port", String.valueOf( nexusApplicationPort ) );
+            properties.setProperty( "nexus-application-port", String.valueOf( nexusApplicationPort ) );
+            properties.setProperty( "nexus.base.url", nexusBaseUrl );
+            properties.setProperty( "nexus-base-url", nexusBaseUrl );
+            properties.setProperty( "application-conf", nexusWorkDir + "/conf" );
+            properties.setProperty( "nexus.work.dir", nexusWorkDir );
+            properties.setProperty( "nexus-work-dir", nexusWorkDir );
+            properties.setProperty( "nexus-work", nexusWorkDir );
+            properties.setProperty( "security-xml-file", nexusWorkDir + "/conf/security.xml" );
+            properties.setProperty( "email-server-port", emailServerPort.toString() );
+            properties.setProperty( "nexus-proxy-port", proxyServerPort.toString() );
+            properties.setProperty( "proxy.server.port", proxyServerPort.toString() );
+            properties.setProperty( "proxy-repo-port", proxyServerPort.toString() );
 
-        properties.setProperty( "proxy.repo.base.url", proxyBaseURL );
-        properties.setProperty( "proxy-repo-base-url", proxyBaseURL );
-        properties.setProperty( "webproxy.server.port", webProxyPort.toString() );
-        properties.setProperty( "webproxy-server-port", webProxyPort.toString() );
+            properties.setProperty( "proxy.repo.base.url", proxyBaseURL );
+            properties.setProperty( "proxy-repo-base-url", proxyBaseURL );
+            properties.setProperty( "webproxy.server.port", webProxyPort.toString() );
+            properties.setProperty( "webproxy-server-port", webProxyPort.toString() );
+        }
+        else
+        {
+            nexusWorkDir = properties.getProperty( "nexus-work-dir" );
+            WORK_CONF_DIR = nexusWorkDir + "/conf";
+            nexusLog = new File( nexusWorkDir, "nexus.log" );
+            nexusApplicationPort = new Integer( properties.getProperty( "nexus-application-port" ) );
+            nexusBaseUrl = "http://localhost:" + nexusApplicationPort + "/nexus/";
+            baseNexusUrl = nexusBaseUrl;
+            emailServerPort = new Integer( properties.getProperty( "email-server-port" ) );
+            proxyServerPort = new Integer( properties.getProperty( "proxy-repo-port" ) );
+            webProxyPort = new Integer( properties.getProperty( "webproxy-server-port" ) );
+            proxyBaseURL = "http://localhost:" + proxyServerPort + "/remote/";
+        }
 
         return properties;
 
