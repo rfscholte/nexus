@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -58,8 +59,10 @@ import org.sonatype.nexus.test.utils.FileTestingUtils;
 import org.sonatype.nexus.test.utils.GavUtil;
 import org.sonatype.nexus.test.utils.MavenProjectFileFilter;
 import org.sonatype.nexus.test.utils.NexusConfigUtil;
+import org.sonatype.nexus.test.utils.NexusStatusUtil;
 import org.sonatype.nexus.test.utils.PortUtil;
 import org.sonatype.nexus.test.utils.SettingsMessageUtil;
+import org.sonatype.nexus.test.utils.TaskScheduleUtil;
 import org.sonatype.nexus.test.utils.TestProperties;
 import org.sonatype.nexus.test.utils.XStreamFactory;
 import org.testng.Assert;
@@ -389,42 +392,42 @@ public class AbstractNexusIntegrationTest
     protected static void cleanWorkDir()
         throws Exception
     {
-        // // must wait for all tasks, some do file locking
-        // TaskScheduleUtil.waitForAllTasksToStop();
-        //
-        // Assert.assertTrue( NexusStatusUtil.isNexusStopped() );
-        //
-        // final File workDir = new File( AbstractNexusIntegrationTest.nexusWorkDir );
-        //
-        // // to make sure I don't delete all my MP3's and pictures, or totally screw anyone.
-        // // check for 'target' and not allow any '..'
-        // if ( workDir.getAbsolutePath().lastIndexOf( "target" ) != -1
-        // && workDir.getAbsolutePath().lastIndexOf( ".." ) == -1 )
-        // {
-        // // we cannot delete the plugin-repository or the tests will fail
-        //
-        // File[] filesToDelete = workDir.listFiles( new FilenameFilter()
-        // {
-        // protected boolean accept( File dir, String name )
-        // {
-        // // anything but the plugin-repository directory
-        // return ( !name.contains( "plugin-repository" ) );
-        // }
-        // } );
-        //
-        // if ( filesToDelete != null )
-        // {
-        // for ( File fileToDelete : filesToDelete )
-        // {
-        // // delete work dir
-        // if ( fileToDelete != null )
-        // {
-        // FileUtils.deleteDirectory( fileToDelete );
-        // }
-        // }
-        // }
-        //
-        // }
+        // must wait for all tasks, some do file locking
+        TaskScheduleUtil.waitForAllTasksToStop();
+
+        Assert.assertTrue( NexusStatusUtil.isNexusStopped() );
+
+        final File workDir = new File( TestProperties.getPath( "nexus.work.dir" ) );
+
+        // to make sure I don't delete all my MP3's and pictures, or totally screw anyone.
+        // check for 'target' and not allow any '..'
+        if ( workDir.getAbsolutePath().lastIndexOf( "target" ) != -1
+            && workDir.getAbsolutePath().lastIndexOf( ".." ) == -1 )
+        {
+            // we cannot delete the plugin-repository or the tests will fail
+
+            File[] filesToDelete = workDir.listFiles( new FilenameFilter()
+            {
+                public boolean accept( File dir, String name )
+                {
+                    // anything but the plugin-repository directory
+                    return ( !name.contains( "plugin-repository" ) );
+                }
+            } );
+
+            if ( filesToDelete != null )
+            {
+                for ( File fileToDelete : filesToDelete )
+                {
+                    // delete work dir
+                    if ( fileToDelete != null )
+                    {
+                        FileUtils.deleteDirectory( fileToDelete );
+                    }
+                }
+            }
+
+        }
     }
 
     protected void deployArtifacts()
