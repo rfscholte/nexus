@@ -19,7 +19,9 @@
       <groupId>org.sonatype.nexus</groupId>
       <artifactId>nexus-indexer</artifactId>
       <scope>provided</scope>
+      <type>nexus-plugin</type>
     </dependency>
+    
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
       <artifactId>nexus-proxy</artifactId>
