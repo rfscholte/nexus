@@ -23,6 +23,7 @@
       <groupId>org.sonatype.nexus</groupId>
       <artifactId>nexus-indexer</artifactId>
       <scope>provided</scope>
+      <type>nexus-plugin</type>
     </dependency>
     <dependency>
       <groupId>org.sonatype.nexus</groupId>
@@ -60,6 +61,10 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>app-lifecycle-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-metadata</artifactId>
       </plugin>
       <plugin>
         <groupId>net.sf.alchim</groupId>
