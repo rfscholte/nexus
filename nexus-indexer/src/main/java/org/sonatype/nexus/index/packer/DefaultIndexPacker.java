@@ -24,6 +24,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IndexInput;
@@ -255,7 +256,7 @@ public class DefaultIndexPacker
 
         indexDir.mkdirs();
 
-        FSDirectory fdir = FSDirectory.getDirectory( indexDir );
+        FSDirectory fdir = FSDirectory.open( indexDir );
 
         try
         {
@@ -282,7 +283,7 @@ public class DefaultIndexPacker
         IndexWriter w = null;
         try
         {
-            w = new IndexWriter( targetdir, false, new NexusLegacyAnalyzer(), true );
+            w = new IndexWriter( targetdir, new NexusLegacyAnalyzer(), true, MaxFieldLength.LIMITED );
 
             for ( int i = 0; i < r.maxDoc(); i++ )
             {
@@ -293,7 +294,7 @@ public class DefaultIndexPacker
             }
 
             w.optimize();
-            w.flush();
+            w.commit();
         }
         finally
         {
@@ -310,7 +311,7 @@ public class DefaultIndexPacker
         }
 
         Document document = new Document();
-        document.add( new Field( ArtifactInfo.UINFO, ai.getUinfo(), Field.Store.YES, Field.Index.UN_TOKENIZED ) );
+        document.add( new Field( ArtifactInfo.UINFO, ai.getUinfo(), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
         for ( IndexCreator ic : context.getIndexCreators() )
         {
@@ -332,7 +333,7 @@ public class DefaultIndexPacker
             zos = new ZipOutputStream( os );
             zos.setLevel( 9 );
 
-            String[] names = directory.list();
+            String[] names = directory.listAll();
 
             boolean savedTimestamp = false;
 

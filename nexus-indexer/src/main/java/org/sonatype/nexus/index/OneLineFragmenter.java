@@ -1,6 +1,7 @@
 package org.sonatype.nexus.index;
 
-import org.apache.lucene.analysis.Token;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.search.highlight.Fragmenter;
 
 public class OneLineFragmenter
@@ -8,17 +9,22 @@ public class OneLineFragmenter
 {
     private String text;
 
-    public void start( String originalText )
+    private OffsetAttribute offsetAttribute;
+
+    public void start( String originalText, TokenStream stream )
     {
         setText( originalText );
+
+        setOffsetAttribute( stream.addAttribute( OffsetAttribute.class ) );
     }
 
-    public boolean isNewFragment( Token nextToken )
+    public boolean isNewFragment()
     {
         // text: /org/sonatype/...
         // tokens: org sonatype
         boolean result =
-            isNewline( getChar( nextToken.startOffset() - 1 ) ) || isNewline( getChar( nextToken.startOffset() - 2 ) );
+            isNewline( getChar( getOffsetAttribute().startOffset() - 1 ) )
+                || isNewline( getChar( getOffsetAttribute().startOffset() - 2 ) );
 
         return result;
     }
@@ -49,5 +55,15 @@ public class OneLineFragmenter
     public void setText( String text )
     {
         this.text = text;
+    }
+
+    public OffsetAttribute getOffsetAttribute()
+    {
+        return offsetAttribute;
+    }
+
+    public void setOffsetAttribute( OffsetAttribute offsetAttribute )
+    {
+        this.offsetAttribute = offsetAttribute;
     }
 }

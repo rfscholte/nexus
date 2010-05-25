@@ -115,9 +115,7 @@ public class DefaultNexusTimeline
     {
         File timelineDir = applicationConfiguration.getWorkingDirectory( dirName );
 
-        TimelineConfiguration config = new TimelineConfiguration( new File( timelineDir, "persist" ), new File(
-            timelineDir,
-            "index" ) );
+        TimelineConfiguration config = new TimelineConfiguration( timelineDir );
 
         configure( config );
     }

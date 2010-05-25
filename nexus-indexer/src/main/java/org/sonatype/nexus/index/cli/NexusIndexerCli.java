@@ -388,7 +388,7 @@ public class NexusIndexerCli
 
         long tstart = System.currentTimeMillis();
 
-        final FSDirectory directory = FSDirectory.getDirectory( outputFolder );
+        final FSDirectory directory = FSDirectory.open( outputFolder );
 
         final List<IndexCreator> indexers = getIndexers( cli, plexus );
 

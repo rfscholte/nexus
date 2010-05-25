@@ -22,9 +22,10 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.SerialMergeScheduler;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.codehaus.plexus.util.FileUtils;
@@ -136,7 +137,7 @@ public class DefaultIndexingContext
 
         this.indexDirectoryFile = indexDirectoryFile;
 
-        this.indexDirectory = FSDirectory.getDirectory( indexDirectoryFile );
+        this.indexDirectory = FSDirectory.open( indexDirectoryFile );
 
         prepareIndex( reclaimIndex );
     }
@@ -176,9 +177,9 @@ public class DefaultIndexingContext
             try
             {
                 // unlock the dir forcibly
-                if ( IndexReader.isLocked( indexDirectory ) )
+                if ( IndexWriter.isLocked( indexDirectory ) )
                 {
-                    IndexReader.unlock( indexDirectory );
+                    IndexWriter.unlock( indexDirectory );
                 }
 
                 checkAndUpdateIndexDescriptor( reclaimIndex );
@@ -223,16 +224,16 @@ public class DefaultIndexingContext
             indexWriter = null;
 
             // unlock the dir forcibly
-            if ( IndexReader.isLocked( indexDirectory ) )
+            if ( IndexWriter.isLocked( indexDirectory ) )
             {
-                IndexReader.unlock( indexDirectory );
+                IndexWriter.unlock( indexDirectory );
             }
 
             indexDirectory.close();
             FileUtils.deleteDirectory( indexDirectoryFile );
             indexDirectoryFile.mkdirs();
 
-            indexDirectory = FSDirectory.getDirectory( indexDirectoryFile );
+            indexDirectory = FSDirectory.open( indexDirectoryFile );
         }
 
         if ( StringUtils.isEmpty( getRepositoryId() ) )
@@ -256,18 +257,25 @@ public class DefaultIndexingContext
             return;
         }
 
-        Hits hits = getIndexSearcher().search( new TermQuery( DESCRIPTOR_TERM ) );
+        TopScoreDocCollector collector = TopScoreDocCollector.create( 1, false );
 
-        if ( hits == null || hits.length() == 0 )
+        IndexSearcher searcher = getIndexSearcher();
+
+        searcher.search( new TermQuery( DESCRIPTOR_TERM ), collector );
+
+        TopDocs topDocs = collector.topDocs();
+
+        if ( topDocs.totalHits == 0 )
         {
             throw new UnsupportedExistingLuceneIndexException( "The existing index has no NexusIndexer descriptor" );
         }
 
-        Document descriptor = hits.doc( 0 );
+        Document descriptor = searcher.doc( topDocs.scoreDocs[0].doc );
 
-        if ( hits.length() != 1 )
+        if ( collector.topDocs().totalHits != 1 )
         {
             storeDescriptor();
+
             return;
         }
 
@@ -298,29 +306,38 @@ public class DefaultIndexingContext
     {
         Document hdr = new Document();
 
-        hdr.add( new Field( FLD_DESCRIPTOR, FLD_DESCRIPTOR_CONTENTS, Field.Store.YES, Field.Index.UN_TOKENIZED ) );
+        hdr.add( new Field( FLD_DESCRIPTOR, FLD_DESCRIPTOR_CONTENTS, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
 
-        hdr
-            .add( new Field( FLD_IDXINFO, VERSION + ArtifactInfo.FS + getRepositoryId(), Field.Store.YES,
-                             Field.Index.NO ) );
+        hdr.add( new Field( FLD_IDXINFO, VERSION + ArtifactInfo.FS + getRepositoryId(), Field.Store.YES, Field.Index.NO ) );
 
         IndexWriter w = getIndexWriter();
 
         w.updateDocument( DESCRIPTOR_TERM, hdr );
 
-        w.flush();
+        w.commit();
     }
 
     private void deleteIndexFiles()
         throws IOException
     {
-        String[] names = indexDirectory.list();
+        // change from Lucene 3.x: listAll() returns _all_ files, and it makes Nexus1911IncrementalTest UT fail
+        // since before, Directory was returning only files it was "aware of", and now it returns _real_ listing.
+        String[] names = indexDirectory.listAll();
 
         if ( names != null )
         {
             for ( int i = 0; i < names.length; i++ )
             {
-                indexDirectory.deleteFile( names[i] );
+                String name = names[i];
+
+                // preserve any published index file.
+                // This does not affect systems, it just breaks one UT that is maybe wrongly written,
+                // but who knows does any integrator relies on storing some non-index files in
+                // Lucene Directory.
+                if ( !name.startsWith( IndexingContext.INDEX_FILE ) )
+                {
+                    indexDirectory.deleteFile( names[i] );
+                }
             }
         }
 
@@ -470,7 +487,7 @@ public class DefaultIndexingContext
         {
             w.optimize();
 
-            w.flush();
+            w.commit();
         }
         finally
         {
@@ -568,6 +585,8 @@ public class DefaultIndexingContext
 
             IndexReader r = IndexReader.open( directory );
 
+            TopScoreDocCollector collector = null;
+
             try
             {
                 int numDocs = r.maxDoc();
@@ -590,9 +609,11 @@ public class DefaultIndexingContext
 
                     if ( uinfo != null )
                     {
-                        Hits hits = s.search( new TermQuery( new Term( ArtifactInfo.UINFO, uinfo ) ) );
+                        collector = TopScoreDocCollector.create( 1, false );
 
-                        if ( hits.length() == 0 )
+                        s.search( new TermQuery( new Term( ArtifactInfo.UINFO, uinfo ) ), collector );
+
+                        if ( collector.topDocs().totalHits == 0 )
                         {
                             w.addDocument( IndexUtils.updateDocument( d, this, false ) );
                         }

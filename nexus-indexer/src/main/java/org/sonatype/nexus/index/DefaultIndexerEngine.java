@@ -31,7 +31,7 @@ public class DefaultIndexerEngine
     public void index( IndexingContext context, ArtifactContext ac )
         throws IOException
     {
-        // skip artifacts not obeying repository layout (whether m1 or m2) 
+        // skip artifacts not obeying repository layout (whether m1 or m2)
         if ( ac != null && ac.getGav() != null )
         {
             Document d = ac.createDocument( context );
@@ -39,7 +39,7 @@ public class DefaultIndexerEngine
             if ( d != null )
             {
                 context.getIndexWriter().addDocument( d );
-                
+
                 context.updateTimestamp();
             }
         }
@@ -49,21 +49,21 @@ public class DefaultIndexerEngine
         throws IOException
     {
         Document d = ac.createDocument( context );
-        
+
         if ( d != null )
         {
             IndexWriter w = context.getIndexWriter();
 
             w.updateDocument( new Term( ArtifactInfo.UINFO, ac.getArtifactInfo().getUinfo() ), d );
-            
+
             updateGroups( context, ac );
-            
-            w.flush();
-            
+
+            w.commit();
+
             context.updateTimestamp();
         }
     }
-    
+
     private void updateGroups( IndexingContext context, ArtifactContext ac )
         throws IOException
     {
@@ -74,7 +74,7 @@ public class DefaultIndexerEngine
             rootGroups.add( rootGroup );
             context.setRootGroups( rootGroups );
         }
-    
+
         Set<String> allGroups = context.getAllGroups();
         if ( !allGroups.contains( ac.getArtifactInfo().groupId ) )
         {
@@ -82,7 +82,7 @@ public class DefaultIndexerEngine
             context.setAllGroups( allGroups );
         }
     }
-    
+
     public void remove( IndexingContext context, ArtifactContext ac )
         throws IOException
     {
@@ -93,13 +93,11 @@ public class DefaultIndexerEngine
             Document doc = new Document();
             doc.add( new Field( ArtifactInfo.DELETED, uinfo, Field.Store.YES, Field.Index.NO ) );
             doc.add( new Field( ArtifactInfo.LAST_MODIFIED, //
-                Long.toString( System.currentTimeMillis() ),
-                Field.Store.YES,
-                Field.Index.NO ) );
+                Long.toString( System.currentTimeMillis() ), Field.Store.YES, Field.Index.NO ) );
             IndexWriter w = context.getIndexWriter();
             w.addDocument( doc );
             w.deleteDocuments( new Term( ArtifactInfo.UINFO, uinfo ) );
-            w.flush();
+            w.commit();
             context.updateTimestamp();
         }
     }

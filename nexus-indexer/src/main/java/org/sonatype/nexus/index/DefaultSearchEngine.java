@@ -16,13 +16,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ParallelMultiSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searchable;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TopFieldDocs;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.sonatype.nexus.index.context.IndexUtils;
@@ -176,27 +176,30 @@ public class DefaultSearchEngine
                               Query query, int from, int aiCount )
         throws IOException
     {
-        Hits hits =
-            context.getIndexSearcher().search( query, new Sort( new SortField( ArtifactInfo.UINFO, SortField.STRING ) ) );
+        IndexSearcher s = context.getIndexSearcher();
 
-        if ( hits == null || hits.length() == 0 )
+        TopFieldDocs hits =
+            s.search( query, null, req.getResultHitLimit(), new Sort( new SortField( ArtifactInfo.UINFO,
+                SortField.STRING ) ) );
+
+        if ( hits == null || hits.totalHits == 0 )
         {
             return 0;
         }
 
-        if ( req.isHitLimited() && hits.length() > req.getResultHitLimit() )
+        if ( req.isHitLimited() && hits.totalHits > req.getResultHitLimit() )
         {
             return AbstractSearchResponse.LIMIT_EXCEEDED;
         }
 
-        int hitCount = hits.length();
+        int hitCount = hits.totalHits;
 
         int start = 0; // from == FlatSearchRequest.UNDEFINED ? 0 : from;
 
         // we have to pack the results as long: a) we have found aiCount ones b) we depleted hits
-        for ( int i = start; i < hits.length(); i++ )
+        for ( int i = start; i < hits.totalHits; i++ )
         {
-            Document doc = hits.doc( i );
+            Document doc = s.doc( hits.scoreDocs[i].doc );
 
             ArtifactInfo artifactInfo = IndexUtils.constructArtifactInfo( doc, context );
 
@@ -223,16 +226,21 @@ public class DefaultSearchEngine
                                  IndexingContext context, Query query )
         throws IOException
     {
-        Hits hits =
-            context.getIndexSearcher().search( query, new Sort( new SortField( ArtifactInfo.UINFO, SortField.STRING ) ) );
+        IndexSearcher s = context.getIndexSearcher();
 
-        if ( hits != null && hits.length() != 0 )
+        TopFieldDocs hits =
+            s.search( query, null, req.getResultHitLimit(), new Sort( new SortField( ArtifactInfo.UINFO,
+                SortField.STRING ) ) );
+
+        if ( hits != null && hits.totalHits != 0 )
         {
-            int hitCount = hits.length();
+            int hitCount = hits.totalHits;
 
-            for ( int i = 0; i < hits.length(); i++ )
+            for ( int i = 0; i < hits.totalHits; i++ )
             {
-                ArtifactInfo artifactInfo = IndexUtils.constructArtifactInfo( hits.doc( i ), context );
+                Document doc = s.doc( hits.scoreDocs[i].doc );
+
+                ArtifactInfo artifactInfo = IndexUtils.constructArtifactInfo( doc, context );
 
                 if ( artifactInfo != null )
                 {
@@ -248,7 +256,7 @@ public class DefaultSearchEngine
                 }
             }
 
-            if ( req.isHitLimited() && hits.length() > req.getResultHitLimit() )
+            if ( req.isHitLimited() && hits.totalHits > req.getResultHitLimit() )
             {
                 return AbstractSearchResponse.LIMIT_EXCEEDED;
             }
@@ -307,11 +315,11 @@ public class DefaultSearchEngine
 
         // NEXUS-3482 made us to NOT use reverse ordering (it is a fix I wanted to implement, but user contributed patch
         // did come in faster! -- Thanks)
-        Hits hits =
-            multiSearcher.search( request.getQuery(), new Sort( new SortField[] { SortField.FIELD_SCORE,
-                new SortField( null, SortField.DOC, false ) } ) );
+        TopFieldDocs hits =
+            multiSearcher.search( request.getQuery(), null, request.getResultHitLimit(), new Sort( new SortField[] {
+                SortField.FIELD_SCORE, new SortField( null, SortField.DOC, false ) } ) );
 
-        return new IteratorSearchResponse( request.getQuery(), hits.length(), new DefaultIteratorResultSet( request,
+        return new IteratorSearchResponse( request.getQuery(), hits.totalHits, new DefaultIteratorResultSet( request,
             multiSearcher, hits ) );
     }
 }

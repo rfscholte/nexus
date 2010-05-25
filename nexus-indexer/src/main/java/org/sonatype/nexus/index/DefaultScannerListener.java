@@ -16,11 +16,11 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.sonatype.nexus.artifact.IllegalArtifactCoordinateException;
-import org.sonatype.nexus.artifact.VersionUtils;
 import org.sonatype.nexus.index.context.IndexingContext;
 
 /**
@@ -230,9 +230,13 @@ class DefaultScannerListener
         {
             Term term = new Term( ArtifactInfo.UINFO, uinfo );
 
-            Hits hits = context.getIndexSearcher().search( new TermQuery( term ) );
+            TopScoreDocCollector collector = TopScoreDocCollector.create( 1, false );
+            
+            context.getIndexSearcher().search( new TermQuery( term ), collector );
+            
+            TopDocs hits = collector.topDocs();
 
-            if ( hits.length() > 0 )
+            if ( hits.scoreDocs.length > 0 )
             {
                 String[] ra = ArtifactInfo.FS_PATTERN.split( uinfo );
 
@@ -261,7 +265,7 @@ class DefaultScannerListener
                 {
                     ArtifactContext ac = new ArtifactContext( null, null, null, ai, ai.calculateGav() );
 
-                    for ( int i = 0; i < hits.length(); i++ )
+                    for ( int i = 0; i < hits.scoreDocs.length; i++ )
                     {
                         indexerEngine.remove( context, ac );
 

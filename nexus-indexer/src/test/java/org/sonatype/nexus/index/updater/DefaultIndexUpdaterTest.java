@@ -86,8 +86,11 @@ public class DefaultIndexUpdaterTest
         IndexUtils.updateTimestamp( tempContext.getIndexDirectory(), tempContext.getTimestamp() );
 
         RAMDirectory tempDir2 = new RAMDirectory( tempContext.getIndexDirectory() );
-
+        
         Date newIndexTimestamp = tempContext.getTimestamp();
+        
+        // this is needed, since Directory "lifts" only files that "looks like index files"
+        IndexUtils.updateTimestamp( tempDir2, newIndexTimestamp );
 
         indexer.removeIndexingContext( tempContext, false );
 

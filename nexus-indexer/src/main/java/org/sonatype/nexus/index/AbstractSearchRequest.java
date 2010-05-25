@@ -9,6 +9,8 @@ import org.sonatype.nexus.index.context.IndexingContext;
 public class AbstractSearchRequest
 {
     public static final int UNDEFINED = -1;
+    
+    public static final int DEFAULT_HIT_LIMIT = 1000;
 
     private Query query;
 
@@ -62,7 +64,7 @@ public class AbstractSearchRequest
 
         this.count = UNDEFINED;
 
-        this.resultHitLimit = UNDEFINED;
+        this.resultHitLimit = DEFAULT_HIT_LIMIT;
     }
 
     public Query getQuery()

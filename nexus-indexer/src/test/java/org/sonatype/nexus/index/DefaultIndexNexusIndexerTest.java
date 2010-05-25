@@ -153,7 +153,7 @@ public class DefaultIndexNexusIndexerTest
 
         File newIndex = new File( getBasedir(), "target/test-new" );
 
-        Directory newIndexDir = FSDirectory.getDirectory( newIndex );
+        Directory newIndexDir = FSDirectory.open( newIndex );
 
         DefaultIndexUpdater.unpackIndexArchive( new ByteArrayInputStream( os.toByteArray() ), newIndexDir, context );
 
@@ -192,7 +192,7 @@ public class DefaultIndexNexusIndexerTest
 
         newContext.close( false );
 
-        newIndexDir = FSDirectory.getDirectory( newIndex );
+        newIndexDir = FSDirectory.open( newIndex );
 
         DefaultIndexUpdater.unpackIndexArchive( new ByteArrayInputStream( os.toByteArray() ), newIndexDir, context );
 

@@ -167,7 +167,7 @@ public class ReindexTest
     {
         File indexDirectory = getIndexFamilyDirectory( repositoryId );
 
-        Directory directory = FSDirectory.getDirectory( indexDirectory );
+        Directory directory = FSDirectory.open( indexDirectory );
 
 
         IndexingContext ctx =

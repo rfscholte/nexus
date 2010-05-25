@@ -87,7 +87,7 @@ public class IndexerField
 
     public boolean isKeyword()
     {
-        return isIndexed() && !Index.TOKENIZED.equals( indexMethod );
+        return isIndexed() && !Index.ANALYZED.equals( indexMethod );
     }
 
     public boolean isStored()

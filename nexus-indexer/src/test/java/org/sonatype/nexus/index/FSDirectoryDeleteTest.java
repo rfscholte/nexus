@@ -36,7 +36,7 @@ public class FSDirectoryDeleteTest
         
         nexusIndexer = lookup( NexusIndexer.class );
         
-        indexDir = FSDirectory.getDirectory( indexDirFile );
+        indexDir = FSDirectory.open( indexDirFile );
         
         context = nexusIndexer.addIndexingContext(
             "one",
@@ -49,7 +49,7 @@ public class FSDirectoryDeleteTest
         
         nexusIndexer.scan( context );
         
-        otherIndexDir = FSDirectory.getDirectory( otherIndexDirFile );
+        otherIndexDir = FSDirectory.open( otherIndexDirFile );
         
         otherContext = nexusIndexer.addIndexingContext(
             "other",

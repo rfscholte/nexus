@@ -9,11 +9,12 @@ import java.util.List;
 import org.apache.lucene.analysis.CachingTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.MultiSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopFieldDocs;
 import org.apache.lucene.search.highlight.Formatter;
 import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.TextFragment;
@@ -46,7 +47,7 @@ public class DefaultIteratorResultSet
 
     private final MultiSearcher searcher;
 
-    private final Hits hits;
+    private final TopFieldDocs hits;
 
     private final int from;
 
@@ -58,7 +59,8 @@ public class DefaultIteratorResultSet
 
     private ArtifactInfo ai;
 
-    protected DefaultIteratorResultSet( AbstractSearchRequest request, MultiSearcher searcher, final Hits hits )
+    protected DefaultIteratorResultSet( final AbstractSearchRequest request, final MultiSearcher searcher,
+                                        final TopFieldDocs hits )
         throws IOException
     {
         this.filter = request.getArtifactInfoFilter();
@@ -117,11 +119,11 @@ public class DefaultIteratorResultSet
         // b) pointer advanced over more documents that user requested
         // c) pointer advanced over more documents that hits has
         // or we found what we need
-        while ( ( result == null ) && ( pointer < maxRecPointer ) && ( pointer < hits.length() ) )
+        while ( ( result == null ) && ( pointer < maxRecPointer ) && ( pointer < hits.totalHits ) )
         {
-            Document doc = hits.doc( pointer );
+            Document doc = searcher.doc( hits.scoreDocs[pointer].doc );
 
-            IndexingContext context = getIndexingContextForPointer( hits.id( pointer ) );
+            IndexingContext context = getIndexingContextForPointer( hits.scoreDocs[pointer].doc );
 
             result = IndexUtils.constructArtifactInfo( doc, context );
 
@@ -296,12 +298,19 @@ public class DefaultIteratorResultSet
                 + "\" is not supported!" );
         }
 
-        return getBestFragments( rewrittenQuery, formatter, tokenStream, text, 3 );
+        try
+        {
+            return getBestFragments( rewrittenQuery, formatter, tokenStream, text, 3 );
+        }
+        catch ( InvalidTokenOffsetsException e )
+        {
+            return null;
+        }
     }
 
     protected final List<String> getBestFragments( Query query, Formatter formatter, TokenStream tokenStream,
                                                    String text, int maxNumFragments )
-        throws IOException
+        throws IOException, InvalidTokenOffsetsException
     {
         Highlighter highlighter = new Highlighter( formatter, new CleaningEncoder(), new QueryScorer( query ) );
 

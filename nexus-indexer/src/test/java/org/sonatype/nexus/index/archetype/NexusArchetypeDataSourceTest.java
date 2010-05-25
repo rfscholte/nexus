@@ -13,7 +13,6 @@ import org.sonatype.nexus.index.AbstractIndexCreatorHelper;
 import org.sonatype.nexus.index.NexusIndexer;
 import org.sonatype.nexus.index.context.IndexingContext;
 import org.sonatype.nexus.index.context.UnsupportedExistingLuceneIndexException;
-import org.sonatype.nexus.index.updater.IndexUpdateRequest;
 import org.sonatype.nexus.index.updater.IndexUpdater;
 
 public class NexusArchetypeDataSourceTest
@@ -55,7 +54,7 @@ public class NexusArchetypeDataSourceTest
 
             FileUtils.deleteDirectory( indexDirFile );
 
-            indexDir = FSDirectory.getDirectory( indexDirFile );
+            indexDir = FSDirectory.open( indexDirFile );
         }
 
         File repo = new File( getBasedir(), "src/test/repo" );

@@ -15,6 +15,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.util.Version;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -105,7 +106,7 @@ public class DefaultQueryCreator
         }
         else
         {
-            QueryParser qp = new QueryParser( field, new NexusAnalyzer() );
+            QueryParser qp = new QueryParser( Version.LUCENE_30, field, new NexusAnalyzer() );
 
             // small cheap trick
             // if a query is not "expert" (does not contain field:val kind of expression)
@@ -226,7 +227,7 @@ public class DefaultQueryCreator
                 String qpQuery = query;
 
                 // tokenization should happen against the field!
-                QueryParser qp = new QueryParser( indexerField.getKey(), new NexusAnalyzer() );
+                QueryParser qp = new QueryParser( Version.LUCENE_30, indexerField.getKey(), new NexusAnalyzer() );
 
                 Query q1 = null;
 

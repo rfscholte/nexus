@@ -22,8 +22,10 @@ import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Hits;
+import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
@@ -43,19 +45,19 @@ public class IndexUtils
         {
             return null;
         }
-        
+
         boolean res = false;
-    
+
         ArtifactInfo artifactInfo = new ArtifactInfo();
-    
+
         for ( IndexCreator ic : context.getIndexCreators() )
         {
             res |= ic.updateArtifactInfo( doc, artifactInfo );
         }
-    
+
         return res ? artifactInfo : null;
     }
-    
+
     public static Document updateDocument( Document doc, IndexingContext context )
     {
         return updateDocument( doc, context, true );
@@ -68,14 +70,13 @@ public class IndexUtils
         {
             return doc;
         }
-    
+
         Document document = new Document();
-        
+
         // unique key
-        document.add( new Field( ArtifactInfo.UINFO, ai.getUinfo(), Field.Store.YES, Field.Index.UN_TOKENIZED ) );
-        
-        if ( updateLastModified 
-            || doc.getField( ArtifactInfo.LAST_MODIFIED ) == null )
+        document.add( new Field( ArtifactInfo.UINFO, ai.getUinfo(), Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+
+        if ( updateLastModified || doc.getField( ArtifactInfo.LAST_MODIFIED ) == null )
         {
             document.add( new Field( ArtifactInfo.LAST_MODIFIED, //
                 Long.toString( System.currentTimeMillis() ), Field.Store.YES, Field.Index.NO ) );
@@ -84,12 +85,12 @@ public class IndexUtils
         {
             document.add( doc.getField( ArtifactInfo.LAST_MODIFIED ) );
         }
-        
+
         for ( IndexCreator ic : context.getIndexCreators() )
         {
             ic.updateDocument( ai, document );
         }
-    
+
         return document;
     }
 
@@ -161,10 +162,11 @@ public class IndexUtils
     }
 
     /**
-     * Used to rebuild group information, for example on context which were merged, since merge() of contexts 
-     * only merges the Documents with UINFO record (Artifacts).
+     * Used to rebuild group information, for example on context which were merged, since merge() of contexts only
+     * merges the Documents with UINFO record (Artifacts).
      */
-    public static void rebuildGroups( IndexingContext context ) throws IOException 
+    public static void rebuildGroups( IndexingContext context )
+        throws IOException
     {
         IndexReader r = context.getIndexReader();
 
@@ -196,7 +198,7 @@ public class IndexUtils
         setAllGroups( context, allGroups );
 
         context.getIndexWriter().optimize();
-        context.getIndexWriter().flush();
+        context.getIndexWriter().commit();
     }
 
     // ----------------------------------------------------------------------------
@@ -206,13 +208,15 @@ public class IndexUtils
     public static Set<String> getRootGroups( IndexingContext context )
         throws IOException
     {
-        return getGroups( context, ArtifactInfo.ROOT_GROUPS, ArtifactInfo.ROOT_GROUPS_VALUE, ArtifactInfo.ROOT_GROUPS_LIST );
+        return getGroups( context, ArtifactInfo.ROOT_GROUPS, ArtifactInfo.ROOT_GROUPS_VALUE,
+            ArtifactInfo.ROOT_GROUPS_LIST );
     }
 
     public static void setRootGroups( IndexingContext context, Collection<String> groups )
         throws IOException
     {
-        setGroups( context, groups, ArtifactInfo.ROOT_GROUPS, ArtifactInfo.ROOT_GROUPS_VALUE, ArtifactInfo.ROOT_GROUPS_LIST );
+        setGroups( context, groups, ArtifactInfo.ROOT_GROUPS, ArtifactInfo.ROOT_GROUPS_VALUE,
+            ArtifactInfo.ROOT_GROUPS_LIST );
     }
 
     // ----------------------------------------------------------------------------
@@ -228,62 +232,62 @@ public class IndexUtils
     public static void setAllGroups( IndexingContext context, Collection<String> groups )
         throws IOException
     {
-        setGroups( context, groups, ArtifactInfo.ALL_GROUPS, ArtifactInfo.ALL_GROUPS_VALUE, ArtifactInfo.ALL_GROUPS_LIST );
+        setGroups( context, groups, ArtifactInfo.ALL_GROUPS, ArtifactInfo.ALL_GROUPS_VALUE,
+            ArtifactInfo.ALL_GROUPS_LIST );
     }
-    
+
     private static Set<String> getGroups( IndexingContext context, String field, String filedValue, String listField )
-        throws IOException,
-            CorruptIndexException
+        throws IOException, CorruptIndexException
     {
-        Hits hits = context.getIndexSearcher().search( new TermQuery( new Term( field, filedValue ) ) );
-        Set<String> groups = new LinkedHashSet<String>( Math.max( 10, hits.length() ) );
-        if ( hits.length() > 0 )
+        TopScoreDocCollector collector = TopScoreDocCollector.create( 1, false );
+
+        IndexSearcher s = context.getIndexSearcher();
+
+        s.search( new TermQuery( new Term( field, filedValue ) ), collector );
+        
+        TopDocs hits = collector.topDocs();
+
+        Set<String> groups = new LinkedHashSet<String>( Math.max( 10, hits.scoreDocs.length ) );
+
+        if ( hits.scoreDocs.length > 0 )
         {
-            Document doc = hits.doc( 0 );
-    
+            Document doc = s.doc( hits.scoreDocs[0].doc );
+
             String groupList = doc.get( listField );
-    
+
             if ( groupList != null )
             {
                 groups.addAll( Arrays.asList( groupList.split( "\\|" ) ) );
             }
         }
-    
+
         return groups;
     }
 
-    static void setGroups( IndexingContext context, Collection<String> groups, String groupField, String groupFieldValue, String groupListField )
-        throws IOException,
-            CorruptIndexException
+    static void setGroups( IndexingContext context, Collection<String> groups, String groupField,
+                           String groupFieldValue, String groupListField )
+        throws IOException, CorruptIndexException
     {
         IndexWriter w = context.getIndexWriter();
-    
-        w.updateDocument( new Term( groupField, groupFieldValue ), createGroupsDocument(
-            groups,
-            groupField,
-            groupFieldValue,
-            groupListField ) );
-    
-        w.flush();
+
+        w.updateDocument( new Term( groupField, groupFieldValue ), createGroupsDocument( groups, groupField,
+            groupFieldValue, groupListField ) );
+
+        w.commit();
     }
-    
+
     static Document createGroupsDocument( Collection<String> groups, String field, String fieldValue, String listField )
     {
         Document groupDoc = new Document();
-    
+
         groupDoc.add( new Field( field, //
-            fieldValue,
-            Field.Store.YES,
-            Field.Index.UN_TOKENIZED ) );
-    
+            fieldValue, Field.Store.YES, Field.Index.NOT_ANALYZED ) );
+
         groupDoc.add( new Field( listField, //
-            ArtifactInfo.lst2str( groups ),
-            Field.Store.YES,
-            Field.Index.NO ) );
-    
+            ArtifactInfo.lst2str( groups ), Field.Store.YES, Field.Index.NO ) );
+
         return groupDoc;
     }
-    
 
     // close helpers
 

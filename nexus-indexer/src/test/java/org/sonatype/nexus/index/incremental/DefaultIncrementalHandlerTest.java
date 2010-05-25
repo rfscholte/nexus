@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 
-import org.codehaus.plexus.PlexusTestCase;
 import org.codehaus.plexus.util.FileUtils;
 import org.sonatype.nexus.index.AbstractIndexCreatorHelper;
 import org.sonatype.nexus.index.NexusIndexer;

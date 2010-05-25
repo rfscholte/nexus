@@ -32,6 +32,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IndexOutput;
@@ -66,7 +67,7 @@ import org.sonatype.nexus.index.updater.jetty.JettyResourceFetcher;
 
 /**
  * A default index updater implementation
- *
+ * 
  * @author Jason van Zyl
  * @author Eugene Kuleshov
  */
@@ -82,22 +83,22 @@ public class DefaultIndexUpdater
     @Requirement( role = IndexUpdateSideEffect.class )
     private List<IndexUpdateSideEffect> sideEffects;
 
-    public DefaultIndexUpdater( final IncrementalHandler handler, final List<IndexUpdateSideEffect> mySideeffects  )
+    public DefaultIndexUpdater( final IncrementalHandler handler, final List<IndexUpdateSideEffect> mySideeffects )
     {
         incrementalHandler = handler;
         sideEffects = mySideeffects;
     }
 
-    public DefaultIndexUpdater(  )
+    public DefaultIndexUpdater()
     {
-        
+
     }
 
     public IndexUpdateResult fetchAndUpdateIndex( final IndexUpdateRequest updateRequest )
         throws IOException
     {
         IndexUpdateResult result = new IndexUpdateResult();
-        
+
         IndexingContext context = updateRequest.getIndexingContext();
 
         ResourceFetcher fetcher = null;
@@ -108,13 +109,12 @@ public class DefaultIndexUpdater
 
             // If no resource fetcher passed in, use the wagon fetcher by default
             // and put back in request for future use
-            if( fetcher == null )
+            if ( fetcher == null )
             {
                 fetcher =
-                    new JettyResourceFetcher().addTransferListener( updateRequest.getTransferListener() )
-                        .setAuthenticationInfo( updateRequest.getAuthenticationInfo() )
-                        .setProxyInfo( updateRequest.getProxyInfo() );
-    
+                    new JettyResourceFetcher().addTransferListener( updateRequest.getTransferListener() ).setAuthenticationInfo(
+                        updateRequest.getAuthenticationInfo() ).setProxyInfo( updateRequest.getProxyInfo() );
+
                 updateRequest.setResourceFetcher( fetcher );
             }
             fetcher.connect( context.getId(), context.getIndexUpdateUrl() );
@@ -132,7 +132,7 @@ public class DefaultIndexUpdater
                 if ( !updateRequest.isOffline() )
                 {
                     cacheDir.mkdirs();
-        
+
                     try
                     {
                         fetchAndUpdateIndex( updateRequest, fetcher, cache );
@@ -150,7 +150,7 @@ public class DefaultIndexUpdater
             {
                 throw new IllegalArgumentException( "LocalIndexCacheDir can not be null in offline mode" );
             }
-    
+
             try
             {
                 if ( !updateRequest.isCacheOnly() )
@@ -172,7 +172,7 @@ public class DefaultIndexUpdater
                 lock.release();
             }
         }
-        
+
         return result;
     }
 
@@ -190,14 +190,14 @@ public class DefaultIndexUpdater
      * @deprecated use {@link #fetchAndUpdateIndex(IndexingContext, ResourceFetcher)}
      */
     @Deprecated
-    public Date fetchAndUpdateIndex( final IndexingContext context, final TransferListener listener, final ProxyInfo proxyInfo )
+    public Date fetchAndUpdateIndex( final IndexingContext context, final TransferListener listener,
+                                     final ProxyInfo proxyInfo )
         throws IOException
     {
         IndexUpdateRequest updateRequest = new IndexUpdateRequest( context );
 
-        updateRequest.setResourceFetcher( new JettyResourceFetcher().addTransferListener( listener )
-            .setProxyInfo( proxyInfo )
-        );
+        updateRequest.setResourceFetcher( new JettyResourceFetcher().addTransferListener( listener ).setProxyInfo(
+            proxyInfo ) );
 
         return fetchAndUpdateIndex( updateRequest ).getTimestamp();
     }
@@ -222,22 +222,23 @@ public class DefaultIndexUpdater
      * @deprecated use {@link #fetchIndexProperties(IndexingContext, ResourceFetcher)}
      */
     @Deprecated
-    public Properties fetchIndexProperties( final IndexingContext context, final TransferListener listener, final ProxyInfo proxyInfo )
+    public Properties fetchIndexProperties( final IndexingContext context, final TransferListener listener,
+                                            final ProxyInfo proxyInfo )
         throws IOException
     {
-        return fetchIndexProperties( context, new JettyResourceFetcher().addTransferListener( listener )
-            .setProxyInfo( proxyInfo )
-        );
+        return fetchIndexProperties( context, new JettyResourceFetcher().addTransferListener( listener ).setProxyInfo(
+            proxyInfo ) );
     }
 
-    private Date loadIndexDirectory( final IndexUpdateRequest updateRequest, final ResourceFetcher fetcher, final boolean merge, final String remoteIndexFile )
+    private Date loadIndexDirectory( final IndexUpdateRequest updateRequest, final ResourceFetcher fetcher,
+                                     final boolean merge, final String remoteIndexFile )
         throws IOException
     {
         File indexDir = File.createTempFile( remoteIndexFile, ".dir" );
         indexDir.delete();
         indexDir.mkdirs();
 
-        FSDirectory directory = FSDirectory.getDirectory( indexDir );
+        FSDirectory directory = FSDirectory.open( indexDir );
 
         BufferedInputStream is = null;
 
@@ -247,26 +248,24 @@ public class DefaultIndexUpdater
 
             Date timestamp = null;
 
-            if( remoteIndexFile.endsWith( ".gz" ) )
+            if ( remoteIndexFile.endsWith( ".gz" ) )
             {
                 timestamp = DefaultIndexUpdater.unpackIndexData( is, directory, //
-                                                                 updateRequest.getIndexingContext()
-                );
+                    updateRequest.getIndexingContext() );
             }
             else
             {
                 // legacy transfer format
                 timestamp = unpackIndexArchive( is, directory, //
-                                                updateRequest.getIndexingContext()
-                );
+                    updateRequest.getIndexingContext() );
             }
 
-            if( updateRequest.getDocumentFilter() != null )
+            if ( updateRequest.getDocumentFilter() != null )
             {
                 filterDirectory( directory, updateRequest.getDocumentFilter() );
             }
 
-            if( merge )
+            if ( merge )
             {
                 updateRequest.getIndexingContext().merge( directory );
             }
@@ -274,10 +273,10 @@ public class DefaultIndexUpdater
             {
                 updateRequest.getIndexingContext().replace( directory );
             }
-            if( sideEffects != null && sideEffects.size() > 0 )
+            if ( sideEffects != null && sideEffects.size() > 0 )
             {
                 getLogger().info( IndexUpdateSideEffect.class.getName() + " extensions found: " + sideEffects.size() );
-                for( IndexUpdateSideEffect sideeffect : sideEffects )
+                for ( IndexUpdateSideEffect sideeffect : sideEffects )
                 {
                     sideeffect.updateIndex( directory, updateRequest.getIndexingContext(), merge );
                 }
@@ -289,7 +288,7 @@ public class DefaultIndexUpdater
         {
             IOUtil.close( is );
 
-            if( directory != null )
+            if ( directory != null )
             {
                 directory.close();
             }
@@ -298,7 +297,7 @@ public class DefaultIndexUpdater
             {
                 FileUtils.deleteDirectory( indexDir );
             }
-            catch( IOException ex )
+            catch ( IOException ex )
             {
                 // ignore
             }
@@ -307,13 +306,13 @@ public class DefaultIndexUpdater
 
     /**
      * Unpack legacy index archive into a specified Lucene <code>Directory</code>
-     *
-     * @param is        a <code>ZipInputStream</code> with index data
+     * 
+     * @param is a <code>ZipInputStream</code> with index data
      * @param directory Lucene <code>Directory</code> to unpack index data to
-     *
      * @return {@link Date} of the index update or null if it can't be read
      */
-    public static Date unpackIndexArchive( final InputStream is, final Directory directory, final IndexingContext context )
+    public static Date unpackIndexArchive( final InputStream is, final Directory directory,
+                                           final IndexingContext context )
         throws IOException
     {
         File indexArchive = File.createTempFile( "nexus-index", "" );
@@ -322,7 +321,7 @@ public class DefaultIndexUpdater
 
         indexDir.mkdirs();
 
-        FSDirectory fdir = FSDirectory.getDirectory( indexDir );
+        FSDirectory fdir = FSDirectory.open( indexDir );
 
         try
         {
@@ -354,9 +353,9 @@ public class DefaultIndexUpdater
         {
             zis = new ZipInputStream( is );
 
-            while( ( entry = zis.getNextEntry() ) != null )
+            while ( ( entry = zis.getNextEntry() ) != null )
             {
-                if( entry.isDirectory() || entry.getName().indexOf( '/' ) > -1 )
+                if ( entry.isDirectory() || entry.getName().indexOf( '/' ) > -1 )
                 {
                     continue;
                 }
@@ -366,7 +365,7 @@ public class DefaultIndexUpdater
                 {
                     int n = 0;
 
-                    while( ( n = zis.read( buf ) ) != -1 )
+                    while ( ( n = zis.read( buf ) ) != -1 )
                     {
                         io.writeBytes( buf, n );
                     }
@@ -383,7 +382,8 @@ public class DefaultIndexUpdater
         }
     }
 
-    private static void copyUpdatedDocuments( final Directory sourcedir, final Directory targetdir, final IndexingContext context )
+    private static void copyUpdatedDocuments( final Directory sourcedir, final Directory targetdir,
+                                              final IndexingContext context )
         throws CorruptIndexException, LockObtainFailedException, IOException
     {
         IndexWriter w = null;
@@ -391,18 +391,18 @@ public class DefaultIndexUpdater
         try
         {
             r = IndexReader.open( sourcedir );
-            w = new IndexWriter( targetdir, false, new NexusAnalyzer(), true );
+            w = new IndexWriter( targetdir, new NexusAnalyzer(), true, MaxFieldLength.LIMITED );
 
-            for( int i = 0; i < r.maxDoc(); i++ )
+            for ( int i = 0; i < r.maxDoc(); i++ )
             {
-                if( !r.isDeleted( i ) )
+                if ( !r.isDeleted( i ) )
                 {
                     w.addDocument( IndexUtils.updateDocument( r.document( i ), context ) );
                 }
             }
 
             w.optimize();
-            w.flush();
+            w.commit();
         }
         finally
         {
@@ -417,20 +417,20 @@ public class DefaultIndexUpdater
         IndexReader r = null;
         try
         {
-            r = IndexReader.open( directory );
+            r = IndexReader.open( directory, false );
 
             int numDocs = r.maxDoc();
 
-            for( int i = 0; i < numDocs; i++ )
+            for ( int i = 0; i < numDocs; i++ )
             {
-                if( r.isDeleted( i ) )
+                if ( r.isDeleted( i ) )
                 {
                     continue;
                 }
 
                 Document d = r.document( i );
 
-                if( !filter.accept( d ) )
+                if ( !filter.accept( d ) )
                 {
                     r.deleteDocument( i );
                 }
@@ -445,11 +445,11 @@ public class DefaultIndexUpdater
         try
         {
             // analyzer is unimportant, since we are not adding/searching to/on index, only reading/deleting
-            w = new IndexWriter( directory, new NexusAnalyzer() );
+            w = new IndexWriter( directory, new NexusAnalyzer(), MaxFieldLength.LIMITED );
 
             w.optimize();
 
-            w.flush();
+            w.commit();
         }
         finally
         {
@@ -475,7 +475,7 @@ public class DefaultIndexUpdater
 
             return properties;
         }
-        catch( IOException e )
+        catch ( IOException e )
         {
             getLogger().debug( "Unable to read remote properties stored locally", e );
         }
@@ -523,7 +523,7 @@ public class DefaultIndexUpdater
         }
         else
         {
-           file.delete(); 
+            file.delete();
         }
     }
 
@@ -531,7 +531,7 @@ public class DefaultIndexUpdater
     {
         String indexTimestamp = properties.getProperty( key );
 
-        if( indexTimestamp != null )
+        if ( indexTimestamp != null )
         {
             try
             {
@@ -539,7 +539,7 @@ public class DefaultIndexUpdater
                 df.setTimeZone( TimeZone.getTimeZone( "GMT" ) );
                 return df.parse( indexTimestamp );
             }
-            catch( ParseException ex )
+            catch ( ParseException ex )
             {
             }
         }
@@ -548,9 +548,9 @@ public class DefaultIndexUpdater
 
     /**
      * Unpack index data using specified Lucene Index writer
-     *
-     * @param is  an input stream to unpack index data from
-     * @param w   a writer to save index data
+     * 
+     * @param is an input stream to unpack index data from
+     * @param w a writer to save index data
      * @param ics a collection of index creators for updating unpacked documents.
      */
     public static Date unpackIndexData( final InputStream is, final Directory d, final IndexingContext context )
@@ -607,7 +607,7 @@ public class DefaultIndexUpdater
             {
                 wagon = wagonManager.getWagon( repository );
 
-                if( listener != null )
+                if ( listener != null )
                 {
                     wagon.addTransferListener( listener );
                 }
@@ -615,9 +615,9 @@ public class DefaultIndexUpdater
                 // when working in the context of Maven, the WagonManager is already
                 // populated with proxy information from the Maven environment
 
-                if( authenticationInfo != null )
+                if ( authenticationInfo != null )
                 {
-                    if( proxyInfo != null )
+                    if ( proxyInfo != null )
                     {
                         wagon.connect( repository, authenticationInfo, proxyInfo );
                     }
@@ -628,7 +628,7 @@ public class DefaultIndexUpdater
                 }
                 else
                 {
-                    if( proxyInfo != null )
+                    if ( proxyInfo != null )
                     {
                         wagon.connect( repository, proxyInfo );
                     }
@@ -638,13 +638,13 @@ public class DefaultIndexUpdater
                     }
                 }
             }
-            catch( AuthenticationException ex )
+            catch ( AuthenticationException ex )
             {
                 String msg = "Authentication exception connecting to " + repository;
                 logError( msg, ex );
                 throw new IOException( msg );
             }
-            catch( WagonException ex )
+            catch ( WagonException ex )
             {
                 String msg = "Wagon exception connecting to " + repository;
                 logError( msg, ex );
@@ -654,13 +654,13 @@ public class DefaultIndexUpdater
 
         public void disconnect()
         {
-            if( wagon != null )
+            if ( wagon != null )
             {
                 try
                 {
                     wagon.disconnect();
                 }
-                catch( ConnectionException ex )
+                catch ( ConnectionException ex )
                 {
                     logError( "Failed to close connection", ex );
                 }
@@ -674,19 +674,19 @@ public class DefaultIndexUpdater
             {
                 wagon.get( name, targetFile );
             }
-            catch( AuthorizationException e )
+            catch ( AuthorizationException e )
             {
                 String msg = "Authorization exception retrieving " + name;
                 logError( msg, e );
                 throw new IOException( msg );
             }
-            catch( ResourceDoesNotExistException e )
+            catch ( ResourceDoesNotExistException e )
             {
                 String msg = "Resource " + name + " does not exist";
                 logError( msg, e );
                 throw new FileNotFoundException( msg );
             }
-            catch( WagonException e )
+            catch ( WagonException e )
             {
                 String msg = "Transfer for " + name + " failed";
                 logError( msg, e );
@@ -696,7 +696,7 @@ public class DefaultIndexUpdater
 
         private void logError( final String msg, final Exception ex )
         {
-            if( listener != null )
+            if ( listener != null )
             {
                 listener.debug( msg + "; " + ex.getMessage() );
             }
@@ -749,13 +749,12 @@ public class DefaultIndexUpdater
 
     }
 
-
     private abstract class IndexAdaptor
     {
         protected final File dir;
 
         private Properties properties;
-        
+
         protected IndexAdaptor( File dir )
         {
             this.dir = dir;
@@ -773,9 +772,11 @@ public class DefaultIndexUpdater
         public abstract void addIndexChunk( ResourceFetcher source, String filename )
             throws IOException;
 
-        public abstract Date setIndexFile( ResourceFetcher source, String string ) throws IOException;
+        public abstract Date setIndexFile( ResourceFetcher source, String string )
+            throws IOException;
 
-        public Properties setProperties( ResourceFetcher source ) throws IOException
+        public Properties setProperties( ResourceFetcher source )
+            throws IOException
         {
             this.properties = downloadIndexProperties( source );
             return properties;
@@ -790,7 +791,8 @@ public class DefaultIndexUpdater
         }
     }
 
-    private class LuceneIndexAdaptor extends IndexAdaptor
+    private class LuceneIndexAdaptor
+        extends IndexAdaptor
     {
         private final IndexUpdateRequest updateRequest;
 
@@ -805,24 +807,28 @@ public class DefaultIndexUpdater
             return updateRequest.getIndexingContext().getTimestamp();
         }
 
-        public void addIndexChunk(ResourceFetcher source, String filename ) throws IOException
+        public void addIndexChunk( ResourceFetcher source, String filename )
+            throws IOException
         {
             loadIndexDirectory( updateRequest, source, true, filename );
         }
 
-        public Date setIndexFile( ResourceFetcher source, String filename ) throws IOException
+        public Date setIndexFile( ResourceFetcher source, String filename )
+            throws IOException
         {
             return loadIndexDirectory( updateRequest, source, false, filename );
         }
     }
 
-    private class LocalCacheIndexAdaptor extends IndexAdaptor
+    private class LocalCacheIndexAdaptor
+        extends IndexAdaptor
     {
         private static final String CHUNKS_FILENAME = "chunks.lst";
+
         private static final String CHUNKS_FILE_ENCODING = "UTF-8";
-        
+
         private final IndexUpdateResult result;
-        
+
         private final ArrayList<String> newChunks = new ArrayList<String>();
 
         public LocalCacheIndexAdaptor( File dir, IndexUpdateResult result )
@@ -891,19 +897,19 @@ public class DefaultIndexUpdater
             }
             super.commit();
         }
-        
+
         public List<String> getChunks()
             throws IOException
         {
             ArrayList<String> chunks = new ArrayList<String>();
-            
+
             File chunksFile = new File( dir, CHUNKS_FILENAME );
             BufferedReader r =
                 new BufferedReader( new InputStreamReader( new FileInputStream( chunksFile ), CHUNKS_FILE_ENCODING ) );
             try
             {
                 String str;
-                while ( (str = r.readLine()) != null )
+                while ( ( str = r.readLine() ) != null )
                 {
                     chunks.add( str );
                 }
@@ -920,7 +926,8 @@ public class DefaultIndexUpdater
             return new LocalIndexCacheFetcher( dir )
             {
                 @Override
-                public List<String> getChunks() throws IOException
+                public List<String> getChunks()
+                    throws IOException
                 {
                     return LocalCacheIndexAdaptor.this.getChunks();
                 }
@@ -940,31 +947,32 @@ public class DefaultIndexUpdater
             throws IOException;
     }
 
-    private Date fetchAndUpdateIndex( final IndexUpdateRequest updateRequest, ResourceFetcher source, IndexAdaptor target )
+    private Date fetchAndUpdateIndex( final IndexUpdateRequest updateRequest, ResourceFetcher source,
+                                      IndexAdaptor target )
         throws IOException
     {
         Date targetTimestamp = target.getTimestamp();
 
-        if( !updateRequest.isForceFullUpdate() )
+        if ( !updateRequest.isForceFullUpdate() )
         {
             Properties localProperties = target.getProperties();
 
-            // this will download and store properties in the target, so next run 
+            // this will download and store properties in the target, so next run
             // target.getProperties() will retrieve it
             Properties remoteProperties = target.setProperties( source );
 
             Date updateTimestamp = getTimestamp( remoteProperties, IndexingContext.INDEX_TIMESTAMP );
 
             // If new timestamp is missing, dont bother checking incremental, we have an old file
-            if( updateTimestamp != null )
+            if ( updateTimestamp != null )
             {
                 List<String> filenames =
                     incrementalHandler.loadRemoteIncrementalUpdates( updateRequest, localProperties, remoteProperties );
 
                 // if we have some incremental files, merge them in
-                if( filenames != null )
+                if ( filenames != null )
                 {
-                    for( String filename : filenames )
+                    for ( String filename : filenames )
                     {
                         target.addIndexChunk( source, filename );
                     }
@@ -979,7 +987,7 @@ public class DefaultIndexUpdater
 
             // if incremental cant be done for whatever reason, simply use old logic of
             // checking the timestamp, if the same, nothing to do
-            if( updateTimestamp != null && targetTimestamp != null && !updateTimestamp.after( targetTimestamp ) )
+            if ( updateTimestamp != null && targetTimestamp != null && !updateTimestamp.after( targetTimestamp ) )
             {
                 return null; // index is up to date
             }
@@ -987,7 +995,7 @@ public class DefaultIndexUpdater
         else
         {
             // create index properties during forced full index download
-            target.setProperties( source );            
+            target.setProperties( source );
         }
 
         try
@@ -997,14 +1005,14 @@ public class DefaultIndexUpdater
             {
                 // local cache has inverse organization compared to remote indexes,
                 // i.e. initial index file and delta chunks to apply on top of it
-                for ( String filename : ((LocalIndexCacheFetcher) source).getChunks() )
+                for ( String filename : ( (LocalIndexCacheFetcher) source ).getChunks() )
                 {
                     target.addIndexChunk( source, filename );
                 }
             }
             return timestamp;
         }
-        catch( FileNotFoundException ex )
+        catch ( FileNotFoundException ex )
         {
             // try to look for legacy index transfer format
             return target.setIndexFile( source, IndexingContext.INDEX_FILE + ".zip" );
@@ -1012,8 +1020,7 @@ public class DefaultIndexUpdater
     }
 
     /**
-     * Cleans specified cache directory. If present, Locker.LOCK_FILE will not
-     * be deleted.
+     * Cleans specified cache directory. If present, Locker.LOCK_FILE will not be deleted.
      */
     protected void cleanCacheDirectory( File dir )
         throws IOException

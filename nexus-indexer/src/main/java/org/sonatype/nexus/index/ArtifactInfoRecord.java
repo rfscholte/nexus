@@ -35,7 +35,7 @@ public class ArtifactInfoRecord
      */
     public static final IndexerField FLD_UINFO =
         new IndexerField( NEXUS.UINFO, IndexerFieldVersion.V1, "u", "Artifact UINFO (as keyword, stored)", Store.YES,
-                          Index.UN_TOKENIZED );
+                          Index.NOT_ANALYZED );
 
     /**
      * Del: contains UINFO to mark record as deleted (needed for incremental updates!). The original document IS

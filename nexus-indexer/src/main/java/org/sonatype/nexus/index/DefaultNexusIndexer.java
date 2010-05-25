@@ -247,7 +247,7 @@ public class DefaultNexusIndexer
         IndexingContext tmpContext = null;
         try
         {
-            FSDirectory directory = FSDirectory.getDirectory( tmpDir );
+            FSDirectory directory = FSDirectory.open( tmpDir );
 
             if ( update )
             {

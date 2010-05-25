@@ -26,13 +26,14 @@ public class NexusIndexWriter
     public NexusIndexWriter( final Directory directory, final Analyzer analyzer, boolean create )
         throws CorruptIndexException, LockObtainFailedException, IOException
     {
-        this( directory, analyzer, create, true /* autoCommit */);
+        this( directory, analyzer, create, MaxFieldLength.LIMITED );
     }
 
-    public NexusIndexWriter( final Directory directory, final Analyzer analyzer, boolean create, boolean autoCommit )
+    public NexusIndexWriter( final Directory directory, final Analyzer analyzer, boolean create,
+                             MaxFieldLength maxFieldLen )
         throws CorruptIndexException, LockObtainFailedException, IOException
     {
-        super( directory, autoCommit, analyzer, create );
+        super( directory, analyzer, create, maxFieldLen );
 
         this.closed = false;
     }

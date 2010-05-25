@@ -1390,7 +1390,7 @@ public class DefaultIndexerManager
                     groupContext.rebuildGroups();
 
                     // committing changes
-                    groupContext.getIndexWriter().flush();
+                    groupContext.getIndexWriter().commit();
 
                     groupContext.updateTimestamp();
                 }
@@ -2577,7 +2577,7 @@ public class DefaultIndexerManager
         FileUtils.forceDelete( tmpFile );
 
         IndexingContext tmpContext = null;
-        FSDirectory directory = FSDirectory.getDirectory( tmpDir );
+        FSDirectory directory = FSDirectory.open( tmpDir );
 
         try
         {
