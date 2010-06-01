@@ -1,5 +1,6 @@
 package org.sonatype.nexus.index;
 
+import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
@@ -92,18 +93,49 @@ public class IndexerField
 
     public boolean isStored()
     {
-        return !(Store.NO.equals( storeMethod ));
+        return !( Store.NO.equals( storeMethod ) );
     }
 
-    public Field toField( String value )
+    public void toFieldValue( Document d, ArtifactInfoRecord rec, FieldValue<?> fv )
     {
-        if ( getTermVector() != null )
+        if ( isStored() )
         {
-            return new Field( getKey(), value, getStoreMethod(), getIndexMethod(), getTermVector() );
+            String rawValue = d.get( getKey() );
+
+            fv.setRawValue( rawValue );
+            
+            rec.addFieldValue( fv );
         }
-        else
+    }
+
+    public void toLuceneField( ArtifactInfoRecord rec, Document doc )
+    {
+        if ( !isIndexed() && !isStored() )
         {
-            return new Field( getKey(), value, getStoreMethod(), getIndexMethod() );
+            return;
+        }
+
+        FieldValue<?> fieldValue = rec.get( getOntology() );
+
+        if ( fieldValue != null )
+        {
+            String rawValue = fieldValue.getRawValue();
+
+            if ( rawValue != null )
+            {
+                Field field = null;
+
+                if ( getTermVector() != null )
+                {
+                    field = new Field( getKey(), rawValue, getStoreMethod(), getIndexMethod(), getTermVector() );
+                }
+                else
+                {
+                    field = new Field( getKey(), rawValue, getStoreMethod(), getIndexMethod() );
+                }
+
+                doc.add( field );
+            }
         }
     }
 }

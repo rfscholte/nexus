@@ -11,5 +11,5 @@ import org.sonatype.nexus.index.context.IndexingContext;
  */
 public interface ArtifactInfoPostprocessor
 {
-    void postprocess( IndexingContext ctx, ArtifactInfo ai );
+    void postprocess( IndexingContext ctx, ArtifactInfoRecord ai );
 }

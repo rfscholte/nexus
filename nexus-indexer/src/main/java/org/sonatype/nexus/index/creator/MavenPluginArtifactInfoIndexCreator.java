@@ -25,10 +25,13 @@ import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.sonatype.nexus.index.ArtifactContext;
-import org.sonatype.nexus.index.ArtifactInfo;
+import org.sonatype.nexus.index.ArtifactInfoRecord;
 import org.sonatype.nexus.index.IndexerField;
 import org.sonatype.nexus.index.IndexerFieldVersion;
 import org.sonatype.nexus.index.MAVEN;
+import org.sonatype.nexus.index.MavenArtifactInfoRecord;
+import org.sonatype.nexus.index.StringFieldValue;
+import org.sonatype.nexus.index.StringListFieldValue;
 import org.sonatype.nexus.index.context.IndexCreator;
 
 /**
@@ -48,29 +51,32 @@ public class MavenPluginArtifactInfoIndexCreator
 
     public static final IndexerField FLD_PLUGIN_PREFIX =
         new IndexerField( MAVEN.PLUGIN_PREFIX, IndexerFieldVersion.V1, "px", "MavenPlugin prefix (as keyword, stored)",
-                          Store.YES, Index.UN_TOKENIZED );
+            Store.YES, Index.UN_TOKENIZED );
 
     public static final IndexerField FLD_PLUGIN_GOALS =
         new IndexerField( MAVEN.PLUGIN_GOALS, IndexerFieldVersion.V1, "gx", "MavenPlugin goals (as keyword, stored)",
-                          Store.YES, Index.TOKENIZED );
+            Store.YES, Index.TOKENIZED );
 
     public void populateArtifactInfo( ArtifactContext ac )
     {
         File artifact = ac.getArtifact();
 
-        ArtifactInfo ai = ac.getArtifactInfo();
+        ArtifactInfoRecord ai = ac.getArtifactInfo();
+
+        MavenArtifactInfoRecord mai = ai.adapt( MavenArtifactInfoRecord.class );
 
         // we need the file to perform these checks, and those may be only JARs
-        if ( artifact != null && MAVEN_PLUGIN_PACKAGING.equals( ai.packaging ) && artifact.getName().endsWith( ".jar" ) )
+        if ( artifact != null && MAVEN_PLUGIN_PACKAGING.equals( mai.getPackaging() )
+            && artifact.getName().endsWith( ".jar" ) )
         {
             // TODO: recheck, is the following true? "Maven plugins and Maven Archetypes can be only JARs?"
 
             // 1st, check for maven plugin
-            checkMavenPlugin( ai, artifact );
+            checkMavenPlugin( mai, artifact );
         }
     }
 
-    private void checkMavenPlugin( ArtifactInfo ai, File artifact )
+    private void checkMavenPlugin( MavenArtifactInfoRecord ai, File artifact )
     {
         ZipFile jf = null;
 
@@ -92,16 +98,18 @@ public class MavenPluginArtifactInfoIndexCreator
             PlexusConfiguration plexusConfig =
                 new XmlPlexusConfiguration( Xpp3DomBuilder.build( new InputStreamReader( is ) ) );
 
-            ai.prefix = plexusConfig.getChild( "goalPrefix" ).getValue();
+            ai.setPrefix( plexusConfig.getChild( "goalPrefix" ).getValue() );
 
-            ai.goals = new ArrayList<String>();
+            ArrayList<String> goals = new ArrayList<String>();
 
             PlexusConfiguration[] mojoConfigs = plexusConfig.getChild( "mojos" ).getChildren( "mojo" );
 
             for ( PlexusConfiguration mojoConfig : mojoConfigs )
             {
-                ai.goals.add( mojoConfig.getChild( "goal" ).getValue() );
+                goals.add( mojoConfig.getChild( "goal" ).getValue() );
             }
+
+            ai.setGoals( goals );
         }
         catch ( Exception e )
         {
@@ -115,33 +123,23 @@ public class MavenPluginArtifactInfoIndexCreator
         }
     }
 
-    public void updateDocument( ArtifactInfo ai, Document doc )
+    public void updateDocument( ArtifactInfoRecord ai, Document doc )
     {
-        if ( ai.prefix != null )
-        {
-            doc.add( FLD_PLUGIN_PREFIX.toField( ai.prefix ) );
-        }
-
-        if ( ai.goals != null )
-        {
-            doc.add( FLD_PLUGIN_GOALS.toField( ArtifactInfo.lst2str( ai.goals ) ) );
-        }
+        FLD_PLUGIN_GOALS.toLuceneField( ai, doc );
+        FLD_PLUGIN_PREFIX.toLuceneField( ai, doc );
     }
 
-    public boolean updateArtifactInfo( Document doc, ArtifactInfo ai )
+    public boolean updateArtifactInfo( Document doc, ArtifactInfoRecord ai )
     {
+        MavenArtifactInfoRecord mai = ai.adapt( MavenArtifactInfoRecord.class );
+
         boolean res = false;
 
-        if ( "maven-plugin".equals( ai.packaging ) )
+        if ( "maven-plugin".equals( mai.getPackaging() ) )
         {
-            ai.prefix = doc.get( ArtifactInfo.PLUGIN_PREFIX );
+            FLD_PLUGIN_PREFIX.toFieldValue( doc, ai, new StringFieldValue( FLD_PLUGIN_PREFIX.getOntology(), null ) );
 
-            String goals = doc.get( ArtifactInfo.PLUGIN_GOALS );
-
-            if ( goals != null )
-            {
-                ai.goals = ArtifactInfo.str2lst( goals );
-            }
+            FLD_PLUGIN_GOALS.toFieldValue( doc, ai, new StringListFieldValue( FLD_PLUGIN_GOALS.getOntology(), null ) );
 
             res = true;
         }

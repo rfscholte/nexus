@@ -1,51 +1,141 @@
 package org.sonatype.nexus.index;
 
-import java.io.Serializable;
-import java.util.regex.Pattern;
-
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Pulling out ArtifactInfo, clearing up. TBD. This gonna be extensible "map-like" class with fields.
  * 
  * @author cstamas
  */
-public class ArtifactInfoRecord
-    implements Serializable
+public interface ArtifactInfoRecord
+    extends Map<Field, FieldValue<?>>
 {
-    private static final long serialVersionUID = -4577081994768263824L;
-
-    /** Field separator */
-    public static final String FS = "|";
-
-    public static final Pattern FS_PATTERN = Pattern.compile( Pattern.quote( FS ) );
-
-    /** Non available value */
-    public static final String NA = "NA";
-
-    // ----------
-    // V3 changes
-    // TODO: use getters instead of public fields
-    // ----------
-    // Listing all the fields that ArtifactInfo has on LuceneIndex
+    /**
+     * Returns the item unique info (kinda primary key).
+     * 
+     * @return
+     */
+    String getUinfo();
 
     /**
-     * Unique groupId, artifactId, version, classifier, extension (or packaging). Stored, indexed untokenized
+     * Set's the item unique info (kinda primary key).
+     * 
+     * @param uinfo
      */
-    public static final IndexerField FLD_UINFO =
-        new IndexerField( NEXUS.UINFO, IndexerFieldVersion.V1, "u", "Artifact UINFO (as keyword, stored)", Store.YES,
-                          Index.UN_TOKENIZED );
+    void setUinfo( String uinfo );
 
     /**
-     * Del: contains UINFO to mark record as deleted (needed for incremental updates!). The original document IS
-     * removed, but this marker stays on index to note that fact.
+     * Returns the full path of indexed item.
+     * 
+     * @return
      */
-    public static final IndexerField FLD_DELETED =
-        new IndexerField( NEXUS.DELETED, IndexerFieldVersion.V1, "del",
-                          "Deleted field, will contain UINFO if document is deleted from index (not indexed, stored)",
-                          Store.YES, Index.NO );
+    String getPath();
 
+    /**
+     * Sets the full path of indexed item.
+     * 
+     * @param path
+     */
+    void setPath( String path );
 
+    /**
+     * Returns the SHA1 checksum of item.
+     * 
+     * @return
+     */
+    String getSha1Checksum();
 
+    /**
+     * Sets the SHA1 checksum of item.
+     * 
+     * @param sha1Checksum
+     */
+    void setSha1Checksum( String sha1Checksum );
+
+    /**
+     * Returns the lastModified timestamp.
+     * 
+     * @return
+     */
+    long getLastModified();
+
+    /**
+     * Sets the lastModified timestamp.
+     * 
+     * @param lastModified
+     */
+    void setLastModified( long lastModified );
+
+    /**
+     * Returns the length (in bytes) of the item.
+     * 
+     * @return
+     */
+    long getLength();
+
+    /**
+     * Sets the length of the item (in bytes).
+     * 
+     * @param length
+     */
+    void setLength( long length );
+
+    /**
+     * Returns the repository ID where this item belongs.
+     * 
+     * @return
+     */
+    String getRepository();
+
+    /**
+     * Sets the repository ID where this items belongs.
+     * 
+     * @param repository
+     */
+    void setRepository( String repository );
+
+    /**
+     * Returns the indexing context ID where this item belongs.
+     * 
+     * @return
+     */
+    String getIndexingContextId();
+
+    /**
+     * Sets the indexing context ID where this item belongs.
+     * 
+     * @param indexingContextId
+     */
+    void setIndexingContextId( String indexingContextId );
+
+    /**
+     * Adds a field value to this record.
+     * 
+     * @param value
+     */
+    void addFieldValue( FieldValue<?> value );
+
+    /**
+     * Removed a field from this record.
+     * 
+     * @param field
+     */
+    void removeField( Field field );
+
+    /**
+     * Returns existing fields in this ArtifactInfoRecord as unmodifiable collection.
+     * 
+     * @return
+     */
+    Collection<Field> getFields();
+
+    /**
+     * Returns the requested adapted record, if possible. The instance if probably cached, but not threadsafe!
+     * 
+     * @param <T>
+     * @param recordClazz
+     * @return
+     */
+    <T extends ArtifactInfoRecord> T adapt( Class<T> recordClazz );
 }

@@ -305,10 +305,10 @@ public class NexusIndexerTest
 
         IteratorSearchRequest request = new IteratorSearchRequest( q, new ArtifactInfoFilter()
         {
-            public boolean accepts( IndexingContext ctx, ArtifactInfo ai )
+            public boolean accepts( IndexingContext ctx, ArtifactInfoRecord ai )
             {
                 // we reject version "1.5" for fun
-                return !StringUtils.equals( ai.version, "1.5" );
+                return !StringUtils.equals( ai.adapt( MavenArtifactInfoRecord.class ).getVersion(), "1.5" );
             }
         } );
 

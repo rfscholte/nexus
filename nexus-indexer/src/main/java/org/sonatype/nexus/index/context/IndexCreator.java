@@ -10,7 +10,7 @@ import java.util.Collection;
 
 import org.apache.lucene.document.Document;
 import org.sonatype.nexus.index.ArtifactContext;
-import org.sonatype.nexus.index.ArtifactInfo;
+import org.sonatype.nexus.index.ArtifactInfoRecord;
 import org.sonatype.nexus.index.IndexerField;
 import org.sonatype.nexus.index.creator.JarFileContentsIndexCreator;
 import org.sonatype.nexus.index.creator.MinimalArtifactInfoIndexCreator;
@@ -40,13 +40,13 @@ public interface IndexCreator
     /**
      * Update Lucene <code>Document</code> from a given <code>ArtifactInfo</code>.
      */
-    void updateDocument( ArtifactInfo artifactInfo, Document document );
+    void updateDocument( ArtifactInfoRecord artifactInfo, Document document );
 
     /**
      * Update an <code>ArtifactInfo</code> from given Lucene <code>Document</code>.
      * 
      * @return true is artifact info has been updated
      */
-    boolean updateArtifactInfo( Document document, ArtifactInfo artifactInfo );
+    boolean updateArtifactInfo( Document document, ArtifactInfoRecord artifactInfo );
 
 }

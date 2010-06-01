@@ -26,7 +26,7 @@ public class UniqueGAArtifactFilterPostprocessor
         this.repositoriesIgnored = repositoriesIgnored;
     }
 
-    public boolean accepts( IndexingContext ctx, ArtifactInfo ai )
+    public boolean accepts( IndexingContext ctx, ArtifactInfoRecord ai )
     {
         String key = ai.groupId + ai.artifactId + ai.packaging + ai.classifier;
 
@@ -49,7 +49,7 @@ public class UniqueGAArtifactFilterPostprocessor
         }
     }
 
-    public void postprocess( IndexingContext ctx, ArtifactInfo ai )
+    public void postprocess( IndexingContext ctx, ArtifactInfoRecord ai )
     {
         ai.version = VERSION_LATEST;
 

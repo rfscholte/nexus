@@ -9,7 +9,7 @@ import java.util.Collection;
  */
 public interface IndexArtifactFilter
 {
-    Collection<ArtifactInfo> filterArtifactInfos( Collection<ArtifactInfo> artifactInfos );
+    Collection<ArtifactInfoRecord> filterArtifactInfos( Collection<ArtifactInfoRecord> artifactInfos );
 
-    boolean filterArtifactInfo( ArtifactInfo artifactInfo );
+    boolean filterArtifactInfo( ArtifactInfoRecord artifactInfo );
 }

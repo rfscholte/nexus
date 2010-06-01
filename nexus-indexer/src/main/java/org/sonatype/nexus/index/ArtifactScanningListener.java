@@ -21,5 +21,4 @@ public interface ArtifactScanningListener
     void scanningFinished( IndexingContext ctx, ScanningResult result );
     
     void artifactError( ArtifactContext ac, Exception e );
-
 }

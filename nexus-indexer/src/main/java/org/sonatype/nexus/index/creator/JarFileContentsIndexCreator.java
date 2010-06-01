@@ -19,9 +19,12 @@ import org.apache.lucene.document.Field.Store;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.nexus.index.ArtifactContext;
 import org.sonatype.nexus.index.ArtifactInfo;
+import org.sonatype.nexus.index.ArtifactInfoRecord;
 import org.sonatype.nexus.index.IndexerField;
 import org.sonatype.nexus.index.IndexerFieldVersion;
 import org.sonatype.nexus.index.MAVEN;
+import org.sonatype.nexus.index.MavenArtifactInfoRecord;
+import org.sonatype.nexus.index.StringFieldValue;
 import org.sonatype.nexus.index.context.IndexCreator;
 
 /**
@@ -37,7 +40,7 @@ public class JarFileContentsIndexCreator
 
     public static final IndexerField FLD_CLASSNAMES =
         new IndexerField( MAVEN.CLASSNAMES, IndexerFieldVersion.V3, "classnames", "Artifact Classes (tokenized)",
-                          Store.NO, Index.TOKENIZED );
+            Store.NO, Index.TOKENIZED );
 
     /**
      * NexusAnalyzer makes exception with this field only, to keep backward compatibility with old consumers of
@@ -46,27 +49,29 @@ public class JarFileContentsIndexCreator
      */
     public static final IndexerField FLD_CLASSNAMES_KW =
         new IndexerField( MAVEN.CLASSNAMES, IndexerFieldVersion.V1, "c",
-                          "Artifact Classes (tokenized on newlines only)", Store.COMPRESS, Index.TOKENIZED );
+            "Artifact Classes (tokenized on newlines only)", Store.COMPRESS, Index.TOKENIZED );
 
     public void populateArtifactInfo( ArtifactContext artifactContext )
         throws IOException
     {
-        ArtifactInfo ai = artifactContext.getArtifactInfo();
+        ArtifactInfoRecord ai = artifactContext.getArtifactInfo();
 
         File artifactFile = artifactContext.getArtifact();
 
         if ( artifactFile != null && artifactFile.exists() && artifactFile.getName().endsWith( ".jar" ) )
         {
-            updateArtifactInfo( ai, artifactFile );
+            updateArtifactInfo( ai.adapt( MavenArtifactInfoRecord.class ), artifactFile );
         }
     }
 
-    public void updateDocument( ArtifactInfo ai, Document doc )
+    public void updateDocument( ArtifactInfoRecord ai, Document doc )
     {
-        if ( ai.classNames != null )
+        MavenArtifactInfoRecord mai = ai.adapt( MavenArtifactInfoRecord.class );
+
+        if ( mai.getClassNames() != null )
         {
-            doc.add( FLD_CLASSNAMES_KW.toField( ai.classNames ) );
-            doc.add( FLD_CLASSNAMES.toField( ai.classNames ) );
+            FLD_CLASSNAMES_KW.toLuceneField( mai, doc );
+            FLD_CLASSNAMES.toLuceneField( mai, doc );
         }
     }
 
@@ -90,11 +95,11 @@ public class JarFileContentsIndexCreator
                 classNames = sb.toString();
             }
 
-            doc.add( FLD_CLASSNAMES_KW.toField( classNames ) );
+            FLD_CLASSNAMES_KW.toLuceneField( ai, doc );
         }
     }
 
-    public boolean updateArtifactInfo( Document doc, ArtifactInfo artifactInfo )
+    public boolean updateArtifactInfo( Document doc, ArtifactInfoRecord artifactInfo )
     {
         String names = doc.get( FLD_CLASSNAMES_KW.getKey() );
 
@@ -102,7 +107,8 @@ public class JarFileContentsIndexCreator
         {
             if ( names.length() == 0 || names.charAt( 0 ) == '/' )
             {
-                artifactInfo.classNames = names;
+                FLD_CLASSNAMES_KW.toFieldValue( doc, artifactInfo, new StringFieldValue(
+                    FLD_CLASSNAMES_KW.getOntology(), null ) );
             }
             else
             {
@@ -113,7 +119,7 @@ public class JarFileContentsIndexCreator
                 {
                     sb.append( '/' ).append( line ).append( '\n' );
                 }
-                artifactInfo.classNames = sb.toString();
+                artifactInfo.addFieldValue( new StringFieldValue( FLD_CLASSNAMES_KW.getOntology(), sb.toString() ) );
             }
 
             return true;
@@ -122,9 +128,14 @@ public class JarFileContentsIndexCreator
         return false;
     }
 
-    private void updateArtifactInfo( ArtifactInfo ai, File f )
+    private void updateArtifactInfo( MavenArtifactInfoRecord ai, File f )
         throws IOException
     {
+        if ( ai == null )
+        {
+            return;
+        }
+
         ZipFile jar = null;
 
         try
@@ -163,11 +174,11 @@ public class JarFileContentsIndexCreator
 
             if ( sb.toString().trim().length() != 0 )
             {
-                ai.classNames = sb.toString();
+                ai.setClassNames( sb.toString() );
             }
             else
             {
-                ai.classNames = null;
+                ai.setClassNames( null );
             }
         }
         finally

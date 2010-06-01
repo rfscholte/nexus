@@ -15,8 +15,9 @@ import java.util.zip.ZipFile;
 import org.apache.lucene.document.Document;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.nexus.index.ArtifactContext;
-import org.sonatype.nexus.index.ArtifactInfo;
+import org.sonatype.nexus.index.ArtifactInfoRecord;
 import org.sonatype.nexus.index.IndexerField;
+import org.sonatype.nexus.index.MavenArtifactInfoRecord;
 import org.sonatype.nexus.index.context.IndexCreator;
 
 /**
@@ -42,17 +43,19 @@ public class MavenArchetypeArtifactInfoIndexCreator
     {
         File artifact = ac.getArtifact();
 
-        ArtifactInfo ai = ac.getArtifactInfo();
+        ArtifactInfoRecord ai = ac.getArtifactInfo();
+
+        MavenArtifactInfoRecord mar = ai.adapt( MavenArtifactInfoRecord.class );
 
         // we need the file to perform these checks, and those may be only JARs
-        if ( artifact != null && !MAVEN_ARCHETYPE_PACKAGING.equals( ai.packaging )
+        if ( artifact != null && !MAVEN_ARCHETYPE_PACKAGING.equals( mar.getPackaging() )
             && artifact.getName().endsWith( ".jar" ) )
         {
             // TODO: recheck, is the following true? "Maven plugins and Maven Archetypes can be only JARs?"
 
             // check for maven archetype, since Archetypes seems to not have consistent packaging,
             // and depending on the contents of the JAR, this call will override the packaging to "maven-archetype"!
-            checkMavenArchetype( ai, artifact );
+            checkMavenArchetype( mar, artifact );
         }
     }
 
@@ -62,7 +65,7 @@ public class MavenArchetypeArtifactInfoIndexCreator
      * @param ai
      * @param artifact
      */
-    private void checkMavenArchetype( ArtifactInfo ai, File artifact )
+    private void checkMavenArchetype( MavenArtifactInfoRecord ai, File artifact )
     {
         ZipFile jf = null;
 
@@ -97,25 +100,26 @@ public class MavenArchetypeArtifactInfoIndexCreator
         }
     }
 
-    private boolean checkEntry( ArtifactInfo ai, ZipFile jf, String entryName )
+    private boolean checkEntry( MavenArtifactInfoRecord ai, ZipFile jf, String entryName )
     {
         ZipEntry entry = jf.getEntry( entryName );
 
         if ( entry != null )
         {
-            ai.packaging = MAVEN_ARCHETYPE_PACKAGING;
+            ai.setPackaging( MAVEN_ARCHETYPE_PACKAGING );
 
             return true;
         }
+        
         return false;
     }
 
-    public void updateDocument( ArtifactInfo ai, Document doc )
+    public void updateDocument( ArtifactInfoRecord ai, Document doc )
     {
         // nothing to update, minimal will maintain it.
     }
 
-    public boolean updateArtifactInfo( Document doc, ArtifactInfo ai )
+    public boolean updateArtifactInfo( Document doc, ArtifactInfoRecord ai )
     {
         // nothing to update, minimal will maintain it.
 

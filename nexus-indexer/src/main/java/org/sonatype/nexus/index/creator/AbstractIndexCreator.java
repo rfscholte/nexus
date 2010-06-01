@@ -6,18 +6,25 @@
  */
 package org.sonatype.nexus.index.creator;
 
-import org.codehaus.plexus.logging.AbstractLogEnabled;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.logging.Logger;
 import org.sonatype.nexus.index.context.IndexCreator;
 
 /**
  * An abstract base class for {@link IndexCreator} implementations.
- *  
- * @author Jason van Zyl 
+ * 
+ * @author Jason van Zyl
  */
 public abstract class AbstractIndexCreator
-    extends AbstractLogEnabled
     implements IndexCreator
 {
+    @Requirement
+    private Logger logger;
+
+    protected Logger getLogger()
+    {
+        return logger;
+    }
 
     public static String bos( boolean b )
     {

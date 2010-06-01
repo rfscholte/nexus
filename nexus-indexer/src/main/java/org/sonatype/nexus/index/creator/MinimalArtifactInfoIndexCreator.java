@@ -22,10 +22,10 @@ import org.sonatype.nexus.artifact.Gav;
 import org.sonatype.nexus.index.ArtifactAvailablility;
 import org.sonatype.nexus.index.ArtifactContext;
 import org.sonatype.nexus.index.ArtifactInfo;
+import org.sonatype.nexus.index.ArtifactInfoRecord;
 import org.sonatype.nexus.index.IndexerField;
 import org.sonatype.nexus.index.IndexerFieldVersion;
 import org.sonatype.nexus.index.MAVEN;
-import org.sonatype.nexus.index.NEXUS;
 import org.sonatype.nexus.index.context.IndexCreator;
 import org.sonatype.nexus.index.locator.JavadocLocator;
 import org.sonatype.nexus.index.locator.Locator;
@@ -52,7 +52,7 @@ public class MinimalArtifactInfoIndexCreator
      * Info: packaging, lastModified, size, sourcesExists, javadocExists, signatureExists. Stored, not indexed.
      */
     public static final IndexerField FLD_INFO =
-        new IndexerField( NEXUS.INFO, IndexerFieldVersion.V1, "i", "Artifact INFO (not indexed, stored)", Store.YES,
+        new IndexerField( MAVEN.INFO, IndexerFieldVersion.V1, "i", "Artifact INFO (not indexed, stored)", Store.YES,
                           Index.NO );
 
     public static final IndexerField FLD_GROUP_ID_KW =
@@ -117,7 +117,7 @@ public class MinimalArtifactInfoIndexCreator
 
         File pom = ac.getPom();
 
-        ArtifactInfo ai = ac.getArtifactInfo();
+        ArtifactInfoRecord ai = ac.getArtifactInfo();
 
         if ( pom != null )
         {
@@ -248,7 +248,7 @@ public class MinimalArtifactInfoIndexCreator
         return FileUtils.getExtension( artifactFileName );
     }
 
-    public void updateDocument( ArtifactInfo ai, Document doc )
+    public void updateDocument( ArtifactInfoRecord ai, Document doc )
     {
         String info =
             new StringBuilder().append( ai.packaging ).append( ArtifactInfo.FS ).append(
@@ -314,7 +314,7 @@ public class MinimalArtifactInfoIndexCreator
         doc.add( new Field( ArtifactInfo.GROUP_ID, ai.groupId, Field.Store.NO, Field.Index.UN_TOKENIZED ) );
     }
 
-    public boolean updateArtifactInfo( Document doc, ArtifactInfo ai )
+    public boolean updateArtifactInfo( Document doc, ArtifactInfoRecord ai )
     {
         boolean res = false;
 

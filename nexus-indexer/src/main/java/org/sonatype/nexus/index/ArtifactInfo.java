@@ -6,6 +6,7 @@
  */
 package org.sonatype.nexus.index;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -13,7 +14,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
+import org.apache.lucene.document.Field.Index;
+import org.apache.lucene.document.Field.Store;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.codehaus.plexus.util.StringUtils;
@@ -30,13 +34,47 @@ import org.sonatype.nexus.index.creator.MinimalArtifactInfoIndexCreator;
  * 
  * @author Jason van Zyl
  * @author Eugene Kuleshov
+ * @deprecated In favor of ArtifactInfoRecord
  */
 public class ArtifactInfo
-    extends ArtifactInfoRecord
+    extends HashMap<Field, FieldValue<?>>
+    implements ArtifactInfoRecord, Serializable
 {
     private static final long serialVersionUID = 6028843453477511104L;
 
     // --
+
+    /** Field separator */
+    public static final String FS = "|";
+
+    public static final Pattern FS_PATTERN = Pattern.compile( Pattern.quote( FS ) );
+
+    /** Non available value */
+    public static final String NA = "NA";
+
+    // ----------
+    // V3 changes
+    // TODO: use getters instead of public fields
+    // ----------
+    // Listing all the fields that ArtifactInfo has on LuceneIndex
+
+    /**
+     * Unique groupId, artifactId, version, classifier, extension (or packaging). Stored, indexed untokenized
+     */
+    public static final IndexerField FLD_UINFO =
+        new IndexerField( NEXUS.UINFO, IndexerFieldVersion.V1, "u", "Artifact UINFO (as keyword, stored)", Store.YES,
+            Index.UN_TOKENIZED );
+
+    /**
+     * Del: contains UINFO to mark record as deleted (needed for incremental updates!). The original document IS
+     * removed, but this marker stays on index to note that fact.
+     */
+    public static final IndexerField FLD_DELETED =
+        new IndexerField( NEXUS.DELETED, IndexerFieldVersion.V1, "del",
+            "Deleted field, will contain UINFO if document is deleted from index (not indexed, stored)", Store.YES,
+            Index.NO );
+
+    // ==
 
     public static final String ROOT_GROUPS = "rootGroups";
 
@@ -525,6 +563,84 @@ public class ArtifactInfo
                 return r2 == null ? 1 : r1.compareTo( r2 );
             }
         }
+    }
+
+    // ========
+    // V3 Stuff
+
+    public String getIndexingContextId()
+    {
+        return (String) get( NEXUS.INDEXING_CONTEXT_ID ).getValue();
+    }
+
+    public long getLastModified()
+    {
+        return (Long) get( NEXUS.LAST_MODIFIED ).getValue();
+    }
+
+    public long getLength()
+    {
+        return (Long) get( NEXUS.LENGTH ).getValue();
+    }
+
+    public String getPath()
+    {
+        return (String) get( NEXUS.PATH ).getValue();
+    }
+
+    public String getRepository()
+    {
+        return (String) get( NEXUS.REPOSITORY_ID ).getValue();
+    }
+
+    public String getSha1Checksum()
+    {
+        return (String) get( NEXUS.SHA1 ).getValue();
+    }
+
+    public void setIndexingContextId( String indexingContextId )
+    {
+        addFieldValue( new StringFieldValue( NEXUS.INDEXING_CONTEXT_ID, indexingContextId ) );
+    }
+
+    public void setLastModified( long lastModified )
+    {
+        addFieldValue( new LongFieldValue( NEXUS.LAST_MODIFIED, lastModified ) );
+    }
+
+    public void setLength( long length )
+    {
+        addFieldValue( new LongFieldValue( NEXUS.LENGTH, length ) );
+    }
+
+    public void setPath( String path )
+    {
+        addFieldValue( new StringFieldValue( NEXUS.PATH, path ) );
+    }
+
+    public void setRepository( String repository )
+    {
+        addFieldValue( new StringFieldValue( NEXUS.REPOSITORY_ID, repository ) );
+    }
+
+    public void setSha1Checksum( String sha1Checksum )
+    {
+        addFieldValue( new StringFieldValue( NEXUS.SHA1, sha1Checksum ) );
+    }
+
+    public void addFieldValue( FieldValue<?> value )
+    {
+        put( value.getField(), value );
+    }
+
+    public void removeField( Field field )
+    {
+        remove( field );
+    }
+
+    public void setUinfo( String uinfo )
+    {
+        this.uinfo = uinfo;
     }
 
 }

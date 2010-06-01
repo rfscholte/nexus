@@ -50,7 +50,7 @@ public abstract class AbstractMultiArtifactInfoFilter
      * The filter's implementation is: if list of filters is empty, the just accept it, otherwise consult the list of
      * filters.
      */
-    public boolean accepts( IndexingContext ctx, ArtifactInfo ai )
+    public boolean accepts( IndexingContext ctx, ArtifactInfoRecord ai )
     {
         if ( this.filters == null )
         {
@@ -71,5 +71,5 @@ public abstract class AbstractMultiArtifactInfoFilter
      * @param ai
      * @return
      */
-    protected abstract boolean accepts( List<ArtifactInfoFilter> filters, IndexingContext ctx, ArtifactInfo ai );
+    protected abstract boolean accepts( List<ArtifactInfoFilter> filters, IndexingContext ctx, ArtifactInfoRecord ai );
 }

@@ -34,14 +34,16 @@ public class DefaultIndexArtifactFilter
     @Requirement
     private NexusItemAuthorizer nexusItemAuthorizer;
 
-    public Collection<ArtifactInfo> filterArtifactInfos( Collection<ArtifactInfo> artifactInfos )
+    public Collection<ArtifactInfoRecord> filterArtifactInfos( Collection<ArtifactInfoRecord> artifactInfos )
     {
         if ( artifactInfos == null )
         {
             return null;
         }
-        List<ArtifactInfo> result = new ArrayList<ArtifactInfo>( artifactInfos.size() );
-        for ( ArtifactInfo artifactInfo : artifactInfos )
+
+        List<ArtifactInfoRecord> result = new ArrayList<ArtifactInfoRecord>( artifactInfos.size() );
+
+        for ( ArtifactInfoRecord artifactInfo : artifactInfos )
         {
             if ( this.filterArtifactInfo( artifactInfo ) )
             {
@@ -51,11 +53,14 @@ public class DefaultIndexArtifactFilter
         return result;
     }
 
-    public boolean filterArtifactInfo( ArtifactInfo artifactInfo )
+    public boolean filterArtifactInfo( ArtifactInfoRecord ai )
     {
+        MavenArtifactInfoRecord artifactInfo = ai.adapt( MavenArtifactInfoRecord.class );
+
         try
         {
-            Repository repository = this.repositoryRegistry.getRepository( artifactInfo.repository );
+
+            Repository repository = this.repositoryRegistry.getRepository( artifactInfo.getRepository() );
 
             if ( MavenRepository.class.isAssignableFrom( repository.getClass() ) )
             {
@@ -64,10 +69,10 @@ public class DefaultIndexArtifactFilter
                     MavenRepository mr = (MavenRepository) repository;
 
                     Gav gav =
-                        new Gav( artifactInfo.groupId, artifactInfo.artifactId, artifactInfo.version,
-                            artifactInfo.classifier, mr.getArtifactPackagingMapper().getExtensionForPackaging(
-                                artifactInfo.packaging ), null, null, null, VersionUtils
-                                .isSnapshot( artifactInfo.version ), false, null, false, null );
+                        new Gav( artifactInfo.getGroupId(), artifactInfo.getArtifactId(), artifactInfo.getVersion(),
+                            artifactInfo.getClassifier(), mr.getArtifactPackagingMapper().getExtensionForPackaging(
+                                artifactInfo.getPackaging() ), null, null, null,
+                            VersionUtils.isSnapshot( artifactInfo.getVersion() ), false, null, false, null );
 
                     ResourceStoreRequest req = new ResourceStoreRequest( mr.getGavCalculator().gavToPath( gav ) );
 
@@ -89,8 +94,8 @@ public class DefaultIndexArtifactFilter
         catch ( NoSuchRepositoryException e )
         {
             this.getLogger().warn(
-                "Repository not found for artifact: " + artifactInfo.groupId + ":" + artifactInfo.artifactId + ":"
-                    + artifactInfo.version + " in repository: " + artifactInfo.repository, e );
+                "Repository not found for artifact: " + artifactInfo.getGroupId() + ":" + artifactInfo.getArtifactId()
+                    + ":" + artifactInfo.getVersion() + " in repository: " + artifactInfo.getRepository(), e );
 
             // artifact does not exist, filter it out
             return false;

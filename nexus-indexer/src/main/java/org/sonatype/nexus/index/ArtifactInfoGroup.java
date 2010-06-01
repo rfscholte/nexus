@@ -14,6 +14,7 @@ import java.util.TreeSet;
  * An object that holds grouped sets of {@link ArtifactInfos} in case of grouped search.
  * 
  * @author Tamas Cservenak
+ * @deprecated
  */
 public class ArtifactInfoGroup
 {

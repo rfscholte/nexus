@@ -14,12 +14,10 @@ import org.sonatype.nexus.index.context.IndexingContext;
 public class UniqueArtifactFilterPostprocessor
     implements ArtifactInfoFilter
 {
-    public static final String COLLAPSED = "COLLAPSED";
-
     private final Set<Field> uniqueFields = new HashSet<Field>();
 
     private final Set<String> gas = new HashSet<String>();
-    
+
     public UniqueArtifactFilterPostprocessor()
     {
     }
@@ -29,13 +27,13 @@ public class UniqueArtifactFilterPostprocessor
         this.uniqueFields.addAll( uniqueFields );
     }
 
-    public boolean accepts( IndexingContext ctx, ArtifactInfo ai )
+    public boolean accepts( IndexingContext ctx, ArtifactInfoRecord ai )
     {
         StringBuilder sb = new StringBuilder();
 
         for ( Field field : uniqueFields )
         {
-            sb.append( ai.getFieldValue( field ) ).append( ":" );
+            sb.append( ai.get( field ).getRawValue() ).append( ":" );
         }
 
         String key = sb.toString().substring( 0, sb.length() - 1 );
@@ -54,17 +52,17 @@ public class UniqueArtifactFilterPostprocessor
         }
     }
 
-    public void postprocess( IndexingContext ctx, ArtifactInfo ai )
+    public void postprocess( IndexingContext ctx, ArtifactInfoRecord ai )
     {
         for ( Field field : ai.getFields() )
         {
             if ( !uniqueFields.contains( field ) )
             {
-                ai.setFieldValue( field, COLLAPSED );
+                ai.get( field ).setRawValue( null );
             }
         }
     }
-    
+
     public void addField( Field field )
     {
         uniqueFields.add( field );

@@ -61,7 +61,7 @@ public class UniqueArtifactFilterTest
         ai = response.getResults().next();
         assertTrue( "Iterator has to have next (2 should be returned)", ai != null );
 
-        assertEquals( "Property that is not unique has to have \"COLLAPSED\" value!",
+        assertNull( "Property that is not unique has to have \"COLLAPSED\" value!",
             UniqueArtifactFilterPostprocessor.COLLAPSED, ai.version );
         assertEquals( "Property that is not unique has to have \"COLLAPSED\" value!",
             UniqueArtifactFilterPostprocessor.COLLAPSED, ai.packaging );

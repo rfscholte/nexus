@@ -20,7 +20,7 @@ public class AndMultiArtifactInfoFilter
     }
 
     @Override
-    protected boolean accepts( List<ArtifactInfoFilter> filters, IndexingContext ctx, ArtifactInfo ai )
+    protected boolean accepts( List<ArtifactInfoFilter> filters, IndexingContext ctx, ArtifactInfoRecord ai )
     {
         for ( ArtifactInfoFilter filter : filters )
         {
