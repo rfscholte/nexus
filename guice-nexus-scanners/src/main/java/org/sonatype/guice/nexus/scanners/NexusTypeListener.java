@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Sonatype, Inc. All rights reserved.
+ * Copyright (c) 2010 Sonatype, Inc. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -12,11 +12,12 @@
  */
 package org.sonatype.guice.nexus.scanners;
 
-import javax.inject.Singleton;
+import org.sonatype.guice.plexus.scanners.PlexusTypeListener;
 
-@Singleton
-public class A
+/**
+ * {@link PlexusTypeListener} that also listens for Nexus metadata.
+ */
+public interface NexusTypeListener
+    extends PlexusTypeListener
 {
-    // this uncovered a bug where the "type" variable wasn't being
-    // initialized for classes with annotations but no interfaces
 }

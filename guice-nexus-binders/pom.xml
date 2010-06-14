@@ -9,14 +9,14 @@
     <version>1.7.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>guice-nexus-scanners</artifactId>
+  <artifactId>guice-nexus-binders</artifactId>
 
-  <name>Nexus Plugins : Guice - Nexus scanners</name>
+  <name>Nexus Plugins : Guice - Nexus binders</name>
 
   <dependencies>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-plexus-scanners</artifactId>
+      <artifactId>guice-plexus-binders</artifactId>
     </dependency>
   </dependencies>
 

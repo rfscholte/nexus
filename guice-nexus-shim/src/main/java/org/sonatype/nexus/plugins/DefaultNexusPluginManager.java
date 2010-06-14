@@ -32,13 +32,12 @@ import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.guice.nexus.scanners.AnnotatedNexusBeanSource;
-import org.sonatype.guice.nexus.scanners.AnnotatedNexusComponentScanner;
+import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanSource;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
+import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
+import org.sonatype.guice.plexus.config.MutablePlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
-import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 import org.sonatype.nexus.mime.MimeUtil;
 import org.sonatype.nexus.plugins.events.PluginActivatedEvent;
 import org.sonatype.nexus.plugins.events.PluginRejectedEvent;
@@ -56,9 +55,10 @@ import org.sonatype.plugins.model.PluginDependency;
 import org.sonatype.plugins.model.PluginMetadata;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 /**
  * Default {@link NexusPluginManager} implementation backed by a {@link PluginRepositoryManager}.
@@ -87,13 +87,10 @@ public final class DefaultNexusPluginManager
     private MimeUtil mimeUtil;
 
     @Inject
-    private GuiceBeanLocator beanLocator;
+    private MutablePlexusBeanLocator beanLocator;
 
     @Inject
     private PlexusBeanManager beanManager;
-
-    @Inject
-    private Injector rootInjector;
 
     @Inject
     @Named( PlexusConstants.PLEXUS_KEY )
@@ -220,7 +217,7 @@ public final class DefaultNexusPluginManager
     }
 
     private Injector createPluginInjector( final PluginRepositoryArtifact plugin, final PluginDescriptor descriptor )
-        throws NoSuchPluginRepositoryArtifactException, IOException
+        throws NoSuchPluginRepositoryArtifactException
     {
         final String realmId = descriptor.getPluginCoordinates().toString();
         ClassRealm pluginRealm;
@@ -299,21 +296,18 @@ public final class DefaultNexusPluginManager
             @Override
             protected void configure()
             {
-                bind( NexusResourceBundle.class ).annotatedWith( Jsr330.named( realmId ) ).toInstance( resourceBundle );
+                bind( NexusResourceBundle.class ).annotatedWith( Names.named( realmId ) ).toInstance( resourceBundle );
             }
         };
 
         final ClassSpace pluginSpace = new URLClassSpace( pluginRealm );
-        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( pluginSpace, variables );
-
-        final AnnotatedNexusComponentScanner scanner =
-            new AnnotatedNexusComponentScanner( repositoryTypes, exportedClassNames );
+        final PlexusBeanSource xmlSource = new PlexusXmlBeanSource( pluginSpace, variables );
 
         final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
-        final PlexusBeanSource annSource = new AnnotatedNexusBeanSource( annSpace, variables, scanner );
+        final PlexusBeanSource annSource = new PlexusAnnotatedBeanSource( annSpace, variables ); // FIXME!
 
-        final Module pluginBindings = new PlexusBindingModule( beanManager.manageChild(), xmlSource, annSource );
-        final Injector pluginInjector = rootInjector.createChildInjector( pluginBindings, resourceBindings );
+        final Module pluginBindings = new PlexusBindingModule( beanManager, xmlSource, annSource );
+        final Injector pluginInjector = Guice.createInjector( pluginBindings, resourceBindings ); // FIXME!
 
         descriptor.setExportedClassnames( exportedClassNames );
 
