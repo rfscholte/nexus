@@ -89,6 +89,7 @@ public final class NexusTypeVisitor
     public ClassVisitor visitClass( final URL url )
     {
         repositoryTypeVisitor.reset();
+        nexusType = NexusType.UNKNOWN;
         plexusTypeVisitor.visitClass( url );
         return this;
     }
@@ -147,7 +148,7 @@ public final class NexusTypeVisitor
             if ( nexusType.isComponent() )
             {
                 final AnnotationVisitor componentVisitor = getComponentVisitor();
-                componentVisitor.visit( "role", i.replace( '/', '.' ) );
+                componentVisitor.visit( "role", Type.getObjectType( i ) );
                 if ( nexusType.name().startsWith( "EXTENSION" ) )
                 {
                     componentVisitor.visit( "hint", clazz );

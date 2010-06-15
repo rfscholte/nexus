@@ -65,19 +65,20 @@ final class NexusTypeCache
      */
     public NexusType nexusType( final ClassSpace space, final String name )
     {
+        if ( name.startsWith( "java" ) )
+        {
+            return NexusType.UNKNOWN;
+        }
         if ( !cachedResults.containsKey( name ) )
         {
+            nexusType = NexusType.UNKNOWN;
+            isSingleton = false;
+
             ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
+
             cachedResults.put( name, nexusType );
         }
         return cachedResults.get( name );
-    }
-
-    @Override
-    public void visit( final int version, final int access, final String name, final String signature,
-                       final String superName, final String[] interfaces )
-    {
-        nexusType = NexusType.UNKNOWN;
     }
 
     @Override
