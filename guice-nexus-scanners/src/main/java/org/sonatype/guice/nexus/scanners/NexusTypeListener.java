@@ -13,6 +13,7 @@
 package org.sonatype.guice.nexus.scanners;
 
 import org.sonatype.guice.plexus.scanners.PlexusTypeListener;
+import org.sonatype.nexus.plugins.RepositoryType;
 
 /**
  * {@link PlexusTypeListener} that also listens for Nexus metadata.
@@ -20,4 +21,17 @@ import org.sonatype.guice.plexus.scanners.PlexusTypeListener;
 public interface NexusTypeListener
     extends PlexusTypeListener
 {
+    /**
+     * Invoked when the {@link NexusTypeListener} finds a public/exported class.
+     * 
+     * @param clazz The fully-qualified class name
+     */
+    void hear( String clazz );
+
+    /**
+     * Invoked when the {@link NexusTypeListener} finds a {@link RepositoryType}.
+     * 
+     * @param repositoryType The repository type
+     */
+    void hear( RepositoryType repositoryType );
 }

@@ -15,6 +15,14 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-plugin-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.plugin</groupId>
+      <artifactId>plugin-host-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-scanners</artifactId>
     </dependency>

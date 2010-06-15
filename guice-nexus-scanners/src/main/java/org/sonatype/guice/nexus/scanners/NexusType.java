@@ -15,7 +15,7 @@ package org.sonatype.guice.nexus.scanners;
 /**
  * Enumeration of Nexus component types.
  */
-enum NexusComponentTypes
+enum NexusType
 {
     // ----------------------------------------------------------------------
     // Values
@@ -39,7 +39,7 @@ enum NexusComponentTypes
         }
 
         @Override
-        NexusComponentTypes toSingleton()
+        NexusType asSingleton()
         {
             return EXTENSION_POINT_SINGLETON;
         }
@@ -56,7 +56,7 @@ enum NexusComponentTypes
         }
 
         @Override
-        NexusComponentTypes toSingleton()
+        NexusType asSingleton()
         {
             return MANAGED_SINGLETON;
         }
@@ -73,7 +73,7 @@ enum NexusComponentTypes
         return true;
     }
 
-    NexusComponentTypes toSingleton()
+    NexusType asSingleton()
     {
         return this;
     }
