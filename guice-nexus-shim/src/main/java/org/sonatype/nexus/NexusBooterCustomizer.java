@@ -29,7 +29,7 @@ public final class NexusBooterCustomizer
 
     public void customizeContainerConfiguration( final ContainerConfiguration configuration )
     {
-        // nothing to customize
+        System.setProperty( "guice.disable.misplaced.annotation.check", "true" );
     }
 
     public void customizeContext( final Context context )

@@ -38,7 +38,9 @@
               org.sonatype.nexus.*;-noimport:=true;-split-package:=merge-first
             </Export-Package>
             <Private-Package>
-              META-INF.plexus,org.sonatype.guice.*,org.objectweb.asm.*
+              META-INF.plexus;-split-package:=first,
+              org.sonatype.guice.*,org.objectweb.asm.*,
+              org.sonatype.plugin.metadata
             </Private-Package>
           </instructions>
         </configuration>
@@ -79,58 +81,48 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-source</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <classifier>sources</classifier>
+              <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
+              <outputDirectory>${project.build.directory}/sources</outputDirectory>
+              <includeArtifactIds>
+                guice-nexus-binders,guice-nexus-scanners,guice-nexus-shim
+              </includeArtifactIds>
+              <silent>true</silent>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <id>add-source</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/sources</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>unpack-source</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>unpack-dependencies</goal>
-                </goals>
-                <configuration>
-                  <classifier>sources</classifier>
-                  <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
-                  <outputDirectory>${project.build.directory}/sources</outputDirectory>
-                  <includeArtifactIds>
-                    guice-nexus-binders,guice-nexus-scanners,guice-nexus-shim
-                  </includeArtifactIds>
-                  <silent>true</silent>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>1.4</version>
-            <executions>
-              <execution>
-                <id>add-source</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>add-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>${project.build.directory}/sources</source>
-                  </sources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
   <dependencies>
     <dependency>

@@ -18,6 +18,10 @@
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-binders</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>guice-nexus-scanners</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

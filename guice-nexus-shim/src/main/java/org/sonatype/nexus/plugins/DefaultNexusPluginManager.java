@@ -24,19 +24,17 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Singleton;
 
+import org.codehaus.plexus.MutablePlexusContainer;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
+import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanSource;
-import org.sonatype.guice.plexus.binders.PlexusBeanManager;
-import org.sonatype.guice.plexus.binders.PlexusBindingModule;
+import org.sonatype.guice.nexus.binders.NexusAnnotatedBeanSource;
 import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
-import org.sonatype.guice.plexus.config.MutablePlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.nexus.mime.MimeUtil;
 import org.sonatype.nexus.plugins.events.PluginActivatedEvent;
@@ -55,15 +53,13 @@ import org.sonatype.plugins.model.PluginDependency;
 import org.sonatype.plugins.model.PluginMetadata;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
 
 /**
  * Default {@link NexusPluginManager} implementation backed by a {@link PluginRepositoryManager}.
  */
-@Singleton
+@Component( role = NexusPluginManager.class )
 public final class DefaultNexusPluginManager
     implements NexusPluginManager
 {
@@ -87,10 +83,7 @@ public final class DefaultNexusPluginManager
     private MimeUtil mimeUtil;
 
     @Inject
-    private MutablePlexusBeanLocator beanLocator;
-
-    @Inject
-    private PlexusBeanManager beanManager;
+    private MutablePlexusContainer container;
 
     @Inject
     @Named( PlexusConstants.PLEXUS_KEY )
@@ -204,7 +197,7 @@ public final class DefaultNexusPluginManager
         {
             try
             {
-                beanLocator.add( createPluginInjector( plugin, descriptor ) );
+                createPluginInjector( plugin, descriptor );
                 result.setAchievedGoal( PluginActivationResult.ACTIVATED );
             }
             catch ( final Throwable e )
@@ -216,7 +209,7 @@ public final class DefaultNexusPluginManager
         reportActivationResult( response, result );
     }
 
-    private Injector createPluginInjector( final PluginRepositoryArtifact plugin, final PluginDescriptor descriptor )
+    private void createPluginInjector( final PluginRepositoryArtifact plugin, final PluginDescriptor descriptor )
         throws NoSuchPluginRepositoryArtifactException
     {
         final String realmId = descriptor.getPluginCoordinates().toString();
@@ -291,7 +284,7 @@ public final class DefaultNexusPluginManager
             }
         };
 
-        final Module resourceBindings = new AbstractModule()
+        final Module resourceModule = new AbstractModule()
         {
             @Override
             protected void configure()
@@ -300,22 +293,20 @@ public final class DefaultNexusPluginManager
             }
         };
 
+        final List<PlexusBeanSource> sources = new ArrayList<PlexusBeanSource>();
+
         final ClassSpace pluginSpace = new URLClassSpace( pluginRealm );
-        final PlexusBeanSource xmlSource = new PlexusXmlBeanSource( pluginSpace, variables );
+        sources.add( new PlexusXmlBeanSource( pluginSpace, variables ) );
 
         final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
-        final PlexusBeanSource annSource = new PlexusAnnotatedBeanSource( annSpace, variables ); // FIXME!
+        sources.add( new NexusAnnotatedBeanSource( annSpace, variables, exportedClassNames, repositoryTypes ) );
 
-        final Module pluginBindings = new PlexusBindingModule( beanManager, xmlSource, annSource );
-        final Injector pluginInjector = Guice.createInjector( pluginBindings, resourceBindings ); // FIXME!
-
-        descriptor.setExportedClassnames( exportedClassNames );
+        container.addPlexusInjector( null, sources, resourceModule );
 
         for ( final RepositoryTypeDescriptor r : repositoryTypes )
         {
             repositoryTypeRegistry.registerRepositoryTypeDescriptors( r );
         }
-        descriptor.setRepositoryTypes( repositoryTypes );
 
         final Enumeration<URL> e = pluginSpace.findEntries( "static/", null, true );
         while ( e.hasMoreElements() )
@@ -327,9 +318,10 @@ public final class DefaultNexusPluginManager
                 staticResources.add( new PluginStaticResource( url, path, mimeUtil.getMimeType( url ) ) );
             }
         }
-        descriptor.setStaticResources( staticResources );
 
-        return pluginInjector;
+        descriptor.setExportedClassnames( exportedClassNames );
+        descriptor.setRepositoryTypes( repositoryTypes );
+        descriptor.setStaticResources( staticResources );
     }
 
     private URL toURL( final PluginRepositoryArtifact artifact )
