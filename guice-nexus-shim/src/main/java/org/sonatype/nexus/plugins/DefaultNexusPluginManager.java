@@ -24,13 +24,13 @@ import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Singleton;
 
 import org.codehaus.plexus.MutablePlexusContainer;
 import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
-import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.nexus.binders.NexusAnnotatedBeanSource;
@@ -59,7 +59,8 @@ import com.google.inject.name.Names;
 /**
  * Default {@link NexusPluginManager} implementation backed by a {@link PluginRepositoryManager}.
  */
-@Component( role = NexusPluginManager.class )
+@Named
+@Singleton
 public final class DefaultNexusPluginManager
     implements NexusPluginManager
 {

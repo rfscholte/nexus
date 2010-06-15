@@ -19,15 +19,18 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
+
 import org.sonatype.plugin.metadata.GAVCoordinate;
 import org.sonatype.plugins.model.PluginMetadata;
 
 /**
  * Default {@link PluginRepositoryManager} implementation.
  */
-@Component( role = PluginRepositoryManager.class )
+@Named
+@Singleton
 final class DefaultPluginRepositoryManager
     implements PluginRepositoryManager
 {
@@ -42,7 +45,7 @@ final class DefaultPluginRepositoryManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    @Requirement( role = NexusPluginRepository.class )
+    @Inject
     private Map<String, NexusPluginRepository> repositoryMap;
 
     // ----------------------------------------------------------------------

@@ -13,15 +13,6 @@
 
   <name>Nexus Plugins : Guice - Nexus shim</name>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-metadata</artifactId>
-      </plugin>
-    </plugins>
-  </build>
-
   <dependencies>
     <dependency>
       <groupId>org.sonatype.nexus</groupId>

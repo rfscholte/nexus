@@ -14,13 +14,15 @@ package org.sonatype.nexus.plugins.repository;
 
 import java.io.File;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Configuration;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
 /**
  * {@link File} backed {@link NexusWritablePluginRepository} that supplies user plugins.
  */
-@Component( role = NexusPluginRepository.class, hint = UserNexusPluginRepository.ID )
+@Named( UserNexusPluginRepository.ID )
+@Singleton
 final class UserNexusPluginRepository
     extends AbstractFileNexusWritablePluginRepository
 {
@@ -34,7 +36,8 @@ final class UserNexusPluginRepository
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    @Configuration( value = "${nexus-work}/plugin-repository" )
+    @Inject
+    @Named( "${nexus-work}/plugin-repository" )
     private File userPluginsFolder;
 
     // ----------------------------------------------------------------------

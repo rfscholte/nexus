@@ -38,9 +38,7 @@
               org.sonatype.nexus.*;-noimport:=true;-split-package:=merge-first
             </Export-Package>
             <Private-Package>
-              META-INF.plexus;-split-package:=first,
-              org.sonatype.guice.*,org.objectweb.asm.*,
-              org.sonatype.plugin.metadata
+              org.sonatype.guice.*,org.sonatype.plugin.metadata,org.objectweb.asm.*
             </Private-Package>
           </instructions>
         </configuration>
