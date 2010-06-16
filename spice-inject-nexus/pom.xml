@@ -25,7 +25,7 @@
         <configuration>
           <excludeDependencies>
             <!-- fragment host and external dependencies -->
-            spice-inject-bean,nexus-*;groupId=org.sonatype.nexus
+            spice-inject-*,nexus-*;groupId=org.sonatype.nexus
           </excludeDependencies>
           <instructions>
             <Bundle-SymbolicName>
@@ -125,7 +125,7 @@
   <dependencies>
     <dependency>
       <groupId>org.sonatype.spice</groupId>
-      <artifactId>spice-inject-bean</artifactId>
+      <artifactId>spice-inject-plexus</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.nexus</groupId>

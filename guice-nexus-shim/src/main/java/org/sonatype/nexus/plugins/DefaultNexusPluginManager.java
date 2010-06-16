@@ -27,7 +27,6 @@ import javax.inject.Named;
 import javax.inject.Singleton;
 
 import org.codehaus.plexus.MutablePlexusContainer;
-import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
@@ -36,6 +35,7 @@ import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.nexus.binders.NexusAnnotatedBeanSource;
 import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.inject.Parameters;
 import org.sonatype.nexus.mime.MimeUtil;
 import org.sonatype.nexus.plugins.events.PluginActivatedEvent;
 import org.sonatype.nexus.plugins.events.PluginRejectedEvent;
@@ -87,9 +87,8 @@ public final class DefaultNexusPluginManager
     private MutablePlexusContainer container;
 
     @Inject
-    @Named( PlexusConstants.PLEXUS_KEY )
-    @SuppressWarnings( "unchecked" )
-    private Map variables;
+    @Parameters
+    private Map<String, String> variables;
 
     private final Map<GAVCoordinate, PluginDescriptor> activePlugins = new HashMap<GAVCoordinate, PluginDescriptor>();
 
@@ -302,7 +301,7 @@ public final class DefaultNexusPluginManager
         final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
         sources.add( new NexusAnnotatedBeanSource( annSpace, variables, exportedClassNames, repositoryTypes ) );
 
-        container.addPlexusInjector( null, sources, resourceModule );
+        container.addPlexusInjector( pluginRealm, sources, resourceModule );
 
         for ( final RepositoryTypeDescriptor r : repositoryTypes )
         {
