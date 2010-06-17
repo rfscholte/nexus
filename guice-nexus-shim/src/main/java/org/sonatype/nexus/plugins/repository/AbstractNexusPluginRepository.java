@@ -19,13 +19,12 @@ import java.net.URL;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
-import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.InterpolationFilterReader;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.sonatype.inject.Parameters;
 import org.sonatype.plugins.model.PluginMetadata;
 import org.sonatype.plugins.model.io.xpp3.PluginModelXpp3Reader;
 
@@ -46,9 +45,8 @@ abstract class AbstractNexusPluginRepository
     // ----------------------------------------------------------------------
 
     @Inject
-    @Named( PlexusConstants.PLEXUS_KEY )
-    @SuppressWarnings( "unchecked" )
-    private Map variables;
+    @Parameters
+    private Map<String, String> variables;
 
     // ----------------------------------------------------------------------
     // Implementation methods
