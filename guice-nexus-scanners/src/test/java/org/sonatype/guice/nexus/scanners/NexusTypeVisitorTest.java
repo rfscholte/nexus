@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
@@ -182,6 +183,10 @@ public class NexusTypeVisitorTest
 
         public void hear( final Annotation qualifier, final Class<?> qualifiedType )
         {
+            if ( Component.class == qualifier.annotationType() )
+            {
+                hear( (Component) qualifier, new LoadedClass<Object>( qualifiedType ) );
+            }
         }
     }
 
