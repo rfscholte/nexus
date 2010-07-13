@@ -277,7 +277,7 @@ public final class DefaultNexusPluginManager
 
         final NexusResourceBundle resourceBundle = new NexusResourceBundle()
         {
-            @SuppressWarnings( "unchecked" )
+            @SuppressWarnings( { "rawtypes", "unchecked" } )
             public List getContributedResouces()
             {
                 return staticResources;

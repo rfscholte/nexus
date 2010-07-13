@@ -141,12 +141,14 @@ public class NexusTypeVisitorTest
     {
     }
 
+    @SuppressWarnings( "unused" )
     @Component( role = SubHostInterface1.class )
     static class ComponentBeanA
         implements HostInterface1, SubHostInterface1
     {
     }
 
+    @SuppressWarnings( "unused" )
     @Component( role = SubUserInterface1.class )
     static class ComponentBeanB
         implements UserInterface1, SubUserInterface1
