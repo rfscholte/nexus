@@ -40,13 +40,13 @@ public final class PluginDescriptor
 
     private PluginMetadata metadata;
 
-    private List<String> exportedClassnames;
+    private List<String> exportedClassnames = Collections.emptyList();
 
-    private List<GAVCoordinate> importedPlugins;
+    private List<GAVCoordinate> importedPlugins = Collections.emptyList();
 
-    private List<RepositoryTypeDescriptor> repositoryTypes;
+    private List<RepositoryTypeDescriptor> repositoryTypes = Collections.emptyList();
 
-    private List<PluginStaticResource> staticResources;
+    private List<StaticResource> staticResources = Collections.emptyList();
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -71,28 +71,24 @@ public final class PluginDescriptor
         return metadata;
     }
 
-    @SuppressWarnings( "unchecked" )
     public List<String> getExportedClassnames()
     {
-        return exportedClassnames != null ? exportedClassnames : Collections.EMPTY_LIST;
+        return exportedClassnames;
     }
 
-    @SuppressWarnings( "unchecked" )
     public List<GAVCoordinate> getImportedPlugins()
     {
-        return importedPlugins != null ? importedPlugins : Collections.EMPTY_LIST;
+        return importedPlugins;
     }
 
-    @SuppressWarnings( "unchecked" )
     public List<RepositoryTypeDescriptor> getRepositoryTypes()
     {
-        return repositoryTypes != null ? repositoryTypes : Collections.EMPTY_LIST;
+        return repositoryTypes;
     }
 
-    @SuppressWarnings( "unchecked" )
     public List<StaticResource> getStaticResources()
     {
-        return staticResources != null ? staticResources : Collections.EMPTY_LIST;
+        return staticResources;
     }
 
     public String formatAsString()
@@ -126,7 +122,7 @@ public final class PluginDescriptor
             buf.append( LS );
             buf.append( "         Static resources:" ).append( LS );
 
-            for ( final PluginStaticResource resource : staticResources )
+            for ( final StaticResource resource : staticResources )
             {
                 buf.append( "         * Content type \"" ).append( resource.getContentType() );
                 buf.append( "\", to be published at path \"" ).append( resource.getPath() ).append( "\"" ).append( LS );
@@ -160,8 +156,8 @@ public final class PluginDescriptor
         repositoryTypes = Collections.unmodifiableList( new ArrayList<RepositoryTypeDescriptor>( types ) );
     }
 
-    void setStaticResources( final List<PluginStaticResource> resources )
+    void setStaticResources( final List<StaticResource> resources )
     {
-        staticResources = Collections.unmodifiableList( new ArrayList<PluginStaticResource>( resources ) );
+        staticResources = Collections.unmodifiableList( new ArrayList<StaticResource>( resources ) );
     }
 }

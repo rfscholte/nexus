@@ -43,6 +43,7 @@ import org.sonatype.nexus.plugins.repository.NoSuchPluginRepositoryArtifactExcep
 import org.sonatype.nexus.plugins.repository.PluginRepositoryArtifact;
 import org.sonatype.nexus.plugins.repository.PluginRepositoryManager;
 import org.sonatype.nexus.plugins.rest.NexusResourceBundle;
+import org.sonatype.nexus.plugins.rest.StaticResource;
 import org.sonatype.nexus.proxy.registry.RepositoryTypeDescriptor;
 import org.sonatype.nexus.proxy.registry.RepositoryTypeRegistry;
 import org.sonatype.plexus.appevents.ApplicationEventMulticaster;
@@ -273,12 +274,11 @@ public final class DefaultNexusPluginManager
 
         final List<String> exportedClassNames = new ArrayList<String>();
         final List<RepositoryTypeDescriptor> repositoryTypes = new ArrayList<RepositoryTypeDescriptor>();
-        final List<PluginStaticResource> staticResources = new ArrayList<PluginStaticResource>();
+        final List<StaticResource> staticResources = new ArrayList<StaticResource>();
 
         final NexusResourceBundle resourceBundle = new NexusResourceBundle()
         {
-            @SuppressWarnings( { "rawtypes", "unchecked" } )
-            public List getContributedResouces()
+            public List<StaticResource> getContributedResouces()
             {
                 return staticResources;
             }
