@@ -64,7 +64,7 @@ public final class NexusTypeBinder
 
     public void hear( final RepositoryType type )
     {
-        this.repositoryType = type;
+        repositoryType = type;
     }
 
     public void hear( final Component component, final DeferredClass<?> clazz )
