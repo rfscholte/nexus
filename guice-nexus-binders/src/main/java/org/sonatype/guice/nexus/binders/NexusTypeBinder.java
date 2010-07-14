@@ -67,9 +67,9 @@ public final class NexusTypeBinder
         repositoryType = type;
     }
 
-    public void hear( final Component component, final DeferredClass<?> clazz )
+    public void hear( final Component component, final DeferredClass<?> clazz, final Object source )
     {
-        plexusTypeBinder.hear( component, clazz );
+        plexusTypeBinder.hear( component, clazz, source );
         if ( null != repositoryType )
         {
             descriptors.add( new RepositoryTypeDescriptor( component.role().getName(), component.hint(),
@@ -80,8 +80,8 @@ public final class NexusTypeBinder
         }
     }
 
-    public void hear( final Annotation qualifier, final Class<?> qualifiedType )
+    public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
     {
-        plexusTypeBinder.hear( qualifier, qualifiedType );
+        plexusTypeBinder.hear( qualifier, qualifiedType, source );
     }
 }

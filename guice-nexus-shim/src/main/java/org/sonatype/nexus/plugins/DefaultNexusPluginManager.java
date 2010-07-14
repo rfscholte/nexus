@@ -70,9 +70,6 @@ public final class DefaultNexusPluginManager
     // ----------------------------------------------------------------------
 
     @Inject
-    private ClassRealm containerRealm;
-
-    @Inject
     private PluginRepositoryManager repositoryManager;
 
     @Inject
@@ -214,6 +211,7 @@ public final class DefaultNexusPluginManager
         throws NoSuchPluginRepositoryArtifactException
     {
         final String realmId = descriptor.getPluginCoordinates().toString();
+        final ClassRealm containerRealm = container.getContainerRealm();
         ClassRealm pluginRealm;
         try
         {
@@ -301,7 +299,7 @@ public final class DefaultNexusPluginManager
         final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
         sources.add( new NexusAnnotatedBeanSource( annSpace, variables, exportedClassNames, repositoryTypes ) );
 
-        container.addPlexusInjector( pluginRealm, sources, resourceModule );
+        container.addPlexusInjector( sources, resourceModule );
 
         for ( final RepositoryTypeDescriptor r : repositoryTypes )
         {

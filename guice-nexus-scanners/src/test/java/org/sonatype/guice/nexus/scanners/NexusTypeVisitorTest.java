@@ -178,16 +178,16 @@ public class NexusTypeVisitorTest
         {
         }
 
-        public void hear( final Component component, final DeferredClass<?> implementation )
+        public void hear( final Component component, final DeferredClass<?> implementation, final Object source )
         {
             components.put( component, implementation );
         }
 
-        public void hear( final Annotation qualifier, final Class<?> qualifiedType )
+        public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
         {
             if ( Component.class == qualifier.annotationType() )
             {
-                hear( (Component) qualifier, new LoadedClass<Object>( qualifiedType ) );
+                hear( (Component) qualifier, new LoadedClass<Object>( qualifiedType ), source );
             }
         }
     }
