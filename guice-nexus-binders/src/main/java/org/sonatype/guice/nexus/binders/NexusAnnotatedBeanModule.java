@@ -19,6 +19,7 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.nexus.scanners.NexusTypeVisitor;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.PlexusAnnotatedMetadata;
 import org.sonatype.nexus.proxy.registry.RepositoryTypeDescriptor;
@@ -26,10 +27,10 @@ import org.sonatype.nexus.proxy.registry.RepositoryTypeDescriptor;
 import com.google.inject.Binder;
 
 /**
- * {@link PlexusBeanSource} that registers Plexus beans by scanning classes for runtime annotations.
+ * {@link PlexusBeanModule} that registers Plexus beans by scanning classes for runtime annotations.
  */
-public final class NexusAnnotatedBeanSource
-    implements PlexusBeanSource
+public final class NexusAnnotatedBeanModule
+    implements PlexusBeanModule
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -37,7 +38,7 @@ public final class NexusAnnotatedBeanSource
 
     private final ClassSpace space;
 
-    private final PlexusAnnotatedMetadata metadata;
+    private final Map<?, ?> variables;
 
     private final List<String> classNames;
 
@@ -53,13 +54,11 @@ public final class NexusAnnotatedBeanSource
      * @param space The local class space
      * @param variables The filter variables
      */
-    public NexusAnnotatedBeanSource( final ClassSpace space, final Map<?, ?> variables, final List<String> classNames,
+    public NexusAnnotatedBeanModule( final ClassSpace space, final Map<?, ?> variables, final List<String> classNames,
                                      final List<RepositoryTypeDescriptor> descriptors )
     {
         this.space = space;
-
-        metadata = new PlexusAnnotatedMetadata( variables );
-
+        this.variables = variables;
         this.classNames = classNames;
         this.descriptors = descriptors;
     }
@@ -68,17 +67,33 @@ public final class NexusAnnotatedBeanSource
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void configure( final Binder binder )
+    public PlexusBeanSource configure( final Binder binder )
     {
         if ( null != space )
         {
             final NexusTypeBinder nexusBinder = new NexusTypeBinder( binder, classNames, descriptors );
             new ClassSpaceScanner( space ).accept( new NexusTypeVisitor( nexusBinder ) );
         }
+        return new NexusAnnotatedBeanSource( variables );
     }
 
-    public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    private static final class NexusAnnotatedBeanSource
+        implements PlexusBeanSource
     {
-        return metadata;
+        private final PlexusBeanMetadata metadata;
+
+        NexusAnnotatedBeanSource( final Map<?, ?> variables )
+        {
+            metadata = new PlexusAnnotatedMetadata( variables );
+        }
+
+        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+        {
+            return metadata;
+        }
     }
 }

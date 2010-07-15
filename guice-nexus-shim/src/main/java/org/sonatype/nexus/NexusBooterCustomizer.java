@@ -30,6 +30,7 @@ public final class NexusBooterCustomizer
     public void customizeContainerConfiguration( final ContainerConfiguration configuration )
     {
         System.setProperty( "guice.disable.misplaced.annotation.check", "true" );
+        System.setProperty( "plexus.disable.component.visibility.check", "true" );
     }
 
     public void customizeContext( final Context context )

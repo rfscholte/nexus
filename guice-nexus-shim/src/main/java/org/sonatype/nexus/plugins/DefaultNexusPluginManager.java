@@ -32,9 +32,9 @@ import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.guice.nexus.binders.NexusAnnotatedBeanSource;
-import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
-import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.nexus.binders.NexusAnnotatedBeanModule;
+import org.sonatype.guice.plexus.binders.PlexusXmlBeanModule;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.inject.Parameters;
 import org.sonatype.nexus.mime.MimeUtil;
 import org.sonatype.nexus.plugins.events.PluginActivatedEvent;
@@ -291,15 +291,15 @@ public final class DefaultNexusPluginManager
             }
         };
 
-        final List<PlexusBeanSource> sources = new ArrayList<PlexusBeanSource>();
+        final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
 
         final ClassSpace pluginSpace = new URLClassSpace( pluginRealm );
-        sources.add( new PlexusXmlBeanSource( pluginSpace, variables ) );
+        beanModules.add( new PlexusXmlBeanModule( pluginSpace, variables ) );
 
         final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
-        sources.add( new NexusAnnotatedBeanSource( annSpace, variables, exportedClassNames, repositoryTypes ) );
+        beanModules.add( new NexusAnnotatedBeanModule( annSpace, variables, exportedClassNames, repositoryTypes ) );
 
-        container.addPlexusInjector( sources, resourceModule );
+        container.addPlexusInjector( beanModules, resourceModule );
 
         for ( final RepositoryTypeDescriptor r : repositoryTypes )
         {
