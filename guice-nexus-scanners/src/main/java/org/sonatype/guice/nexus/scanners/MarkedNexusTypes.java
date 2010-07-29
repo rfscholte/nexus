@@ -14,10 +14,7 @@ package org.sonatype.guice.nexus.scanners;
 
 import java.lang.annotation.Annotation;
 
-/**
- * Enumeration of Nexus component types.
- */
-enum NexusTypes
+enum MarkedNexusTypes
     implements NexusType
 {
     // ----------------------------------------------------------------------

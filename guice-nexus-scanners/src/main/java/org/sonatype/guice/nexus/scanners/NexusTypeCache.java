@@ -73,11 +73,11 @@ final class NexusTypeCache
     {
         if ( name.startsWith( "java" ) )
         {
-            return NexusTypes.UNKNOWN;
+            return MarkedNexusTypes.UNKNOWN;
         }
         if ( !cachedResults.containsKey( name ) )
         {
-            nexusType = NexusTypes.UNKNOWN;
+            nexusType = MarkedNexusTypes.UNKNOWN;
             isSingleton = false;
 
             ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
@@ -92,11 +92,11 @@ final class NexusTypeCache
     {
         if ( EXTENSION_POINT_DESC.equals( desc ) )
         {
-            nexusType = NexusTypes.EXTENSION_POINT;
+            nexusType = MarkedNexusTypes.EXTENSION_POINT;
         }
         else if ( MANAGED_DESC.equals( desc ) )
         {
-            nexusType = NexusTypes.MANAGED;
+            nexusType = MarkedNexusTypes.MANAGED;
         }
         else if ( SINGLETON_DESC.equals( desc ) )
         {
