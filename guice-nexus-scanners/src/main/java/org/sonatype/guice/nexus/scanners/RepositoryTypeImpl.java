@@ -34,7 +34,7 @@ final class RepositoryTypeImpl
     // Constructors
     // ----------------------------------------------------------------------
 
-    public RepositoryTypeImpl( final String pathPrefix, final int repositoryMaxInstanceCount )
+    RepositoryTypeImpl( final String pathPrefix, final int repositoryMaxInstanceCount )
     {
         if ( null == pathPrefix )
         {

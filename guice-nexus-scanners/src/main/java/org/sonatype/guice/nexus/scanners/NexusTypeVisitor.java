@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.nexus.scanners;
 
+import java.lang.annotation.Annotation;
 import java.net.URL;
 
 import javax.inject.Named;
@@ -32,7 +33,7 @@ import org.sonatype.plugin.ExtensionPoint;
 import org.sonatype.plugin.Managed;
 
 /**
- * {@link ClassSpaceVisitor} that reports Nexus components annotated with @{@link ExtensionPoint} or @{@link Managed}.
+ * {@link ClassSpaceVisitor} that looks for @{@link ExtensionPoint}, @ {@link RepositoryType}, or @{@link Managed}.
  */
 public final class NexusTypeVisitor
     extends EmptyClassVisitor
@@ -46,15 +47,11 @@ public final class NexusTypeVisitor
 
     static final String NAMED_DESC = Type.getDescriptor( Named.class );
 
-    static final String REPOSITORY_TYPE_DESC = Type.getDescriptor( RepositoryType.class );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private final CustomNamedAnnotationVisitor customNamedVisitor = new CustomNamedAnnotationVisitor();
-
-    private final RepositoryTypeAnnotationVisitor repositoryTypeVisitor = new RepositoryTypeAnnotationVisitor();
 
     private final NexusTypeCache nexusTypeCache = new NexusTypeCache();
 
@@ -88,8 +85,7 @@ public final class NexusTypeVisitor
 
     public ClassVisitor visitClass( final URL url )
     {
-        repositoryTypeVisitor.reset();
-        nexusType = NexusType.UNKNOWN;
+        nexusType = NexusTypes.UNKNOWN;
         plexusTypeVisitor.visitClass( url );
         return this;
     }
@@ -111,16 +107,9 @@ public final class NexusTypeVisitor
     @Override
     public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
-        if ( nexusType.isComponent() )
+        if ( nexusType.isComponent() && NAMED_DESC.equals( desc ) )
         {
-            if ( NAMED_DESC.equals( desc ) )
-            {
-                return customNamedVisitor;
-            }
-            if ( REPOSITORY_TYPE_DESC.equals( desc ) )
-            {
-                return repositoryTypeVisitor;
-            }
+            return customNamedVisitor;
         }
         return plexusTypeVisitor.visitAnnotation( desc, visible );
     }
@@ -128,10 +117,10 @@ public final class NexusTypeVisitor
     @Override
     public void visitEnd()
     {
-        final RepositoryType repositoryType = repositoryTypeVisitor.getRepositoryType();
-        if ( null != repositoryType )
+        final Annotation details = nexusType.details();
+        if ( details instanceof RepositoryType )
         {
-            nexusTypeListener.hear( repositoryType );
+            nexusTypeListener.hear( (RepositoryType) details );
         }
         plexusTypeVisitor.visitEnd();
     }
@@ -149,7 +138,7 @@ public final class NexusTypeVisitor
             {
                 final AnnotationVisitor componentVisitor = getComponentVisitor();
                 componentVisitor.visit( "role", Type.getObjectType( i ) );
-                if ( nexusType.name().startsWith( "EXTENSION" ) )
+                if ( nexusType == NexusTypes.EXTENSION_POINT || nexusType == NexusTypes.EXTENSION_POINT_SINGLETON )
                 {
                     componentVisitor.visit( "hint", clazz );
                 }
@@ -178,42 +167,6 @@ public final class NexusTypeVisitor
         public void visit( final String name, final Object value )
         {
             getComponentVisitor().visit( "hint", value );
-        }
-    }
-
-    // ----------------------------------------------------------------------
-    // RepositoryType annotation scanner
-    // ----------------------------------------------------------------------
-
-    static final class RepositoryTypeAnnotationVisitor
-        extends EmptyAnnotationVisitor
-    {
-        private String pathPrefix;
-
-        private int repositoryMaxInstanceCount;
-
-        public void reset()
-        {
-            pathPrefix = null;
-            repositoryMaxInstanceCount = RepositoryType.UNLIMITED_INSTANCES;
-        }
-
-        @Override
-        public void visit( final String name, final Object value )
-        {
-            if ( "pathPrefix".equals( name ) )
-            {
-                pathPrefix = (String) value;
-            }
-            else if ( "repositoryMaxInstanceCount".equals( name ) )
-            {
-                repositoryMaxInstanceCount = ( (Integer) value ).intValue();
-            }
-        }
-
-        public RepositoryType getRepositoryType()
-        {
-            return pathPrefix != null ? new RepositoryTypeImpl( pathPrefix, repositoryMaxInstanceCount ) : null;
         }
     }
 }

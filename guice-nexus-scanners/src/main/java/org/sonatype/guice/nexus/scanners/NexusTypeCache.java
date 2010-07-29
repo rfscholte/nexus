@@ -22,7 +22,9 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
+import org.sonatype.guice.bean.scanners.EmptyAnnotationVisitor;
 import org.sonatype.guice.bean.scanners.EmptyClassVisitor;
+import org.sonatype.nexus.plugins.RepositoryType;
 import org.sonatype.plugin.ExtensionPoint;
 import org.sonatype.plugin.Managed;
 
@@ -38,6 +40,8 @@ final class NexusTypeCache
 
     private static final String EXTENSION_POINT_DESC = Type.getDescriptor( ExtensionPoint.class );
 
+    private static final String REPOSITORY_TYPE_DESC = Type.getDescriptor( RepositoryType.class );
+
     private static final String MANAGED_DESC = Type.getDescriptor( Managed.class );
 
     private static final String SINGLETON_DESC = Type.getDescriptor( Singleton.class );
@@ -48,7 +52,9 @@ final class NexusTypeCache
 
     private final Map<String, NexusType> cachedResults = new HashMap<String, NexusType>();
 
-    private NexusType nexusType;
+    private final RepositoryTypeAnnotationVisitor repositoryTypeVisitor = new RepositoryTypeAnnotationVisitor();
+
+    NexusType nexusType;
 
     private boolean isSingleton;
 
@@ -67,11 +73,11 @@ final class NexusTypeCache
     {
         if ( name.startsWith( "java" ) )
         {
-            return NexusType.UNKNOWN;
+            return NexusTypes.UNKNOWN;
         }
         if ( !cachedResults.containsKey( name ) )
         {
-            nexusType = NexusType.UNKNOWN;
+            nexusType = NexusTypes.UNKNOWN;
             isSingleton = false;
 
             ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
@@ -86,15 +92,20 @@ final class NexusTypeCache
     {
         if ( EXTENSION_POINT_DESC.equals( desc ) )
         {
-            nexusType = NexusType.EXTENSION_POINT;
+            nexusType = NexusTypes.EXTENSION_POINT;
         }
         else if ( MANAGED_DESC.equals( desc ) )
         {
-            nexusType = NexusType.MANAGED;
+            nexusType = NexusTypes.MANAGED;
         }
         else if ( SINGLETON_DESC.equals( desc ) )
         {
             isSingleton = true;
+        }
+        else if ( REPOSITORY_TYPE_DESC.equals( desc ) )
+        {
+            repositoryTypeVisitor.reset();
+            return repositoryTypeVisitor;
         }
         return null;
     }
@@ -105,6 +116,46 @@ final class NexusTypeCache
         if ( isSingleton )
         {
             nexusType = nexusType.asSingleton();
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // RepositoryType annotation scanner
+    // ----------------------------------------------------------------------
+
+    final class RepositoryTypeAnnotationVisitor
+        extends EmptyAnnotationVisitor
+    {
+        private String pathPrefix;
+
+        private int repositoryMaxInstanceCount;
+
+        public void reset()
+        {
+            pathPrefix = null;
+            repositoryMaxInstanceCount = RepositoryType.UNLIMITED_INSTANCES;
+        }
+
+        @Override
+        public void visit( final String name, final Object value )
+        {
+            if ( "pathPrefix".equals( name ) )
+            {
+                pathPrefix = (String) value;
+            }
+            else if ( "repositoryMaxInstanceCount".equals( name ) )
+            {
+                repositoryMaxInstanceCount = ( (Integer) value ).intValue();
+            }
+        }
+
+        @Override
+        public void visitEnd()
+        {
+            if ( pathPrefix != null )
+            {
+                nexusType = new DetailedNexusType( new RepositoryTypeImpl( pathPrefix, repositoryMaxInstanceCount ) );
+            }
         }
     }
 }

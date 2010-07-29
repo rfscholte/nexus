@@ -14,13 +14,42 @@ package org.sonatype.guice.nexus.scanners;
 
 import java.lang.annotation.Annotation;
 
-interface NexusType
+final class DetailedNexusType
+    implements NexusType
 {
-    boolean isComponent();
+    private final boolean isSingleton;
 
-    boolean isSingleton();
+    private final Annotation details;
 
-    NexusType asSingleton();
+    DetailedNexusType( final Annotation details )
+    {
+        isSingleton = false;
+        this.details = details;
+    }
 
-    Annotation details();
+    private DetailedNexusType( final boolean isSingleton, final Annotation details )
+    {
+        this.isSingleton = isSingleton;
+        this.details = details;
+    }
+
+    public boolean isComponent()
+    {
+        return true;
+    }
+
+    public boolean isSingleton()
+    {
+        return isSingleton;
+    }
+
+    public DetailedNexusType asSingleton()
+    {
+        return isSingleton ? this : new DetailedNexusType( true, details );
+    }
+
+    public Annotation details()
+    {
+        return details;
+    }
 }
