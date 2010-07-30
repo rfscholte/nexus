@@ -138,8 +138,7 @@ public final class NexusTypeVisitor
             {
                 final AnnotationVisitor componentVisitor = getComponentVisitor();
                 componentVisitor.visit( "role", Type.getObjectType( i ) );
-                if ( nexusType == MarkedNexusTypes.EXTENSION_POINT
-                    || nexusType == MarkedNexusTypes.EXTENSION_POINT_SINGLETON )
+                if ( nexusType != MarkedNexusTypes.MANAGED && nexusType != MarkedNexusTypes.MANAGED_SINGLETON )
                 {
                     componentVisitor.visit( "hint", clazz );
                 }
