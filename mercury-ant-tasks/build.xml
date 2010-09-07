@@ -1,0 +1,324 @@
+<project name="test" default="compile" xmlns:merc="antlib:org.apache.maven.mercury.ant.tasks" >
+  
+  <target name="init">
+  	
+  	<property file="${basedir}/secret.properties"/>
+
+    <property name="config.name" value="conf"/>
+    <property name="compiler.version" value="1.5"/>
+    <property name="build.compiler" value="extJavac"/>
+
+    <property name="src" value="${basedir}/src/test/compile"/>
+
+  	<property name="target" value="${basedir}/target/compile-classes"/>
+    <delete dir="${target}"/>
+    <mkdir dir="${target}"/>
+
+    <property name="jar.target" value="${basedir}/target/compile-target"/>
+    <delete dir="${jar.target}"/>
+    <mkdir dir="${jar.target}"/>
+
+    <property name="local.repo.dir" value="${basedir}/target/test-repo"/>
+    <delete dir="${local.repo.dir}"/>
+    <mkdir dir="${local.repo.dir}"/>
+  	
+  	<taskdef resource="org/apache/maven/mercury/ant/tasks/antlib.xml"/>
+
+  	<!--
+  	 | The most complex way to configure repositories
+  	-->
+    <merc:config id="conf">
+      <merc:repo id="localRepo" dir="${local.repo.dir}"/>
+      <merc:repo id="central"   url="http://localhost:${repo.port}/maven2"/>
+    </merc:config>
+
+    <merc:config id="config-bad-auth">
+      <merc:repo id="localRepo" dir="${local.repo.dir}"/>
+      <merc:repo id="central"   url="http://localhost:${repo.port}/maven2"/>
+    </merc:config>
+
+    <merc:config id="config-auth">
+      <merc:auth id="test-auth" name="foo" pass="bar"/>
+      <merc:repo id="localRepo" dir="${local.repo.dir}"/>
+      <merc:repo id="central"  url="http://localhost:${repo.port}/maven2" authid="test-auth">
+      </merc:repo>
+    </merc:config>
+
+    <property name="local.verify.dir" value="${basedir}/target/test-verify-repo"/>
+    <delete dir="${local.verify.dir}"/>
+    <mkdir dir="${local.verify.dir}"/>
+
+    <merc:config id="verification-conf">
+      
+      <merc:repo id="localVerifyRepo" dir="${local.verify.dir}"
+                 pgpKeyring="${basedir}/target/test-classes/pgp/pubring.gpg"
+      	         pgpSecretKeyring="${basedir}/target/test-classes/pgp/secring.gpg"
+      	         pgpSecretKey="${secret.keyring.key}"
+      	         pgpSecretKeyPass="${secret.keyring.pass}"
+      />
+
+    </merc:config>
+
+    <merc:dep id="my-libs">
+      <merc:dependency name="asm:asm:3.0"/>
+    </merc:dep>
+
+  </target>
+
+  <target name="compile" depends="init">
+    <merc:resolve depid="my-libs"
+                  configid="${config.name}"
+                 />
+
+    <property name="cp" refid="mercury.classpath.compile"/>
+    <echo>path is ${cp}</echo>
+
+    <javac srcdir="${src}"
+           destdir="${target}"
+           classpathref="mercury.classpath.compile"
+           source="${compiler.version}"
+           target="${compiler.version}"
+    />
+    
+    <jar destfile="${jar.target}/t.jar"
+         basedir="${target}"
+    />
+
+  </target>
+
+
+  <target name="compile-bad-auth" depends="init">
+    <merc:resolve pathid="compile-path-bad-auth"
+                 depid="my-libs"
+                 configid="config-bad-auth"
+                 />
+  </target>
+
+  
+  <target name="compile-auth" depends="init">
+
+    <merc:resolve depid="my-libs"
+                 configid="config-auth"
+                 />
+
+    <property name="cpa" refid="mercury.classpath.compile"/>
+    <echo>compile-path-auth is ${cpa}</echo>
+
+    <javac srcdir="${src}"
+           destdir="${target}"
+           classpathref="mercury.classpath.compile"
+           source="${compiler.version}"
+           target="${compiler.version}"
+    />
+
+    <jar destfile="${jar.target}/t-auth.jar"
+         basedir="${target}"
+    />
+
+  </target>
+
+  <target name="bad-pgp" depends="init">
+
+    <merc:config id="pgp-conf">
+      <merc:repo id="localPgpRepo"  dir="${local.verify.dir}"/>
+      <merc:repo id="remotePgpRepo" url="http://localhost:${repo.port}/maven2">
+        <merc:verifyread type="pgp">
+          <property name="keyring" value="${basedir}/target/test-classes/pgp/pubring.gpg"/>
+        </merc:verifyread>
+      </merc:repo>
+    </merc:config>
+
+  	<merc:dep id="t-bad">
+      <merc:dependency name="t:bad:1.0"/>
+    </merc:dep>
+  	
+    <merc:resolve pathid="path-pgp-good"
+                 depid="t-bad"
+                 configid="pgp-conf"
+                 />
+  </target>
+  
+
+  <target name="good-pgp" depends="init">
+  
+    <merc:config id="pgp-conf">
+      <merc:repo id="localPgpRepo"  dir="${local.verify.dir}"/>
+      <merc:repo id="remotePgpRepo" url="http://localhost:${repo.port}/maven2"
+      	         pgpKeyring="${basedir}/target/test-classes/pgp/pubring.gpg"
+      />
+    </merc:config>
+
+    <merc:dep id="t-good">
+      <merc:dependency name="t:t:1.0"/>
+    </merc:dep>
+    
+    <merc:resolve pathid="path-pgp-good"
+                  configid="pgp-conf"
+                  depid="t-good"
+                 />
+  </target>
+
+  <target name="deploy" depends="compile">
+    <merc:write repoid="localRepo" name="t:t:1.0" file="${jar.target}/t.jar"/>
+  </target>
+
+  <target name="deploy-verify" depends="compile">
+    <merc:write repoid="localVerifyRepo"
+                name="t:t:1.0"
+                file="${jar.target}/t.jar"
+      />
+  </target>
+
+  <target name="compile-thin-path">
+
+    <property name="build.compiler" value="extJavac"/>
+    <taskdef resource="org/apache/maven/mercury/ant/tasks/antlib.xml"/>
+  	
+    <javac srcdir="${basedir}/src/test/compile"
+           destdir="${basedir}/target/compile-classes"
+           source="1.5"
+           target="1.5"
+  	>
+      <classpath>
+        <dep>
+          <dependency name="asm:asm:3.0"/>
+        </dep>
+     </classpath>
+    </javac>
+  </target>
+
+  <target name="compile-thin-path-2" depends="init">
+
+    <path id="thin-path-2"> 
+      <merc:dep>
+        <merc:dependency name="asm:asm:3.0"/>
+      </merc:dep>
+    </path>
+
+    <javac srcdir="${src}"
+           destdir="${target}"
+           classpathref="thin-path-2"
+           source="${compiler.version}"
+           target="${compiler.version}"
+    />
+  </target>
+
+  <target name="compile-fail" depends="init">
+    <javac srcdir="${src}"
+           destdir="${target}"
+           source="${compiler.version}"
+           target="${compiler.version}"
+    />
+  </target>
+
+
+  <target name="compile-thin-path-3" depends="init">
+    
+    <repository id="localPath3" dir="${basedir}/target/path-3"/>
+    
+    <repository id="remotePath3" url="http://localhost:${repo.port}/maven2">
+      <auth name="foo" pass="bar"/>
+    </repository>
+
+    <javac srcdir="${src}"
+           destdir="${target}"
+           source="${compiler.version}"
+           target="${compiler.version}"
+    >
+      <classpath> 
+        <deps>
+          <dependency name="asm:asm:3.0"/>
+        </deps>
+      </classpath>
+    </javac>
+
+  </target>
+
+  <target name="compile-thin-path-pom" depends="init">
+    
+    <repository id="localPath3" dir="${basedir}/target/path-pom"/>
+    
+    <repository id="remotePath3" url="http://localhost:${repo.port}/maven2">
+      <auth name="foo" pass="bar"/>
+    </repository>
+
+    <javac srcdir="${src}"
+           destdir="${target}"
+           source="${compiler.version}"
+           target="${compiler.version}"
+    >
+      <classpath> 
+        <deps>
+          <dependency pom="${basedir}/target/test-classes/t-3.0.pom" />
+        </deps>
+      </classpath>
+    </javac>
+
+  </target>
+  
+  <target name="compile-old-syntax" depends="init">
+    
+    <remoteRepository id="remote.repository.old" url="http://localhost:${repo.port}/maven2" />
+
+    <localRepository path="${basedir}/target/path-old" layout="default"/>
+    
+    <dependencies>
+      <dependency groupId="asm" artifactId="asm" version="3.0"/>
+    </dependencies>
+    
+    <javac srcdir="${src}"
+           destdir="${target}"
+           source="${compiler.version}"
+           target="${compiler.version}"
+    >
+      <classpath refid="mercury.classpath"/> 
+    </javac>
+
+  </target>
+  
+  <target name="compile-old-syntax-with-auth" depends="init">
+    
+    <remoteRepository id="remote.repository.old" url="http://localhost:${repo.port}/maven2">
+      <authentication username="foo" password="bar"/>
+    </remoteRepository>
+
+    <localRepository path="${basedir}/target/path-old-auth" layout="default"/>
+    
+    <dependencies>
+      <dependency groupId="asm" artifactId="asm" version="3.0"/>
+    </dependencies>
+    
+    <javac srcdir="${src}"
+           destdir="${target}"
+           source="${compiler.version}"
+           target="${compiler.version}"
+    >
+      <classpath refid="mercury.classpath"/> 
+    </javac>
+
+  </target>
+  
+  <target name="test-default-path-id">
+
+    <property name="build.compiler" value="extJavac"/>
+  	<taskdef resource="org/apache/maven/mercury/ant/tasks/antlib.xml"/>
+    
+  	<config>
+      <repository id="remote.repository" url="http://localhost:${repo.port}/maven2"/>
+      <repository dir="${basedir}/target/defaul-path-id"/>
+    </config>
+    
+    <dependencies>
+      <dependency groupId="asm" artifactId="asm" version="3.0"/>
+    </dependencies>
+    
+    <javac srcdir="${basedir}/src/test/compile"
+           destdir="${basedir}/target/compile-classes"
+    	     classpathref="mercury.classpath"
+           source="1.5"
+           target="1.5"
+    />
+
+  </target>
+
+</project>
