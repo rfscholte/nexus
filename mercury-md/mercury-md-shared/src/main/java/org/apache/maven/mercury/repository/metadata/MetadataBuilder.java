@@ -54,7 +54,8 @@ public class MetadataBuilder
     {
         try
         {
-            return new MetadataXpp3Reader().read( in );
+            //patch for NXCM-2222, dont croak on unexpected fields
+            return new MetadataXpp3Reader().read( in, false );
         }
         catch ( Exception e )
         {
@@ -79,7 +80,8 @@ public class MetadataBuilder
 
         try
         {
-            return new MetadataXpp3Reader().read( new ByteArrayInputStream( in ) );
+            //patch for NXCM-2222, dont croak on unexpected fields
+            return new MetadataXpp3Reader().read( new ByteArrayInputStream( in ), false );
         }
         catch ( Exception e )
         {
