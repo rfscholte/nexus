@@ -131,7 +131,7 @@ under the License.
   
   <distributionManagement>
       <repository>
-        <id>sonatype-releases</id>
+        <id>sonatype-commercial</id>
         <url>http://repository.sonatype.org:8081/service/local/staging/deploy/maven2</url>
       </repository>
     </distributionManagement>
