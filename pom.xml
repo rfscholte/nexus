@@ -26,8 +26,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <jetty.version>6.1.19</jetty.version>
-    <sisu-guice.version>3.0-SNAPSHOT</sisu-guice.version>
-    <sisu-inject.version>1.4.3-SNAPSHOT</sisu-inject.version>
+    <spice-inject.version>1.3.4</spice-inject.version>
     <spice-inject-plexus.version>${spice-inject.version}</spice-inject-plexus.version>
     <plexus-component-metadata.version>1.5.4</plexus-component-metadata.version>
 
