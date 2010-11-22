@@ -69,6 +69,10 @@ public class StageClient
 
     private static final String REPO_DESCRIPTION_ELEMENT = "description";
 
+    private static final String REPO_IP_ADDRESS_ELEMENT = "ipAddress";
+
+    private static final String REPO_USER_AGENT_ELEMENT = "userAgent";
+
     private static final String USER_ID_ELEMENT = "userId";
 
     private static final String OPEN_STAGE_REPOS_XPATH = "stagingRepositoryIds/string/text()";
@@ -375,9 +379,8 @@ public class StageClient
                         {
                             for ( Text txt : repoIds )
                             {
-                                matchingRepoStubs.put(
-                                                       profileId + "/" + txt.getText(),
-                                                       new StageRepository( profileId, txt.getText(), findOpen ).setProfileName( profileName ) );
+                                matchingRepoStubs.put( profileId + "/" + txt.getText(), new StageRepository( profileId,
+                                    txt.getText(), findOpen ).setProfileName( profileName ) );
                             }
                         }
                     }
@@ -397,9 +400,8 @@ public class StageClient
                         {
                             for ( Text txt : repoIds )
                             {
-                                matchingRepoStubs.put(
-                                                       profileId + "/" + txt.getText(),
-                                                       new StageRepository( profileId, txt.getText(), findOpen ).setProfileName( profileName ) );
+                                matchingRepoStubs.put( profileId + "/" + txt.getText(), new StageRepository( profileId,
+                                    txt.getText(), findOpen ).setProfileName( profileName ) );
                             }
                         }
                     }
@@ -483,7 +485,19 @@ public class StageClient
                 {
                     repo.setDescription( desc.getText() );
                 }
+
+                Element ipAddress = detail.getChild( REPO_IP_ADDRESS_ELEMENT );
+                if ( ipAddress != null )
+                {
+                    repo.setIpAddress( ipAddress.getText() );
             }
+
+                Element userAgent = detail.getChild( REPO_USER_AGENT_ELEMENT );
+                if ( userAgent != null )
+                {
+                    repo.setUserAgent( userAgent.getText() );
+        }
+    }
         }
     }
 
