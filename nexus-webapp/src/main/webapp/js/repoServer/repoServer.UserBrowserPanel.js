@@ -102,7 +102,7 @@ Ext.extend(Ext.tree.UserTreeLoader, Ext.tree.SonatypeTreeLoader, {
 
           if (role)
           {
-            attr.id = parentId + '$$' + Sonatype.config.repos.urls.roles + '/' + id + '/';
+            attr.id = parentId + '$$' + Sonatype.config.repos.urls.roles + '/' + id;
             attr.text = role.data.name;
             attr.qtip = role.data.description;
             attr.leaf = false;
@@ -116,7 +116,7 @@ Ext.extend(Ext.tree.UserTreeLoader, Ext.tree.SonatypeTreeLoader, {
 
           if (priv)
           {
-            attr.id = parentId + '$$' + Sonatype.config.repos.urls.privileges + '/' + id + '/';
+            attr.id = parentId + '$$' + Sonatype.config.repos.urls.privileges + '/' + id;
             attr.text = priv.data.name;
             attr.qtip = priv.data.description;
             attr.leaf = true;
