@@ -26,8 +26,12 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.nexus.configuration.ConfigurationPrepareForSaveEvent;
@@ -74,15 +78,10 @@ public abstract class AbstractGroupRepository
     @Requirement
     private RequestRepositoryMapper requestRepositoryMapper;
 
-    private ExecutorService executor;
-
-    public AbstractGroupRepository()
-    {
-        NexusThreadFactory threadFactory =
-            new NexusThreadFactory( "nx-grouprepo-retrieval", "GroupRepository Item Retrieval" );
-
-        executor = Executors.newCachedThreadPool( threadFactory );
-    }
+    private static ExecutorService executor = new ThreadPoolExecutor( 2, MAX_RETRIEVAL_THREADS,
+        THREAD_KEEPALIVE_TIMEOUT, TimeUnit.SECONDS, new SynchronousQueue<Runnable>( true ), new NexusThreadFactory(
+            "nx-grouprepo-retrieval", "GroupRepository Item Retrieval", Thread.NORM_PRIORITY, true ),
+        new ThreadPoolExecutor.AbortPolicy() );
 
     @Override
     protected AbstractGroupRepositoryConfiguration getExternalConfiguration( boolean forWrite )
@@ -178,18 +177,22 @@ public abstract class AbstractGroupRepository
                 if ( !request.getProcessedRepositories().contains( repo.getId() ) )
                 {
                     // NEXUS-4353 run item listings in parallel
-                    Future<Collection<StorageItem>> future = executor.submit( new Callable<Collection<StorageItem>>()
+                    Callable<Collection<StorageItem>> callable = new ListRepositoryCallable( repo, request );
+                    try
                     {
-                        @Override
-                        public Collection<StorageItem> call()
-                            throws Exception
+                        futures.add( executor.submit( callable ) );
+                    }
+                    catch ( RejectedExecutionException e )
+                    {
+                        if ( executor.isShutdown() )
                         {
-                            Collection<StorageItem> item = repo.list( false, request );
-
-                            return item;
+                            break;
                         }
-                    } );
-                    futures.add( future );
+                        else
+                        {
+                            futures.add( new InlineExecutionFuture<Collection<StorageItem>>( callable ) );
+                        }
+                    }
                 }
                 else
                 {
@@ -472,19 +475,22 @@ public abstract class AbstractGroupRepository
             {
                 if ( !request.getProcessedRepositories().contains( repository.getId() ) )
                 {
-                    // NEXUS-4353 run item retrievals in parallel
-                    Future<StorageItem> future = executor.submit( new Callable<StorageItem>()
+                    RetrieveItemCallable callable = new RetrieveItemCallable( request, repository );
+                    try
                     {
-                        @Override
-                        public StorageItem call()
-                            throws Exception
+                        futures.add( executor.submit( callable ) );
+                    }
+                    catch ( RejectedExecutionException e )
+                    {
+                        if ( executor.isShutdown() )
                         {
-                            StorageItem item = repository.retrieveItem( false, request );
-
-                            return item;
+                            break;
                         }
-                    } );
-                    futures.add( future );
+                        else
+                        {
+                            futures.add( new InlineExecutionFuture<StorageItem>( callable ) );
+                        }
+                    }
                 }
                 else
                 {
@@ -606,6 +612,110 @@ public abstract class AbstractGroupRepository
             ids.add( repo.getId() );
         }
         return ids;
+    }
+
+    private final class RetrieveItemCallable
+        implements Callable<StorageItem>
+    {
+        private final ResourceStoreRequest request;
+    
+        private final Repository repository;
+    
+        private RetrieveItemCallable( ResourceStoreRequest request, Repository repository )
+        {
+            this.request = request;
+            this.repository = repository;
+        }
+    
+        @Override
+        public StorageItem call()
+            throws Exception
+        {
+            StorageItem item = repository.retrieveItem( false, request );
+    
+            return item;
+        }
+    }
+
+    private final class ListRepositoryCallable
+        implements Callable<Collection<StorageItem>>
+    {
+        private final Repository repo;
+    
+        private final ResourceStoreRequest request;
+    
+        private ListRepositoryCallable( Repository repo, ResourceStoreRequest request )
+        {
+            this.repo = repo;
+            this.request = request;
+        }
+    
+        @Override
+        public Collection<StorageItem> call()
+            throws Exception
+        {
+            Collection<StorageItem> item = repo.list( false, request );
+    
+            return item;
+        }
+    }
+
+    private class InlineExecutionFuture<S>
+        implements Future<S>
+    {
+    
+        private S result;
+    
+        private Exception exception;
+    
+        public InlineExecutionFuture( Callable<S> callable )
+        {
+            try
+            {
+                result = callable.call();
+            }
+            catch ( Exception e )
+            {
+                exception = e;
+            }
+        }
+    
+        @Override
+        public boolean cancel( boolean mayInterruptIfRunning )
+        {
+            return true;
+        }
+    
+        @Override
+        public boolean isCancelled()
+        {
+            return true;
+        }
+    
+        @Override
+        public boolean isDone()
+        {
+            return true;
+        }
+    
+        @Override
+        public S get()
+            throws InterruptedException, ExecutionException
+        {
+            if ( exception != null )
+            {
+                throw new ExecutionException( exception );
+            }
+            return result;
+        }
+    
+        @Override
+        public S get( long timeout, TimeUnit unit )
+            throws InterruptedException, ExecutionException, TimeoutException
+        {
+            return get();
+        }
+    
     }
 
 }
