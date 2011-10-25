@@ -24,12 +24,22 @@ import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 
+import com.google.common.io.NullOutputStream;
+
 public class ProgressListener
     extends TestListenerAdapter
 {
+    private PrintStream out;
+
+    private PrintStream err;
+
     @Override
     public void onStart( ITestContext testContext )
     {
+        out = System.out;
+        err = System.err;
+        System.setOut( new PrintStream( new NullOutputStream() ) );
+        System.setErr( new PrintStream( new NullOutputStream() ) );
         super.onStart( testContext );
     }
 
@@ -37,6 +47,8 @@ public class ProgressListener
     public void onFinish( ITestContext testContext )
     {
         super.onFinish( testContext );
+        System.setOut( out );
+        System.setErr( err );
     }
 
     @Override
@@ -44,7 +56,7 @@ public class ProgressListener
     {
         super.onTestFailedButWithinSuccessPercentage( tr );
 
-        showResult( tr, "partial success", System.out );
+        showResult( tr, "partial success" );
     }
 
     @Override
@@ -52,7 +64,7 @@ public class ProgressListener
     {
         super.onTestFailure( tr );
 
-        showResult( tr, "FAILED",  System.out );
+        showResult( tr, "FAILED" );
     }
 
     @Override
@@ -60,7 +72,7 @@ public class ProgressListener
     {
         super.onTestSkipped( tr );
 
-        showResult( tr, "skipped",  System.out );
+        showResult( tr, "skipped" );
     }
 
     @Override
@@ -68,12 +80,12 @@ public class ProgressListener
     {
         super.onTestSuccess( tr );
 
-        showResult( tr, "SUCCESS",  System.out );
+        showResult( tr, "SUCCESS" );
     }
 
-    private void showResult( ITestResult result, String status, PrintStream printer )
+    private void showResult( ITestResult result, String status )
     {
-        printer.println( "Result: " + result.getTestClass().getName() + "." + result.getName() + "() ===> " + status );
+        out.println( "Result: " + result.getTestClass().getName() + "." + result.getName() + "() ===> " + status );
     }
 
 }
