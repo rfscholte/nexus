@@ -20,9 +20,12 @@ package org.sonatype.nexus.integrationtests.nexus4593;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.sonatype.tests.http.server.fluent.Behaviours.error;
 
 import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import org.restlet.data.MediaType;
 import org.sonatype.nexus.integrationtests.AbstractNexusProxyIntegrationTest;
@@ -30,6 +33,7 @@ import org.sonatype.nexus.proxy.repository.ProxyMode;
 import org.sonatype.nexus.rest.model.RepositoryStatusResource;
 import org.sonatype.nexus.test.utils.GavUtil;
 import org.sonatype.nexus.test.utils.RepositoryMessageUtil;
+import org.sonatype.sisu.goodies.common.Time;
 import org.sonatype.tests.http.server.api.Behaviour;
 import org.sonatype.tests.http.server.fluent.Server;
 import org.sonatype.tests.http.server.jetty.behaviour.ErrorBehaviour;
@@ -92,6 +96,8 @@ public class Nexus4593NoAutoblockFor403IT
         // successfully fetch different artifact
         stopServer();
         this.proxyServer.start();
+        waitForPort(proxyPort);
+
         downloadArtifact( GavUtil.newGav( "nexus4593", "artifact", "1.0.0" ), "target" );
         assertThat( ProxyMode.valueOf( getStatus().getProxyMode() ), is( ProxyMode.ALLOW ) );
 
@@ -101,6 +107,33 @@ public class Nexus4593NoAutoblockFor403IT
         downloadArtifact( GavUtil.newGav( "nexus4593", "artifact", "1.0.0" ), "target" );
 
         assertThat( ProxyMode.valueOf( getStatus().getProxyMode() ), is( ProxyMode.ALLOW ) );
+    }
+
+    private void waitForPort( final Integer proxyPort )
+        throws Exception
+    {
+        for ( int i = 0; i < 10; i++ )
+        {
+            Socket socket = null;
+            try
+            {
+                socket = new Socket( "localhost", proxyPort );
+                log.info( "proxy port open: " + proxyPort );
+                return;
+            }
+            catch (Exception e)
+            {
+                Time.millis( 100L ).sleep();
+            }
+            finally
+            {
+                if ( socket != null )
+                {
+                    socket.close();
+                }
+            }
+        }
+        throw new IllegalStateException( String.format("proxy server did not open port %s in 1s!", proxyPort ) );
     }
 
     /**
@@ -157,6 +190,7 @@ public class Nexus4593NoAutoblockFor403IT
         proxyServer.stop();
 
         server = Server.withPort( proxyPort ).serve( "/*" ).withBehaviours( error( code ) ).start();
+        waitForPort(proxyPort);
     }
 
     private RepositoryStatusResource getStatus()
@@ -169,7 +203,7 @@ public class Nexus4593NoAutoblockFor403IT
     @BeforeClass
     public static void setAutoblockTime()
     {
-        System.setProperty( "plexus.autoblock.remote.status.retain.time", String.valueOf( 3 * 1000 ) );
+        System.setProperty( "plexus.autoblock.remote.status.retain.time", String.valueOf( 8 * 1000 ) );
     }
 
     @AfterClass
