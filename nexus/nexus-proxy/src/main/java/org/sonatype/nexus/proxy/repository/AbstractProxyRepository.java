@@ -533,6 +533,9 @@ public abstract class AbstractProxyRepository
                         + " connections until administrator fixes the problems, or Nexus detects remote repository as healthy." );
             }
 
+            // HACK always log stack trace, somehow isDebugEnabled() does not work correctly
+            getLogger().warn( sb.toString(), cause );
+
             // log the event
             if ( getLogger().isDebugEnabled() )
             {
