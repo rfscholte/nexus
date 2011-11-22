@@ -79,6 +79,8 @@ public class Nexus4593NoAutoblockFor403IT
     public void testNoAutoblockOn403()
         throws Exception
     {
+        Time.seconds( 3 ).sleep();
+
         startErrorServer( 403 );
 
         try
