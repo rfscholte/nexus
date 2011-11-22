@@ -194,16 +194,16 @@ public class Nexus4593NoAutoblockFor403IT
         startErrorServer( 403 );
         assertThat( ProxyMode.valueOf( getStatus().getProxyMode() ), is( ProxyMode.BLOCKED_AUTO ) );
 
-        for ( int i = 0; i < 10; i++ )
+        for ( int i = 0; i < 30; i++ )
         {
             if ( !ProxyMode.valueOf( getStatus().getProxyMode() ).equals( ProxyMode.BLOCKED_AUTO ) )
             {
                 break;
             }
-            Thread.sleep( 1000 );
+            Time.seconds( 1 ).sleep();
         }
 
-        assertThat( "No UnAutoblock in 10s", ProxyMode.valueOf( getStatus().getProxyMode() ), is( ProxyMode.ALLOW ) );
+        assertThat( "No UnAutoblock in 30s", ProxyMode.valueOf( getStatus().getProxyMode() ), is( ProxyMode.ALLOW ) );
     }
 
     private void startErrorServer( final int code )
@@ -226,7 +226,7 @@ public class Nexus4593NoAutoblockFor403IT
     @BeforeClass
     public static void setAutoblockTime()
     {
-        System.setProperty( "plexus.autoblock.remote.status.retain.time", String.valueOf( 8 * 1000 ) );
+        System.setProperty( "plexus.autoblock.remote.status.retain.time", String.valueOf( 30 * 1000 ) );
     }
 
     @AfterClass
