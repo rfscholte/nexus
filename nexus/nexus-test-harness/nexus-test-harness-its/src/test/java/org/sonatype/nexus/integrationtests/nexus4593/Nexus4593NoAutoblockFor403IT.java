@@ -96,9 +96,32 @@ public class Nexus4593NoAutoblockFor403IT
         // successfully fetch different artifact
         stopServer();
         this.proxyServer.start();
-        waitForPort(proxyPort);
+        waitForPort( proxyPort );
 
-        downloadArtifact( GavUtil.newGav( "nexus4593", "artifact", "1.0.0" ), "target" );
+        boolean success = false;
+        for ( int i = 0; i < 10; i++ )
+        {
+            try
+            {
+                downloadArtifact( GavUtil.newGav( "nexus4593", "artifact", "1.0.0" ), "target" );
+                success = true;
+                break;
+            }
+            catch ( Exception e )
+            {
+                try
+                {
+                    waitForPort( proxyPort );
+                }
+                catch ( Exception e1 )
+                {
+                    log.error( "test class also sees closed port: " + proxyPort );
+                }
+            }
+        }
+
+        assertThat( "could not download artifact in 10s", success, is( true ) );
+
         assertThat( ProxyMode.valueOf( getStatus().getProxyMode() ), is( ProxyMode.ALLOW ) );
 
         // 403 for artifact again
@@ -121,7 +144,7 @@ public class Nexus4593NoAutoblockFor403IT
                 log.info( "proxy port open: " + proxyPort );
                 return;
             }
-            catch (Exception e)
+            catch ( Exception e )
             {
                 Time.millis( 100L ).sleep();
             }
@@ -133,7 +156,7 @@ public class Nexus4593NoAutoblockFor403IT
                 }
             }
         }
-        throw new IllegalStateException( String.format("proxy server did not open port %s in 1s!", proxyPort ) );
+        throw new IllegalStateException( String.format( "proxy server did not open port %s in 1s!", proxyPort ) );
     }
 
     /**
@@ -190,7 +213,7 @@ public class Nexus4593NoAutoblockFor403IT
         proxyServer.stop();
 
         server = Server.withPort( proxyPort ).serve( "/*" ).withBehaviours( error( code ) ).start();
-        waitForPort(proxyPort);
+        waitForPort( proxyPort );
     }
 
     private RepositoryStatusResource getStatus()
