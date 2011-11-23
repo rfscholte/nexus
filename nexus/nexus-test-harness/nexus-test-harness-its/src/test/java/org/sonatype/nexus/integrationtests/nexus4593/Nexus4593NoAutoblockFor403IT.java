@@ -95,6 +95,9 @@ public class Nexus4593NoAutoblockFor403IT
 
         assertThat( ProxyMode.valueOf( getStatus().getProxyMode() ), is( ProxyMode.ALLOW ) );
 
+        // wait a bit before stopping server to catch RemoteStatusUpdateCallable
+        Time.seconds( 2 ).sleep();
+
         // successfully fetch different artifact
         stopServer();
         this.proxyServer.start();
