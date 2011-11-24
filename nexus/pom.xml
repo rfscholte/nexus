@@ -155,7 +155,7 @@
     <it.nexus.log.level>INFO</it.nexus.log.level>
 
     <!-- version properties -->
-    <aether.version>1.8.1</aether.version>
+    <aether.version>1.11</aether.version>
     <applifecycle.version>1.4</applifecycle.version>
     <aspectj.version>1.6.11</aspectj.version>
     <commons-beanutils.baseVersion>1.7.0</commons-beanutils.baseVersion>
@@ -165,7 +165,7 @@
     <jsw.binaries.version>3.2.3.5</jsw.binaries.version>
     <logback.version>0.9.29</logback.version>
     <maven.indexer.version>4.1.1</maven.indexer.version>
-    <maven.version>3.0.1</maven.version>
+    <maven.version>3.0.3</maven.version>
     <micromailer.version>1.1.1-SNAPSHOT</micromailer.version>
     <nexus.repository.metadata.version>1.2-SNAPSHOT</nexus.repository.metadata.version>
     <plexus.appbooter.version>2.1.1</plexus.appbooter.version>
