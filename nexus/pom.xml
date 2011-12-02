@@ -164,7 +164,7 @@
     <jetty.version>6.1.19</jetty.version>
     <jsw.binaries.version>3.2.3.5</jsw.binaries.version>
     <logback.version>0.9.29</logback.version>
-    <maven.indexer.version>4.1.1</maven.indexer.version>
+    <maven.indexer.version>4.1.2</maven.indexer.version>
     <maven.version>3.0.1</maven.version>
     <micromailer.version>1.1.1-SNAPSHOT</micromailer.version>
     <nexus.repository.metadata.version>1.2-SNAPSHOT</nexus.repository.metadata.version>
@@ -179,7 +179,6 @@
     <plexus-jetty-testsuite.version>1.7</plexus-jetty-testsuite.version>
     <plexus.restlet.bridge.version>1.18-SNAPSHOT</plexus.restlet.bridge.version>
     <plexus-security.version>2.4</plexus-security.version>
-    <plexus-slf4j-logging.version>1.1</plexus-slf4j-logging.version>
     <plexus-swizzle.version>1.2</plexus-swizzle.version>
     <plexus-task-scheduler.version>1.4.2</plexus-task-scheduler.version>
     <plexus-velocity.version>1.1.7</plexus-velocity.version>
@@ -188,7 +187,7 @@
     <slf4j.version>1.6.2</slf4j.version>
     <spice-timeline.version>2.1-SNAPSHOT</spice-timeline.version>
     <spice-utils.version>1.0.0</spice-utils.version>
-    <surefire.version>2.9</surefire.version>
+    <surefire.version>2.10</surefire.version>
     <!-- HACK: Workaround for issue with IDEA loading nexus-plugins -->
     <nexus-plugin.type>nexus-plugin</nexus-plugin.type>
   </properties>
@@ -209,11 +208,23 @@
         <groupId>org.sonatype.plugin</groupId>
         <artifactId>plugin-api</artifactId>
         <version>1.0.3</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.sonatype.plugin</groupId>
         <artifactId>plugin-host-api</artifactId>
         <version>1.0.3</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.sonatype.plugin</groupId>
@@ -429,21 +440,14 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-slf4j-logging</artifactId>
-        <version>${plexus-slf4j-logging.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-container-default</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>org.sonatype.sisu</groupId>
         <artifactId>sisu-mailer</artifactId>
         <version>${micromailer.version}</version>
         <exclusions>
+          <exclusion>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
@@ -737,6 +741,32 @@
         <version>0.9</version>
         <type>jar</type>
       </dependency>
+      
+      <!-- Jackson -->
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>1.9.2</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>1.9.2</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml</groupId>
+        <artifactId>jackson-xml-databind</artifactId>
+        <version>0.6.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      
       <dependency>
         <groupId>com.thoughtworks.xstream</groupId>
         <artifactId>xstream</artifactId>
@@ -931,6 +961,13 @@
         <scope>test</scope>
       </dependency>
       <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>1.9.0-rc1</version>
+        <type>jar</type>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
         <groupId>org.uncommons</groupId>
         <artifactId>reportng</artifactId>
         <version>1.1.2</version>
@@ -988,6 +1025,13 @@
         <artifactId>nexus-api</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+          <groupId>org.sonatype.nexus</groupId>
+          <artifactId>nexus-api</artifactId>
+          <version>${project.version}</version>
+          <classifier>tests</classifier>
+          <scope>test</scope>
+        </dependency>
       <dependency>
         <groupId>org.sonatype.nexus</groupId>
         <artifactId>nexus-oss-edition</artifactId>
@@ -1499,6 +1543,9 @@
               <it.test.log.level>${it.test.log.level}</it.test.log.level>
               <it.nexus.log.level>${it.nexus.log.level}</it.nexus.log.level>
             </systemPropertyVariables>
+            <excludes combine.children="append">
+              <exclude>**/Abstract*</exclude>
+            </excludes>
           </configuration>
         </plugin>
         <plugin>
@@ -1518,6 +1565,9 @@
             </execution>
           </executions>
           <configuration>
+            <excludes combine.children="append">
+              <exclude>**/Abstract*</exclude>
+            </excludes>
             <properties>
               <property>
                 <name>usedefaultlisteners</name>

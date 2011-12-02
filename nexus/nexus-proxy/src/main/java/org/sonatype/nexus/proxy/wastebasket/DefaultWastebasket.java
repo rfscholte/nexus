@@ -25,6 +25,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
 import org.sonatype.nexus.configuration.application.ApplicationConfiguration;
+import org.sonatype.nexus.logging.Slf4jPlexusLogger;
 import org.sonatype.nexus.proxy.ItemNotFoundException;
 import org.sonatype.nexus.proxy.LocalStorageException;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
@@ -45,8 +46,7 @@ public class DefaultWastebasket
 
     private static final long ALL = -1L;
 
-    @Requirement
-    private Logger logger;
+    private Logger logger = Slf4jPlexusLogger.getPlexusLogger( getClass() );
 
     protected Logger getLogger()
     {
@@ -196,12 +196,29 @@ public class DefaultWastebasket
         }
     }
 
+    @Override
     public void delete( LocalRepositoryStorage ls, Repository repository, ResourceStoreRequest request )
+        throws LocalStorageException
+    {
+        DeleteOperation operation;
+        if ( request.getRequestContext().containsKey( DeleteOperation.DELETE_OPERATION_CTX_KEY ) )
+        {
+            operation = (DeleteOperation) request.getRequestContext().get( DeleteOperation.DELETE_OPERATION_CTX_KEY );
+        }
+        else
+        {
+            operation = getDeleteOperation();
+        }
+
+        delete( ls, repository, request, operation );
+    }
+
+    private void delete( LocalRepositoryStorage ls, Repository repository, ResourceStoreRequest request, DeleteOperation type)
         throws LocalStorageException
     {
         try
         {
-            if ( DeleteOperation.MOVE_TO_TRASH.equals( getDeleteOperation() ) )
+            if ( DeleteOperation.MOVE_TO_TRASH.equals( type ) )
             {
                 ResourceStoreRequest trashed =
                     new ResourceStoreRequest( getTrashPath( repository, request.getRequestPath() ) );

@@ -83,8 +83,15 @@ Sonatype.repoServer.CapabilitiesPanel = function(config) {
       }, {
         name : 'id'
       }, {
-        name : 'name',
+        name : 'description',
         sortType : Ext.data.SortTypes.asUCString
+      }, {
+        name : 'notes',
+        sortType : Ext.data.SortTypes.asUCString
+      }, {
+        name : 'enabled'
+      }, {
+        name : 'active'
       }, {
         name : 'typeName'
       }, {
@@ -187,7 +194,7 @@ Sonatype.repoServer.CapabilitiesPanel = function(config) {
         url : CAPABILITIES_SERVICE_PATH,
         reader : this.capabilitiesReader,
         sortInfo : {
-          field : 'name',
+          field : 'description',
           direction : 'ASC'
         },
         autoLoad : true
@@ -215,17 +222,16 @@ Sonatype.repoServer.CapabilitiesPanel = function(config) {
           xtype : 'hidden',
           name : 'id'
         }, {
-          xtype : 'textfield',
-          fieldLabel : 'Name',
+          xtype : 'checkbox',
+          fieldLabel : 'Enabled',
           labelStyle : 'margin-left: 15px; width: 185px;',
-          itemCls : 'required-field',
-          helpText : "Name of configured capability",
-          name : 'name',
-          width : this.COMBO_WIDTH,
-          allowBlank : false
+          helpText : 'This flag determines if the capability is currently active. To disable this capability for a period of time, de-select this checkbox.',
+          name : 'enabled',
+          allowBlank : false,
+          checked : true
         }, {
           xtype : 'combo',
-          fieldLabel : 'Capability Type',
+          fieldLabel : 'Type',
           labelStyle : 'margin-left: 15px; width: 185px;',
           itemCls : 'required-field',
           helpText : "Type of configured capability",
@@ -241,6 +247,15 @@ Sonatype.repoServer.CapabilitiesPanel = function(config) {
           selectOnFocus : true,
           allowBlank : false,
           width : this.COMBO_WIDTH
+        }, {
+          xtype : 'textfield',
+          fieldLabel : 'Notes',
+          labelStyle : 'margin-left: 15px; width: 185px;',
+          itemCls : '',
+          helpText : "Optional notes about configured capability",
+          name : 'notes',
+          width : this.COMBO_WIDTH,
+          allowBlank : true
         }, {
           xtype : 'panel',
           id : 'capability-type-config-card-panel',
@@ -307,23 +322,38 @@ Sonatype.repoServer.CapabilitiesPanel = function(config) {
         // grid view options
         ds : this.capabilitiesDataStore,
         sortInfo : {
-          field : 'name',
+          field : 'description',
           direction : "ASC"
         },
         loadMask : true,
         deferredRender : false,
         columns : [{
+              header : 'Enabled',
+              dataIndex : 'enabled',
+              width : 50,
+              id : 'capabilities-enabled-col'
+            }, {
+              header : 'Active',
+              dataIndex : 'active',
+              width : 50,
+              id : 'capabilities-active-col'
+            }, {
               header : 'Type',
               dataIndex : 'typeName',
               width : 175,
               id : 'capabilities-type-col'
             }, {
-              header : 'Name',
-              dataIndex : 'name',
+              header : 'Description',
+              dataIndex : 'description',
+              width : 250,
+              id : 'capabilities-description-col'
+            }, {
+              header : 'Notes',
+              dataIndex : 'notes',
               width : 175,
-              id : 'capabilities-name-col'
+              id : 'capabilities-notes-col'
             }],
-        autoExpandColumn : 'capabilities-name-col',
+        autoExpandColumn : 'capabilities-notes-col',
         disableSelection : false,
         viewConfig : {
           emptyText : 'Click "Add" to configure a capability.'
@@ -420,7 +450,8 @@ Ext.extend(Sonatype.repoServer.CapabilitiesPanel, Ext.Panel, {
             },
             serviceDataObj : {
               id : "",
-              name : "",
+              enabled : true,
+              notes : "",
               typeId : "",
               properties : [{
                     key : "",
@@ -476,7 +507,7 @@ Ext.extend(Sonatype.repoServer.CapabilitiesPanel, Ext.Panel, {
               id : id
             });
         config = this.configUniqueIdHelper(id, config);
-        Ext.apply(config.items[3].items, FormFieldGenerator(id, 'Capability Settings', 'capabilityProperties_', this.capabilityTypeDataStore, this.repositoryDataStore, this.repositoryGroupDataStore, this.repoOrGroupDataStore, null, this.COMBO_WIDTH));
+        Ext.apply(config.items[4].items, FormFieldGenerator(id, 'Settings', 'capabilityProperties_', this.capabilityTypeDataStore, this.repositoryDataStore, this.repositoryGroupDataStore, this.repoOrGroupDataStore, null, this.COMBO_WIDTH));
         var formPanel = new Ext.FormPanel(config);
 
         formPanel.form.on('actioncomplete', this.actionCompleteHandler, this);
@@ -563,7 +594,7 @@ Ext.extend(Sonatype.repoServer.CapabilitiesPanel, Ext.Panel, {
             Sonatype.MessageBox.show({
                   animEl : this.capabilitiesGridPanel.getEl(),
                   title : 'Delete Capability configuration?',
-                  msg : 'Delete the ' + rec.get('name') + ' capability?',
+                  msg : 'Delete the "' + rec.get('description') + '" capability?',
                   buttons : Sonatype.MessageBox.YESNO,
                   scope : this,
                   icon : Sonatype.MessageBox.QUESTION,
@@ -627,7 +658,7 @@ Ext.extend(Sonatype.repoServer.CapabilitiesPanel, Ext.Panel, {
         }
         else
         {
-          Sonatype.utils.connectionError(response, 'The server did not delete the task.', null, null, true);
+          Sonatype.utils.connectionError(response, 'The server did not delete the capability.', null, null, true);
         }
       },
 
@@ -645,7 +676,10 @@ Ext.extend(Sonatype.repoServer.CapabilitiesPanel, Ext.Panel, {
             var sentData = action.output.data;
             var dataObj = {
               id : receivedData.id,
-              name : receivedData.name,
+              description : receivedData.description,
+              notes : receivedData.notes,
+              enabled : receivedData.enabled,
+              active : receivedData.active,
               resourceURI : receivedData.resourceURI,
               typeId : receivedData.typeId,
               typeName : receivedData.typeName
@@ -697,8 +731,11 @@ Ext.extend(Sonatype.repoServer.CapabilitiesPanel, Ext.Panel, {
 
       updateCapabilityRecord : function(rec, receivedData) {
         rec.beginEdit();
-        rec.set('name', receivedData.name);
+        rec.set('description', receivedData.description);
+        rec.set('notes', receivedData.notes);
         rec.set('typeId', receivedData.typeId);
+        rec.set('enabled', receivedData.enabled);
+        rec.set('active', receivedData.active);
         rec.set('typeName', receivedData.typeName);
         rec.commit();
         rec.endEdit();
@@ -754,7 +791,7 @@ Ext.extend(Sonatype.repoServer.CapabilitiesPanel, Ext.Panel, {
                 id : id
               });
           config = this.configUniqueIdHelper(id, config);
-          Ext.apply(config.items[3].items, FormFieldGenerator(id, 'Capability Settings', 'capabilityProperties_', this.capabilityTypeDataStore, this.repositoryDataStore, this.repositoryGroupDataStore, this.repoOrGroupDataStore));
+          Ext.apply(config.items[4].items, FormFieldGenerator(id, 'Settings', 'capabilityProperties_', this.capabilityTypeDataStore, this.repositoryDataStore, this.repositoryGroupDataStore, this.repoOrGroupDataStore));
           formPanel = new Ext.FormPanel(config);
 
           formPanel.form.on('actioncomplete', this.actionCompleteHandler, this);

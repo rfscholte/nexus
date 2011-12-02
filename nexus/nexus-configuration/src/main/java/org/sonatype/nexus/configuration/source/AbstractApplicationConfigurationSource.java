@@ -53,6 +53,11 @@ public abstract class AbstractApplicationConfigurationSource
     /** The configuration. */
     private Configuration configuration;
 
+    /**
+     * Flag to mark instance upgrade.
+     */
+    private boolean instanceUpgraded;
+
     public Configuration getConfiguration()
     {
         return configuration;
@@ -87,8 +92,6 @@ public abstract class AbstractApplicationConfigurationSource
         throws IOException,
             ConfigurationException
     {
-        setConfigurationUpgraded( false );
-
         Reader fr = null;
 
         try
@@ -165,6 +168,22 @@ public abstract class AbstractApplicationConfigurationSource
     public ApplicationConfigurationSource getDefaultsSource()
     {
         return null;
+    }
+
+    /**
+     * Is nexus instance upgraded
+     */
+    public boolean isInstanceUpgraded()
+    {
+        return instanceUpgraded;
+    }
+
+    /**
+     * Setter for nexus instance upgraded
+     */
+    public void setInstanceUpgraded( boolean instanceUpgraded )
+    {
+        this.instanceUpgraded = instanceUpgraded;
     }
 
 }

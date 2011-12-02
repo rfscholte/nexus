@@ -29,11 +29,12 @@ import java.util.TreeSet;
 import org.apache.maven.index.artifact.Gav;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.sonatype.aether.util.version.GenericVersionScheme;
 import org.sonatype.aether.version.InvalidVersionSpecificationException;
 import org.sonatype.aether.version.Version;
 import org.sonatype.aether.version.VersionScheme;
+import org.sonatype.nexus.logging.AbstractLoggingComponent;
+import org.sonatype.nexus.logging.Slf4jPlexusLogger;
 import org.sonatype.nexus.proxy.IllegalOperationException;
 import org.sonatype.nexus.proxy.ItemNotFoundException;
 import org.sonatype.nexus.proxy.NoSuchRepositoryException;
@@ -51,7 +52,6 @@ import org.sonatype.nexus.proxy.maven.RepositoryPolicy;
 import org.sonatype.nexus.proxy.registry.ContentClass;
 import org.sonatype.nexus.proxy.registry.RepositoryRegistry;
 import org.sonatype.nexus.proxy.repository.GroupRepository;
-import org.sonatype.nexus.proxy.repository.LocalStatus;
 import org.sonatype.nexus.proxy.repository.Repository;
 import org.sonatype.nexus.proxy.storage.UnsupportedStorageOperationException;
 import org.sonatype.nexus.proxy.walker.AbstractWalkerProcessor;
@@ -60,6 +60,7 @@ import org.sonatype.nexus.proxy.walker.DottedStoreWalkerFilter;
 import org.sonatype.nexus.proxy.walker.Walker;
 import org.sonatype.nexus.proxy.walker.WalkerContext;
 import org.sonatype.nexus.proxy.walker.WalkerException;
+import org.sonatype.nexus.proxy.wastebasket.DeleteOperation;
 import org.sonatype.nexus.util.ItemPathUtils;
 import org.sonatype.scheduling.TaskUtil;
 
@@ -68,14 +69,15 @@ import org.sonatype.scheduling.TaskUtil;
  * minCountOfSnapshotsToKeep (but maybe more) snapshots per one snapshot collection by removing all older from
  * removeSnapshotsOlderThanDays. If should remove snaps if their release counterpart exists, the whole GAV will be
  * removed.
- * 
+ *
  * @author cstamas
  */
 @Component( role = SnapshotRemover.class )
 public class DefaultSnapshotRemover
-    extends AbstractLogEnabled
+    extends AbstractLoggingComponent
     implements SnapshotRemover
 {
+
     @Requirement
     private RepositoryRegistry repositoryRegistry;
 
@@ -106,7 +108,7 @@ public class DefaultSnapshotRemover
             if ( !process( request, result, repository ) )
             {
                 throw new IllegalArgumentException( "The repository with ID=" + repository.getId()
-                    + " is not valid for Snapshot Removal Task!" );
+                                                        + " is not valid for Snapshot Removal Task!" );
             }
         }
         else
@@ -150,7 +152,7 @@ public class DefaultSnapshotRemover
         else if ( repository.getRepositoryKind().isFacetAvailable( MavenRepository.class ) )
         {
             result.addResult( removeSnapshotsFromMavenRepository( repository.adaptToFacet( MavenRepository.class ),
-                request ) );
+                                                                  request ) );
         }
 
         return true;
@@ -158,7 +160,7 @@ public class DefaultSnapshotRemover
 
     /**
      * Removes the snapshots from maven repository.
-     * 
+     *
      * @param repository the repository
      * @throws Exception the exception
      */
@@ -166,7 +168,7 @@ public class DefaultSnapshotRemover
                                                                                   SnapshotRemovalRequest request )
     {
         TaskUtil.checkInterruption();
-        
+
         SnapshotRemovalRepositoryResult result = new SnapshotRemovalRepositoryResult( repository.getId(), 0, 0, true );
 
         if ( !repository.getLocalStatus().shouldServiceRequest() )
@@ -204,6 +206,8 @@ public class DefaultSnapshotRemover
         DefaultWalkerContext ctxMain =
             new DefaultWalkerContext( repository, new ResourceStoreRequest( "/" ), new DottedStoreWalkerFilter() );
 
+        ctxMain.getContext().put( DeleteOperation.DELETE_OPERATION_CTX_KEY, getDeleteOperation( request ) );
+
         ctxMain.getProcessors().add( snapshotRemoveProcessor );
 
         walker.walk( ctxMain );
@@ -228,7 +232,7 @@ public class DefaultSnapshotRemover
         repository.expireCaches( new ResourceStoreRequest( RepositoryItemUid.PATH_ROOT ) );
 
         RecreateMavenMetadataWalkerProcessor metadataRebuildProcessor =
-            new RecreateMavenMetadataWalkerProcessor( getLogger() );
+            new RecreateMavenMetadataWalkerProcessor( Slf4jPlexusLogger.getPlexusLogger( getLogger() ), getDeleteOperation( request ) );
 
         for ( String path : request.getMetadataRebuildPaths() )
         {
@@ -256,6 +260,11 @@ public class DefaultSnapshotRemover
         return result;
     }
 
+    private DeleteOperation getDeleteOperation( final SnapshotRemovalRequest request )
+    {
+        return request.isDeleteImmediately() ? DeleteOperation.DELETE_PERMANENTLY : DeleteOperation.MOVE_TO_TRASH;
+    }
+
     private void logDetails( SnapshotRemovalRequest request )
     {
         if ( request.getRepositoryId() != null )
@@ -273,12 +282,14 @@ public class DefaultSnapshotRemover
             getLogger().debug( "    MinCountOfSnapshotsToKeep: " + request.getMinCountOfSnapshotsToKeep() );
             getLogger().debug( "    RemoveSnapshotsOlderThanDays: " + request.getRemoveSnapshotsOlderThanDays() );
             getLogger().debug( "    RemoveIfReleaseExists: " + request.isRemoveIfReleaseExists() );
+            getLogger().debug( "    DeleteImmediately: " + request.isDeleteImmediately() );
         }
     }
 
     private class SnapshotRemoverWalkerProcessor
         extends AbstractWalkerProcessor
     {
+
         private final MavenRepository repository;
 
         private final SnapshotRemovalRequest request;
@@ -436,7 +447,8 @@ public class DefaultSnapshotRemover
                             }
                             else
                             {
-                                getLogger().debug( "itemTimestamp=" + itemTimestamp + ", dateTreshold=" + dateThreshold );
+                                getLogger().debug(
+                                    "itemTimestamp=" + itemTimestamp + ", dateTreshold=" + dateThreshold );
 
                                 // if dateTreshold is not used (zero days) OR
                                 // if itemTimestamp is less then dateTreshold (NB: both are positive!)
@@ -476,7 +488,7 @@ public class DefaultSnapshotRemover
                             // preserve possible subdirs
                             if ( !( item instanceof StorageCollectionItem ) )
                             {
-                                repository.deleteItem( false, new ResourceStoreRequest( item ) );
+                                repository.deleteItem( false, createResourceStoreRequest( item, context ) );
                             }
                         }
                         catch ( ItemNotFoundException e )
@@ -500,7 +512,8 @@ public class DefaultSnapshotRemover
                 if ( remainingSnapshotsAndFiles.size() < request.getMinCountOfSnapshotsToKeep() )
                 {
                     // do something
-                    if ( remainingSnapshotsAndFiles.size() + deletableSnapshotsAndFiles.size() < request.getMinCountOfSnapshotsToKeep() )
+                    if ( remainingSnapshotsAndFiles.size() + deletableSnapshotsAndFiles.size()
+                        < request.getMinCountOfSnapshotsToKeep() )
                     {
                         // delete nothing, since there is less snapshots in total as allowed
                         deletableSnapshotsAndFiles.clear();
@@ -521,7 +534,8 @@ public class DefaultSnapshotRemover
                             }
                             else
                             {
-                                remainingSnapshotsAndFiles.put( keyToMove, deletableSnapshotsAndFiles.get( keyToMove ) );
+                                remainingSnapshotsAndFiles.put( keyToMove,
+                                                                deletableSnapshotsAndFiles.get( keyToMove ) );
                             }
 
                             deletableSnapshotsAndFiles.remove( keyToMove );
@@ -554,7 +568,7 @@ public class DefaultSnapshotRemover
 
                             gav = (Gav) file.getItemContext().get( Gav.class.getName() );
 
-                            repository.deleteItem( false, new ResourceStoreRequest( file ) );
+                            repository.deleteItem( false, createResourceStoreRequest( file, context ) );
 
                             deletedFiles++;
                         }
@@ -577,6 +591,11 @@ public class DefaultSnapshotRemover
 
             updateMetadataIfNecessary( context, coll );
 
+        }
+
+        private DeleteOperation getDeleteOperation( final WalkerContext context )
+        {
+            return (DeleteOperation) context.getContext().get( DeleteOperation.DELETE_OPERATION_CTX_KEY );
         }
 
         private void updateMetadataIfNecessary( WalkerContext context, StorageCollectionItem coll )
@@ -612,7 +631,8 @@ public class DefaultSnapshotRemover
                         "Removing the empty directory leftover: UID=" + coll.getRepositoryItemUid().toString() );
                 }
 
-                repository.deleteItem( false, new ResourceStoreRequest( coll ) );
+                // directory is empty, never move to trash
+                repository.deleteItem( false, createResourceStoreRequest( coll, DeleteOperation.DELETE_PERMANENTLY ) );
             }
             catch ( ItemNotFoundException e )
             {
@@ -648,20 +668,20 @@ public class DefaultSnapshotRemover
                                 // "-SNAPSHOT" :== 9 chars
                                 releaseVersion =
                                     snapshotGav.getBaseVersion().substring( 0,
-                                        snapshotGav.getBaseVersion().length() - 9 );
+                                                                            snapshotGav.getBaseVersion().length() - 9 );
                             }
                             else
                             {
                                 // "SNAPSHOT" :== 8 chars
                                 releaseVersion =
                                     snapshotGav.getBaseVersion().substring( 0,
-                                        snapshotGav.getBaseVersion().length() - 8 );
+                                                                            snapshotGav.getBaseVersion().length() - 8 );
                             }
 
                             Gav releaseGav =
                                 new Gav( snapshotGav.getGroupId(), snapshotGav.getArtifactId(), releaseVersion,
-                                    snapshotGav.getClassifier(), snapshotGav.getExtension(), null, null, null, 
-                                    false, null, false, null );
+                                         snapshotGav.getClassifier(), snapshotGav.getExtension(), null, null, null,
+                                         false, null, false, null );
 
                             String path = mrepository.getGavCalculator().gavToPath( releaseGav );
 
@@ -686,6 +706,26 @@ public class DefaultSnapshotRemover
             }
 
             return false;
+        }
+
+        private ResourceStoreRequest createResourceStoreRequest( final StorageItem item, final WalkerContext ctx )
+        {
+            ResourceStoreRequest request = new ResourceStoreRequest( item );
+
+            if ( ctx.getContext().containsKey( DeleteOperation.DELETE_OPERATION_CTX_KEY ) )
+            {
+                request.getRequestContext().put( DeleteOperation.DELETE_OPERATION_CTX_KEY, ctx.getContext().get( DeleteOperation.DELETE_OPERATION_CTX_KEY )  );
+            }
+
+            return request;
+        }
+
+        private ResourceStoreRequest createResourceStoreRequest( final StorageCollectionItem item,
+                                                                 final DeleteOperation operation )
+        {
+            ResourceStoreRequest request = new ResourceStoreRequest( item );
+            request.getRequestContext().put( DeleteOperation.DELETE_OPERATION_CTX_KEY, operation );
+            return request;
         }
 
         public int getDeletedSnapshots()

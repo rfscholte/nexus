@@ -21,16 +21,16 @@ package org.sonatype.nexus.proxy.maven;
 import java.util.Date;
 import java.util.List;
 
-import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.sonatype.nexus.artifact.NexusItemInfo;
 import org.sonatype.nexus.feeds.NexusArtifactEvent;
+import org.sonatype.nexus.logging.AbstractLoggingComponent;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
 import org.sonatype.nexus.proxy.StorageException;
 import org.sonatype.nexus.proxy.item.AbstractStorageItem;
 import org.sonatype.nexus.proxy.repository.ProxyRepository;
 
 public abstract class AbstractChecksumContentValidator
-    extends AbstractLogEnabled
+    extends AbstractLoggingComponent
 {
 
     public AbstractChecksumContentValidator()
@@ -107,7 +107,7 @@ public abstract class AbstractChecksumContentValidator
 
     protected String retrieveLocalHash( AbstractStorageItem item, String inspector )
     {
-        return item.getAttributes().get( inspector );
+        return item.getRepositoryItemAttributes().get( inspector );
     }
 
     protected abstract void cleanup( ProxyRepository proxy, RemoteHashResponse remoteHash, boolean contentValid )
@@ -135,7 +135,7 @@ public abstract class AbstractChecksumContentValidator
 
         nae.addEventContext(item.getItemContext() );
         
-        nae.addItemAttributes( item.getAttributes() );
+        nae.addItemAttributes( item.getRepositoryItemAttributes().asMap() );
 
         return nae;
     }

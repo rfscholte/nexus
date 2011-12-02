@@ -22,9 +22,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.sonatype.nexus.configuration.Configurable;
+import org.sonatype.nexus.mime.MimeRulesSource;
 import org.sonatype.nexus.plugins.RepositoryType;
 import org.sonatype.nexus.proxy.IllegalOperationException;
 import org.sonatype.nexus.proxy.ItemNotFoundException;
+import org.sonatype.nexus.proxy.LocalStorageException;
 import org.sonatype.nexus.proxy.ResourceStore;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
 import org.sonatype.nexus.proxy.StorageException;
@@ -169,8 +171,10 @@ public interface Repository
      * 
      * @param action
      * @return
+     * @throws StorageException when some storage (IO) problem happens.
      */
-    Action getResultingActionOnWrite( ResourceStoreRequest rsr );
+    Action getResultingActionOnWrite( ResourceStoreRequest rsr ) 
+        throws LocalStorageException;
 
     /**
      * Is the target repository compatible to this one
@@ -277,6 +281,14 @@ public interface Repository
 
     // ==================================================
     // LocalStorage et al
+
+    /**
+     * Returns the Repository specific MIME rules source.
+     * 
+     * @return
+     * @since 1.10.0
+     */
+    MimeRulesSource getMimeRulesSource();
 
     /**
      * Returns the attribute handler used by repository.

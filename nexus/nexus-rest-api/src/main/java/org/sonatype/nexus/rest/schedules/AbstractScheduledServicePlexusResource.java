@@ -283,6 +283,11 @@ public abstract class AbstractScheduledServicePlexusResource
             cal.setTime( new Date( Long.parseLong( date ) ) );
             cal.add( Calendar.HOUR_OF_DAY, timeCalendar.get( Calendar.HOUR_OF_DAY ) );
             cal.add( Calendar.MINUTE, timeCalendar.get( Calendar.MINUTE ) );
+
+            if ( getLogger().isDebugEnabled() )
+            {
+                getLogger().debug( "Parsed date from task creation request: " + cal.getTime() );
+            }
         }
         catch ( ParseException e )
         {
@@ -321,16 +326,25 @@ public abstract class AbstractScheduledServicePlexusResource
         throws InvalidConfigurationException
     {
         Calendar cal = Calendar.getInstance();
-        cal.setTime( new Date( Long.parseLong( date ) ) );
+        Date startDate = new Date( Long.parseLong( date ) );
+        cal.setTime( startDate );
 
         Calendar nowCal = Calendar.getInstance();
-        nowCal.setTime( new Date() );
+        nowCal.add( Calendar.DAY_OF_YEAR, -1 );
+        nowCal.set( Calendar.HOUR, 0 );
+        nowCal.set( Calendar.MINUTE, 0 );
+        nowCal.set( Calendar.SECOND, 0 );
+        nowCal.set( Calendar.MILLISECOND, 0 );
 
         // This is checking just the year/month/day, time isn't of concern right now
-        if ( cal.before( nowCal )
-            && ( cal.get( Calendar.YEAR ) != nowCal.get( Calendar.YEAR )
-                || cal.get( Calendar.MONTH ) != nowCal.get( Calendar.MONTH ) || cal.get( Calendar.DAY_OF_YEAR ) != nowCal.get( Calendar.DAY_OF_YEAR ) ) )
+        // basic check that the day timestamp is roughly in the correct range
+        if ( cal.before( nowCal ) )
         {
+            if ( getLogger().isDebugEnabled() )
+            {
+                getLogger().debug( "Validation error for startDate: " + startDate.toString() );
+            }
+
             ValidationResponse vr = new ApplicationValidationResponse();
             ValidationMessage vm = new ValidationMessage( "startDate", "Date cannot be in the past." );
             vr.addValidationError( vm );
@@ -365,10 +379,6 @@ public abstract class AbstractScheduledServicePlexusResource
                 parseDate( ( (ScheduledServiceMonthlyResource) model ).getStartDate(),
                     ( (ScheduledServiceMonthlyResource) model ).getRecurringTime() );
 
-            // validateStartDate( ( (ScheduledServiceMonthlyResource) model ).getStartDate() );
-
-            // validateTime( "recurringTime", date );
-
             schedule =
                 new MonthlySchedule( date, null,
                     formatRecurringDayOfMonth( ( (ScheduledServiceMonthlyResource) model ).getRecurringDay() ) );
@@ -378,10 +388,6 @@ public abstract class AbstractScheduledServicePlexusResource
             Date date =
                 parseDate( ( (ScheduledServiceWeeklyResource) model ).getStartDate(),
                     ( (ScheduledServiceWeeklyResource) model ).getRecurringTime() );
-
-            // validateStartDate( ( (ScheduledServiceWeeklyResource) model ).getStartDate() );
-
-            // validateTime( "recurringTime", date );
 
             schedule =
                 new WeeklySchedule( date, null,
@@ -393,10 +399,6 @@ public abstract class AbstractScheduledServicePlexusResource
                 parseDate( ( (ScheduledServiceDailyResource) model ).getStartDate(),
                     ( (ScheduledServiceDailyResource) model ).getRecurringTime() );
 
-            // validateStartDate( ( (ScheduledServiceDailyResource) model ).getStartDate() );
-
-            // validateTime( "recurringTime", date );
-
             schedule = new DailySchedule( date, null );
         }
         else if ( ScheduledServiceHourlyResource.class.isAssignableFrom( model.getClass() ) )
@@ -404,10 +406,6 @@ public abstract class AbstractScheduledServicePlexusResource
             Date date =
                 parseDate( ( (ScheduledServiceHourlyResource) model ).getStartDate(),
                     ( (ScheduledServiceHourlyResource) model ).getStartTime() );
-
-            // validateStartDate( ( (ScheduledServiceHourlyResource) model ).getStartDate() );
-
-            // validateTime( "startTime", date );
 
             schedule = new HourlySchedule( date, null );
         }
@@ -418,7 +416,6 @@ public abstract class AbstractScheduledServicePlexusResource
                     ( (ScheduledServiceOnceResource) model ).getStartTime() );
 
             validateStartDate( ( (ScheduledServiceOnceResource) model ).getStartDate() );
-
             validateTime( "startTime", date );
 
             schedule =
@@ -518,14 +515,14 @@ public abstract class AbstractScheduledServicePlexusResource
         return resource;
     }
 
-    protected <T> String getNextRunTime( ScheduledTask<T> task )
+    protected <T> Date getNextRunTime( ScheduledTask<T> task )
     {
-        String nextRunTime = "n/a";
+        Date nextRunTime = null;
 
         // Run now type tasks should never have a next run time
         if ( !task.getSchedule().getClass().isAssignableFrom( RunNowSchedule.class ) && task.getNextRun() != null )
         {
-            nextRunTime = task.getNextRun().toString();
+            nextRunTime = task.getNextRun();
         }
 
         return nextRunTime;

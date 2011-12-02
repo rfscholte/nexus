@@ -105,12 +105,20 @@
 					<description>The id of the capability.</description>
 				</field>
 				<field>
-					<name>name</name>
+					<name>notes</name>
 					<version>1.0.0+</version>
 					<type>String</type>
-					<required>true</required>
-					<description>The name of the capability.</description>
+					<required>false</required>
+					<description>Optional (user) notes about capability.</description>
 				</field>
+        <field>
+          <name>enabled</name>
+          <type>boolean</type>
+          <version>1.0.0+</version>
+          <required>true</required>
+          <defaultValue>true</defaultValue>
+          <description>The flag determining if the capability is enabled</description>
+        </field>
 				<field>
 					<name>typeId</name>
 					<version>1.0.0+</version>
@@ -236,12 +244,35 @@
 					<description>The id of the capability.</description>
 				</field>
 				<field>
-					<name>name</name>
+					<name>description</name>
 					<version>1.0.0+</version>
 					<type>String</type>
-					<required>true</required>
-					<description>The name of the capability.</description>
+					<required>false</required>
+					<description>The description of the capability (generated).</description>
 				</field>
+				<field>
+					<name>notes</name>
+					<version>1.0.0+</version>
+					<type>String</type>
+					<required>false</required>
+					<description>Optional (user) notes about capability.</description>
+				</field>
+        <field>
+          <name>enabled</name>
+          <type>boolean</type>
+          <version>1.0.0+</version>
+          <required>true</required>
+          <defaultValue>true</defaultValue>
+          <description>The flag determining if the capability is enabled</description>
+        </field>
+        <field>
+          <name>active</name>
+          <type>boolean</type>
+          <version>1.0.0+</version>
+          <required>true</required>
+          <defaultValue>true</defaultValue>
+          <description>The flag determining if the capability is active</description>
+        </field>
 				<field>
 					<name>typeId</name>
 					<version>1.0.0+</version>

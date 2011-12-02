@@ -26,7 +26,7 @@ import org.sonatype.nexus.proxy.repository.Repository;
  * 
  * @author cstamas
  */
-public class RepositoryItemEventCache
+public abstract class RepositoryItemEventCache
     extends RepositoryItemEvent
 {
 

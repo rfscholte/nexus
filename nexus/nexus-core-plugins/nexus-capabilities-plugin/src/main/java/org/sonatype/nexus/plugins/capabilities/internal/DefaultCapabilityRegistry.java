@@ -18,65 +18,156 @@
  */
 package org.sonatype.nexus.plugins.capabilities.internal;
 
+import static java.lang.String.format;
+import static org.sonatype.appcontext.internal.Preconditions.checkNotNull;
+
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.codehaus.plexus.component.annotations.Requirement;
+import org.sonatype.nexus.eventbus.NexusEventBus;
+import org.sonatype.nexus.logging.AbstractLoggingComponent;
 import org.sonatype.nexus.plugins.capabilities.api.Capability;
 import org.sonatype.nexus.plugins.capabilities.api.CapabilityFactory;
+import org.sonatype.nexus.plugins.capabilities.api.CapabilityReference;
 import org.sonatype.nexus.plugins.capabilities.api.CapabilityRegistry;
+import org.sonatype.nexus.plugins.capabilities.api.CapabilityRegistryEvent;
+import org.sonatype.nexus.plugins.capabilities.internal.config.CapabilityConfiguration;
+import org.sonatype.nexus.plugins.capabilities.support.activation.Conditions;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 
+/**
+ * Default {@link CapabilityRegistry} implementation.
+ */
 @Singleton
 @Named
-public class DefaultCapabilityRegistry
+class DefaultCapabilityRegistry
+    extends AbstractLoggingComponent
     implements CapabilityRegistry
 {
 
-    // TODO temporary. To be replaced when new container inplace
-    @Requirement( role = CapabilityFactory.class )
-    private Map<String, CapabilityFactory> factories;
+    private final Map<String, CapabilityFactory> factories;
 
-    private final Map<String, Capability> capabilities;
+    private final NexusEventBus eventBus;
 
-    public DefaultCapabilityRegistry()
+    private final CapabilityConfiguration configuration;
+
+    private final Conditions conditions;
+
+    private final Map<String, CapabilityReference> references;
+
+    private final ReentrantReadWriteLock lock;
+
+    @Inject
+    DefaultCapabilityRegistry( final Map<String, CapabilityFactory> factories,
+                               final NexusEventBus eventBus,
+                               final CapabilityConfiguration configuration,
+                               final Conditions conditions )
     {
-        capabilities = new HashMap<String, Capability>();
+        this.eventBus = checkNotNull( eventBus );
+        this.factories = checkNotNull( factories );
+        this.configuration = Preconditions.checkNotNull( configuration );
+        this.conditions = Preconditions.checkNotNull( conditions );
+
+        references = new HashMap<String, CapabilityReference>();
+        lock = new ReentrantReadWriteLock();
     }
 
-    public void add( final Capability capability )
-    {
-        assert capability != null : "Capability cannot be null";
-        assert capability.id() != null : "Capability id cannot be null";
-
-        capabilities.put( capability.id(), capability );
-    }
-
-    public Capability get( final String capabilityId )
-    {
-        return capabilities.get( capabilityId );
-    }
-
-    public void remove( final String capabilityId )
-    {
-        capabilities.remove( capabilityId );
-    }
-
-    public Capability create( final String capabilityId, final String capabilityType )
+    @Override
+    public CapabilityReference create( final String capabilityId, final String capabilityType )
     {
         assert capabilityId != null : "Capability id cannot be null";
 
-        final CapabilityFactory factory = factories.get( capabilityType );
-        if ( factory == null )
+        try
         {
-            throw new RuntimeException( String.format( "No factory found for a capability of type %s", capabilityType ) );
+            lock.writeLock().lock();
+
+            final CapabilityFactory factory = factories.get( capabilityType );
+            if ( factory == null )
+            {
+                throw new RuntimeException( format( "No factory found for a capability of type %s", capabilityType ) );
+            }
+
+            final Capability capability = factory.create( capabilityId );
+
+            final CapabilityReference reference = createReference( capability );
+
+            references.put( capabilityId, reference );
+
+            getLogger().debug( "Created capability '{}'", capability );
+
+            eventBus.post( new CapabilityRegistryEvent.Created( reference ) );
+
+            return reference;
         }
+        finally
+        {
+            lock.writeLock().unlock();
+        }
+    }
 
-        final Capability capability = factory.create( capabilityId );
+    @Override
+    public CapabilityReference remove( final String capabilityId )
+    {
+        try
+        {
+            lock.writeLock().lock();
 
-        return capability;
+            final CapabilityReference reference = references.remove( capabilityId );
+            if ( reference != null )
+            {
+                getLogger().debug( "Removed capability '{}'", reference.capability() );
+                eventBus.post( new CapabilityRegistryEvent.Removed( reference ) );
+            }
+            return reference;
+        }
+        finally
+        {
+            lock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public CapabilityReference get( final String capabilityId )
+    {
+        try
+        {
+            lock.readLock().lock();
+
+            return references.get( capabilityId );
+        }
+        finally
+        {
+            lock.readLock().unlock();
+        }
+    }
+
+    @Override
+    public Collection<CapabilityReference> getAll()
+    {
+        try
+        {
+            lock.readLock().lock();
+
+            return references.values();
+        }
+        finally
+        {
+            lock.readLock().unlock();
+        }
+    }
+
+    @VisibleForTesting
+    CapabilityReference createReference( final Capability capability )
+    {
+        return new DefaultCapabilityReference(
+            eventBus, configuration, conditions, capability
+        );
     }
 
 }

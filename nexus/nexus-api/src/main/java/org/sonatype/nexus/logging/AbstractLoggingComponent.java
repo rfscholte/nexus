@@ -18,32 +18,48 @@
  */
 package org.sonatype.nexus.logging;
 
-import javax.inject.Inject;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Coming from Plexus, do not use this! Use {@code @Inject org.slf4j.Logger} instead!
- * 
+ * Similar to Plexus' AbstractLogEnabled, but using Slf4j and straight-forward stuff! Consider using
+ * {@code LoggerFactory.getLogger(getClass() )} directly instead, since unsure about the "value" of this class.
+ *
  * @author cstamas
- * @deprecated Just use @Inject org.slf4j.Logger instead!
  */
 public abstract class AbstractLoggingComponent
 {
-    @Inject
-    @Requirement
-    private Logger logger;
 
+    private final Logger logger;
+
+    /**
+     * Default constructor that creates logger for component upon instantiation.
+     */
+    protected AbstractLoggingComponent()
+    {
+        this.logger = checkNotNull( createLogger() );
+    }
+
+    /**
+     * Creates logger instance to be used with component instance. It might be overridden by subclasses to implement
+     * alternative logger naming strategy. By default, this method does the "usual" fluff: {@code LoggerFactory.getLogger(getClass())}.
+     *
+     * @return The Logger instance to be used by component for logging.
+     */
+    protected Logger createLogger()
+    {
+        return LoggerFactory.getLogger( getClass() );
+    }
+
+    /**
+     * Returns the Logger instance of this component. Never returns {@code null}.
+     *
+     * @return
+     */
     protected Logger getLogger()
     {
-        if ( logger == null )
-        {
-            // fallback to this, in case of UTs?
-            logger = LoggerFactory.getLogger( this.getClass() );
-        }
-        
         return logger;
     }
 }

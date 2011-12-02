@@ -33,6 +33,9 @@ import org.sonatype.nexus.configuration.Configurator;
 import org.sonatype.nexus.configuration.application.ApplicationConfiguration;
 import org.sonatype.nexus.configuration.model.CRepositoryExternalConfigurationHolderFactory;
 import org.sonatype.nexus.feeds.FeedRecorder;
+import org.sonatype.nexus.logging.Slf4jPlexusLogger;
+import org.sonatype.nexus.mime.MimeRulesSource;
+import org.sonatype.nexus.mime.MimeSupport;
 import org.sonatype.nexus.mime.MimeUtil;
 import org.sonatype.nexus.proxy.AccessDeniedException;
 import org.sonatype.nexus.proxy.IllegalOperationException;
@@ -53,7 +56,8 @@ import org.sonatype.nexus.proxy.events.RepositoryEventLocalStatusChanged;
 import org.sonatype.nexus.proxy.events.RepositoryEventRecreateAttributes;
 import org.sonatype.nexus.proxy.events.RepositoryItemEventDelete;
 import org.sonatype.nexus.proxy.events.RepositoryItemEventRetrieve;
-import org.sonatype.nexus.proxy.events.RepositoryItemEventStore;
+import org.sonatype.nexus.proxy.events.RepositoryItemEventStoreCreate;
+import org.sonatype.nexus.proxy.events.RepositoryItemEventStoreUpdate;
 import org.sonatype.nexus.proxy.item.AbstractStorageItem;
 import org.sonatype.nexus.proxy.item.ByteArrayContentLocator;
 import org.sonatype.nexus.proxy.item.ContentGenerator;
@@ -103,8 +107,7 @@ public abstract class AbstractRepository
     extends ConfigurableRepository
     implements Repository
 {
-    @Requirement
-    private Logger logger;
+    private Logger logger = Slf4jPlexusLogger.getPlexusLogger( getClass() );
 
     @Requirement
     private ApplicationConfiguration applicationConfiguration;
@@ -129,6 +132,9 @@ public abstract class AbstractRepository
 
     @Requirement
     private MimeUtil mimeUtil;
+
+    @Requirement
+    private MimeSupport mimeSupport;
 
     @Requirement
     private FeedRecorder feedRecorder;
@@ -157,6 +163,10 @@ public abstract class AbstractRepository
     /** if non-indexable -> indexable change occured, need special handling after save */
     private boolean madeSearchable = false;
 
+    /** if local status changed, need special handling after save */
+    private boolean localStatusChanged = false;
+
+
     // --
 
     protected Logger getLogger()
@@ -164,9 +174,21 @@ public abstract class AbstractRepository
         return logger;
     }
 
+    @Deprecated
     protected MimeUtil getMimeUtil()
     {
         return mimeUtil;
+    }
+
+    protected MimeSupport getMimeSupport()
+    {
+        return mimeSupport;
+    }
+
+    @Override
+    public MimeRulesSource getMimeRulesSource()
+    {
+        return MimeRulesSource.NOOP;
     }
 
     protected FeedRecorder getFeedRecorder()
@@ -197,6 +219,8 @@ public abstract class AbstractRepository
 
         this.madeSearchable = false;
 
+        this.localStatusChanged = false;
+
         return wasDirty;
     }
 
@@ -206,6 +230,8 @@ public abstract class AbstractRepository
         this.localUrlChanged = false;
 
         this.madeSearchable = false;
+
+        this.localStatusChanged = false;
 
         return super.rollbackChanges();
     }
@@ -222,6 +248,7 @@ public abstract class AbstractRepository
 
         event.setLocalUrlChanged( this.localUrlChanged );
         event.setMadeSearchable( this.madeSearchable );
+        event.setLocalStatusChanged( localStatusChanged );
 
         return event;
     }
@@ -359,6 +386,8 @@ public abstract class AbstractRepository
             LocalStatus oldLocalStatus = getLocalStatus();
 
             super.setLocalStatus( localStatus );
+
+            localStatusChanged = true;
 
             getApplicationEventMulticaster().notifyEventListeners(
                 new RepositoryEventLocalStatusChanged( this, oldLocalStatus, localStatus ) );
@@ -644,11 +673,11 @@ public abstract class AbstractRepository
 
         DefaultStorageFileItem fItem =
             new DefaultStorageFileItem( this, request, true, true, new PreparedContentLocator( is,
-                getMimeUtil().getMimeType( request.getRequestPath() ) ) );
+                getMimeSupport().guessMimeTypeFromPath( getMimeRulesSource(), request.getRequestPath() ) ) );
 
         if ( userAttributes != null )
         {
-            fItem.getAttributes().putAll( userAttributes );
+            fItem.getRepositoryItemAttributes().putAll( userAttributes );
         }
 
         storeItem( false, fItem );
@@ -666,7 +695,7 @@ public abstract class AbstractRepository
 
         if ( userAttributes != null )
         {
-            coll.getAttributes().putAll( userAttributes );
+            coll.getRepositoryItemAttributes().putAll( userAttributes );
         }
 
         storeItem( false, coll );
@@ -714,28 +743,18 @@ public abstract class AbstractRepository
         return targetRegistry.hasAnyApplicableTarget( this );
     }
 
-    public Action getResultingActionOnWrite( ResourceStoreRequest rsr )
+    public Action getResultingActionOnWrite( final ResourceStoreRequest rsr )
+        throws LocalStorageException
     {
-        try
-        {
-            boolean isInLocalStorage = getLocalStorage().containsItem( this, rsr );
+        final boolean isInLocalStorage = getLocalStorage().containsItem( this, rsr );
 
-            if ( isInLocalStorage )
-            {
-                return Action.update;
-            }
-            else
-            {
-                return Action.create;
-            }
+        if ( isInLocalStorage )
+        {
+            return Action.update;
         }
-        catch ( StorageException e )
+        else
         {
-            getLogger().error(
-                "Could not resolve the local presence of \"" + rsr.getRequestPath() + "\" path in repository ID=\""
-                    + getId() + "\"!", e );
-
-            return null;
+            return Action.create;
         }
     }
 
@@ -826,8 +845,7 @@ public abstract class AbstractRepository
                 getLogger().debug( getId() + " retrieveItem() :: NOT FOUND " + uid.toString() );
             }
 
-            // if not local/remote only, add it to NFC
-            if ( !request.isRequestLocalOnly() && !request.isRequestRemoteOnly() )
+            if ( shouldAddToNotFoundCache( request ) )
             {
                 addToNotFoundCache( request );
             }
@@ -1012,6 +1030,8 @@ public abstract class AbstractRepository
 
         uidUploaderLock.lock( Action.create );
 
+        final Action action = getResultingActionOnWrite( item.getResourceStoreRequest() );
+
         try
         {
             // NEXUS-4550: we are shared-locking the actual UID (to not prevent downloaders while
@@ -1041,7 +1061,14 @@ public abstract class AbstractRepository
         // remove the "request" item from n-cache if there
         removeFromNotFoundCache( item.getResourceStoreRequest() );
 
-        getApplicationEventMulticaster().notifyEventListeners( new RepositoryItemEventStore( this, item ) );
+        if ( Action.create.equals( action ) )
+        {
+            getApplicationEventMulticaster().notifyEventListeners( new RepositoryItemEventStoreCreate( this, item ) );
+        }
+        else
+        {
+            getApplicationEventMulticaster().notifyEventListeners( new RepositoryItemEventStoreUpdate( this, item ) );
+        }
     }
 
     public Collection<StorageItem> list( boolean fromTask, ResourceStoreRequest request )
@@ -1163,6 +1190,7 @@ public abstract class AbstractRepository
      * 
      * @param path the path
      */
+    @Override
     public void addToNotFoundCache( ResourceStoreRequest request )
     {
         if ( isNotFoundCacheActive() )
@@ -1301,14 +1329,6 @@ public abstract class AbstractRepository
             {
                 getLogger().debug( "Item " + request.toString() + " found in local storage." );
             }
-
-            // this "self correction" is needed to nexus build for himself the needed metadata
-            if ( localItem.getRemoteChecked() == 0 )
-            {
-                getAttributesHandler().touchItemRemoteChecked( this, request );
-
-                localItem = getLocalStorage().retrieveItem( this, request );
-            }
         }
         catch ( ItemNotFoundException ex )
         {
@@ -1327,4 +1347,18 @@ public abstract class AbstractRepository
     {
         return action.isReadAction();
     }
+
+    /**
+     * Whether or not the requested path should be added to NFC. Item will be added to NFC if is not local/remote only.
+     * 
+     * @param request resource store request
+     * @return true if requested path should be added to NFC
+     * @since 1.10.0
+     */
+    protected boolean shouldAddToNotFoundCache( final ResourceStoreRequest request )
+    {
+        // if not local/remote only, add it to NFC
+        return !request.isRequestLocalOnly() && !request.isRequestRemoteOnly();
+    }
+
 }

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.ThreadContext;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.logging.Logger;
@@ -54,6 +55,7 @@ import org.sonatype.nexus.configuration.model.Configuration;
 import org.sonatype.nexus.configuration.source.ApplicationConfigurationSource;
 import org.sonatype.nexus.configuration.validator.ApplicationConfigurationValidator;
 import org.sonatype.nexus.configuration.validator.ApplicationValidationContext;
+import org.sonatype.nexus.logging.Slf4jPlexusLogger;
 import org.sonatype.nexus.plugins.RepositoryType;
 import org.sonatype.nexus.proxy.NoSuchRepositoryException;
 import org.sonatype.nexus.proxy.events.VetoFormatter;
@@ -84,8 +86,7 @@ import org.sonatype.security.SecuritySystem;
 public class DefaultNexusConfiguration
     implements NexusConfiguration
 {
-    @Requirement
-    private Logger logger;
+    private Logger logger = Slf4jPlexusLogger.getPlexusLogger( getClass() );
 
     @Requirement
     private ApplicationEventMulticaster applicationEventMulticaster;
@@ -243,7 +244,7 @@ public class DefaultNexusConfiguration
             applicationEventMulticaster.notifyEventListeners( new ConfigurationCommitEvent( this ) );
 
             String userId = null;
-            Subject subject = securitySystem.getSubject();
+            Subject subject = ThreadContext.getSubject(); // Use ThreadContext directly, SecurityUtils will associate a new Subject with the thread.
             if ( subject != null && subject.getPrincipal() != null )
             {
                 userId = subject.getPrincipal().toString();
@@ -309,10 +310,7 @@ public class DefaultNexusConfiguration
 
     public boolean isInstanceUpgraded()
     {
-        // TODO: this is not quite true: we might keep model ver but upgrade JARs of Nexus only in a release
-        // we should store the nexus version somewhere in working storage and trigger some household stuff
-        // if version changes.
-        return configurationSource.isConfigurationUpgraded();
+        return configurationSource.isInstanceUpgraded();
     }
 
     public boolean isConfigurationUpgraded()

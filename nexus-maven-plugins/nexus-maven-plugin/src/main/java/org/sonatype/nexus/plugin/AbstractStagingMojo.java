@@ -79,7 +79,7 @@ public abstract class AbstractStagingMojo
             }
             catch ( RESTLightClientException e )
             {
-                throw new MojoExecutionException( "Failed to connect to Nexus at: " + getNexusUrl() );
+                throw new MojoExecutionException( "Failed to connect to Nexus at: " + getNexusUrl(), e );
             }
         }
 
@@ -94,17 +94,17 @@ public abstract class AbstractStagingMojo
 
         try
         {
+            builder.append( prompt );
             if ( groupId != null )
             {
                 repos = getClient().getClosedStageRepositoriesForUser( groupId, artifactId, version );
-                builder.append( prompt ).append( " for: '" ).append( groupId ).append( ":" ).append( artifactId ).append(
-                    ":" ).append( version ).append( "':" );
+                builder.append( String.format( " for: '%s:%s:%s'", groupId, artifactId, version ) );
             }
             else
             {
                 repos = getClient().getClosedStageRepositories();
-                builder.append( prompt ).append( ": " );
             }
+            builder.append( ": " );
         }
         catch ( RESTLightClientException e )
         {
@@ -145,9 +145,10 @@ public abstract class AbstractStagingMojo
             builder.append( "\n   Description: " ).append( repo.getDescription() );
         }
 
-        builder.append( "\n   Details: (user: " ).append( repo.getUser() ).append( ", " );
-        builder.append( "ip: " ).append( repo.getIpAddress() ).append( ", " );
-        builder.append( "user agent: " ).append( repo.getUserAgent() ).append( ")" );
+        builder.append( String.format(
+            "\n   Details: (user: %s, ip: %s, user agent: %s)",
+            repo.getUser(), repo.getIpAddress(), repo.getUserAgent() )
+        );
 
         return builder;
     }
@@ -156,8 +157,10 @@ public abstract class AbstractStagingMojo
     {
         StringBuilder builder = new StringBuilder();
 
-        builder.append( "Id: " ).append( profile.getProfileId() ).append( "\tname: " ).append( profile.getName() ).append(
-            "\tmode: " ).append( profile.getMode() );
+        builder
+            .append( "Id: " ).append( profile.getProfileId() )
+            .append( "\tname: " ).append( profile.getName() )
+            .append( "\tmode: " ).append( profile.getMode() );
 
         return builder;
     }
@@ -166,14 +169,16 @@ public abstract class AbstractStagingMojo
                                       final boolean allowAutoSelect )
         throws MojoExecutionException
     {
-        if ( stageRepos == null || stageRepos.isEmpty() )
+        List<StageRepository> stageRepositories = stageRepos;
+
+        if ( stageRepositories == null || stageRepositories.isEmpty() )
         {
             throw new MojoExecutionException( "No repositories available." );
         }
 
         if ( getRepositoryId() != null )
         {
-            for ( StageRepository repo : stageRepos )
+            for ( StageRepository repo : stageRepositories )
             {
                 if ( getRepositoryId().equals( repo.getRepositoryId() ) )
                 {
@@ -182,9 +187,9 @@ public abstract class AbstractStagingMojo
             }
         }
 
-        if ( allowAutoSelect && isAutomatic() && stageRepos.size() == 1 )
+        if ( allowAutoSelect && isAutomatic() && stageRepositories.size() == 1 )
         {
-            StageRepository repo = stageRepos.get( 0 );
+            StageRepository repo = stageRepositories.get( 0 );
             getLog().info( "Using the only staged repository available: " + repo.getRepositoryId() );
 
             return repo;
@@ -197,7 +202,7 @@ public abstract class AbstractStagingMojo
         menu.append( "\n\n\nAvailable Staging Repositories:\n\n" );
 
         int i = 0;
-        for ( StageRepository repo : stageRepos )
+        for ( StageRepository repo : stageRepositories )
         {
             ++i;
             repoMap.put( Integer.toString( i ), repo );

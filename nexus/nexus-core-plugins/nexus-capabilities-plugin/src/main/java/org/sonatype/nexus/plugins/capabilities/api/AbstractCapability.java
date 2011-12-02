@@ -20,7 +20,11 @@ package org.sonatype.nexus.plugins.capabilities.api;
 
 import java.util.Map;
 
+import org.sonatype.nexus.logging.AbstractLoggingComponent;
+import org.sonatype.nexus.plugins.capabilities.api.activation.Condition;
+
 public abstract class AbstractCapability
+    extends AbstractLoggingComponent
     implements Capability
 {
 
@@ -33,29 +37,67 @@ public abstract class AbstractCapability
         this.id = id;
     }
 
+    @Override
     public String id()
     {
         return id;
     }
 
+    @Override
     public void create( final Map<String, String> properties )
     {
         // do nothing
     }
 
+    @Override
     public void load( final Map<String, String> properties )
     {
         // do nothing
     }
 
+    @Override
     public void update( final Map<String, String> properties )
     {
         // do nothing
     }
 
+    @Override
     public void remove()
     {
         // do nothing
     }
 
+    @Override
+    public void activate()
+    {
+        // do nothing
+    }
+
+    @Override
+    public void passivate()
+    {
+        // do nothing
+    }
+
+    /**
+     * Returns null, meaning that this capability is always active.
+     *
+     * @return null
+     */
+    @Override
+    public Condition activationCondition()
+    {
+        return null;
+    }
+
+    /**
+     * Returns null, meaning that this capability is always valid.
+     *
+     * @return null
+     */
+    @Override
+    public Condition validityCondition()
+    {
+        return null;
+    }
 }

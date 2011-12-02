@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
 import javax.naming.InvalidNameException;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -30,15 +29,14 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.Control;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
-import javax.naming.ldap.SortControl;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.security.ldap.dao.password.PasswordEncoderManager;
 
 
@@ -47,12 +45,17 @@ import org.sonatype.security.ldap.dao.password.PasswordEncoderManager;
  */
 @Component( role = LdapUserDAO.class )
 public class DefaultLdapUserDAO
-    extends AbstractLogEnabled
     implements LdapUserDAO
 {
+    private Logger logger = LoggerFactory.getLogger( getClass() );
 
     @Requirement
     private PasswordEncoderManager passwordEncoderManager;
+
+    protected Logger getLogger()
+    {
+        return logger;
+    }
 
     public PasswordEncoderManager getPasswordEncoderManager()
     {
@@ -289,10 +292,11 @@ public class DefaultLdapUserDAO
             ctls.setCountLimit( limitCount );
         }
 
+        String f = configuration.getLdapFilter();
+        getLogger().debug("Specific filter rule: \"" + ( f != null ? f : "none" ) + "\"");
         String filter =
-            "(&(objectClass=" + configuration.getUserObjectClass() + ")(" + configuration.getUserIdAttribute() + "="
-                + ( username != null ? username : "*" ) + "))";
-
+                "(&(objectClass=" + configuration.getUserObjectClass() + ")(" + configuration.getUserIdAttribute() + "="
+                        + ( username != null ? username : "*" ) + ")" + ( f != null && !f.isEmpty() ? "(" + f + ")" : "" ) + ")";
         getLogger().debug( "Searching for users with filter: \'" + filter + "\'" );
         
         String baseDN = StringUtils.defaultString( configuration.getUserBaseDn(), "" );

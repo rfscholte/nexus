@@ -18,7 +18,6 @@
  */
 package org.sonatype.nexus.proxy.storage.local.fs;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,40 +27,36 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import javax.inject.Inject;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.StringUtils;
-import org.sonatype.nexus.mime.MimeUtil;
+import org.sonatype.nexus.mime.MimeSupport;
 import org.sonatype.nexus.proxy.ItemNotFoundException;
 import org.sonatype.nexus.proxy.LocalStorageException;
 import org.sonatype.nexus.proxy.NoSuchRepositoryException;
 import org.sonatype.nexus.proxy.ResourceStoreRequest;
+import org.sonatype.nexus.proxy.attributes.Attributes;
 import org.sonatype.nexus.proxy.item.AbstractStorageItem;
+import org.sonatype.nexus.proxy.item.ByteArrayContentLocator;
 import org.sonatype.nexus.proxy.item.ContentLocator;
 import org.sonatype.nexus.proxy.item.DefaultStorageCollectionItem;
 import org.sonatype.nexus.proxy.item.DefaultStorageFileItem;
 import org.sonatype.nexus.proxy.item.DefaultStorageLinkItem;
 import org.sonatype.nexus.proxy.item.LinkPersister;
-import org.sonatype.nexus.proxy.item.PreparedContentLocator;
 import org.sonatype.nexus.proxy.item.RepositoryItemUid;
 import org.sonatype.nexus.proxy.item.StorageFileItem;
 import org.sonatype.nexus.proxy.item.StorageItem;
 import org.sonatype.nexus.proxy.item.StorageLinkItem;
-import org.sonatype.nexus.proxy.repository.HostedRepository;
-import org.sonatype.nexus.proxy.repository.ProxyRepository;
 import org.sonatype.nexus.proxy.repository.Repository;
 import org.sonatype.nexus.proxy.storage.UnsupportedStorageOperationException;
 import org.sonatype.nexus.proxy.storage.local.AbstractLocalRepositoryStorage;
 import org.sonatype.nexus.proxy.storage.local.LocalRepositoryStorage;
 import org.sonatype.nexus.proxy.wastebasket.Wastebasket;
 import org.sonatype.nexus.util.ItemPathUtils;
-import org.sonatype.nexus.util.SystemPropertiesHelper;
-
-import javax.inject.Inject;
 
 /**
- * The Class DefaultFSLocalRepositoryStorage.
+ * LocalRepositoryStorage that uses plain File System (relies on {@link File}) to implement it's functionality.
  * 
  * @author cstamas
  */
@@ -71,23 +66,13 @@ public class DefaultFSLocalRepositoryStorage
 {
     public static final String PROVIDER_STRING = "file";
 
-    private static final boolean touchLastRequested = SystemPropertiesHelper.getBoolean(
-        "nexus.ls.file.touchLastRequested", true );
-
-    private static final boolean touchLastRequestedForHostedRepositories = SystemPropertiesHelper.getBoolean(
-        "nexus.ls.file.touchLastRequested.hosted", touchLastRequested );
-
-    private static final boolean touchLastRequestedForProxyRepositories = SystemPropertiesHelper.getBoolean(
-        "nexus.ls.file.touchLastRequested.proxy", touchLastRequested );
-
-
     private FSPeer fsPeer;
 
     @Inject
-    public DefaultFSLocalRepositoryStorage( Wastebasket wastebasket, LinkPersister linkPersister, MimeUtil mimeUtil,
-                                            Map<String, Long> repositoryContexts, FSPeer fsPeer )
+    public DefaultFSLocalRepositoryStorage( Wastebasket wastebasket, LinkPersister linkPersister,
+                                            MimeSupport mimeSupport, Map<String, Long> repositoryContexts, FSPeer fsPeer )
     {
-        super( wastebasket, linkPersister, mimeUtil, repositoryContexts );
+        super( wastebasket, linkPersister, mimeSupport, repositoryContexts );
         this.fsPeer = fsPeer;
     }
 
@@ -223,12 +208,6 @@ public class DefaultFSLocalRepositoryStorage
 
     /**
      * Retrieve item from file.
-     * 
-     * @param uid the uid
-     * @param target the target
-     * @return the abstract storage item
-     * @throws ItemNotFoundException the item not found exception
-     * @throws LocalStorageException the storage exception
      */
     protected AbstractStorageItem retrieveItemFromFile( Repository repository, ResourceStoreRequest request, File target )
         throws ItemNotFoundException, LocalStorageException
@@ -282,25 +261,7 @@ public class DefaultFSLocalRepositoryStorage
                         link.setCreated( target.lastModified() );
                         result = link;
 
-                        // the "default"
-                        boolean doTouch = touchLastRequested;
-
-                        if ( repository.getRepositoryKind().isFacetAvailable( HostedRepository.class ) )
-                        {
-                            // this is a hosted repository
-                            doTouch = touchLastRequestedForHostedRepositories;
-                        }
-                        else if ( repository.getRepositoryKind().isFacetAvailable( ProxyRepository.class ) )
-                        {
-                            // this is a proxy repository
-                            doTouch = touchLastRequestedForProxyRepositories;
-                        }
-
-                        if ( doTouch )
-                        {
-                            repository.getAttributesHandler().touchItemLastRequested( System.currentTimeMillis(),
-                                repository, request, link );
-                        }
+                        repository.getAttributesHandler().touchItemLastRequested( System.currentTimeMillis(), link );
                     }
                     catch ( NoSuchRepositoryException e )
                     {
@@ -315,15 +276,15 @@ public class DefaultFSLocalRepositoryStorage
                 {
                     DefaultStorageFileItem file =
                         new DefaultStorageFileItem( repository, request, target.canRead(), target.canWrite(),
-                            new FileContentLocator( target, getMimeUtil().getMimeType( target ) ) );
+                            new FileContentLocator( target, getMimeSupport().guessMimeTypeFromPath(
+                                repository.getMimeRulesSource(), target.getAbsolutePath() ) ) );
                     repository.getAttributesHandler().fetchAttributes( file );
                     file.setModified( target.lastModified() );
                     file.setCreated( target.lastModified() );
                     file.setLength( target.length() );
                     result = file;
 
-                    repository.getAttributesHandler().touchItemLastRequested( System.currentTimeMillis(), repository,
-                        request, file );
+                    repository.getAttributesHandler().touchItemLastRequested( System.currentTimeMillis(), file );
                 }
             }
             catch ( FileNotFoundException e )
@@ -402,7 +363,7 @@ public class DefaultFSLocalRepositoryStorage
                 throw new LocalStorageException( "Problem ", e );
             }
 
-            cl = new PreparedContentLocator( new ByteArrayInputStream( bos.toByteArray() ), "text/xml" );
+            cl = new ByteArrayContentLocator( bos.toByteArray(), "text/xml" );
         }
 
         getFSPeer().storeItem( repository, item, target, cl );
@@ -441,16 +402,16 @@ public class DefaultFSLocalRepositoryStorage
     {
         RepositoryItemUid fromUid = repository.createUid( from.getRequestPath() );
 
-        AbstractStorageItem fromAttr = repository.getAttributesHandler().getAttributeStorage().getAttributes( fromUid );
+        Attributes fromAttr =
+            repository.getAttributesHandler().getAttributeStorage().getAttributes( fromUid );
 
         // check does it have attrs at all
         if ( fromAttr != null )
         {
             RepositoryItemUid toUid = repository.createUid( to.getRequestPath() );
-
-            fromAttr.setRepositoryItemUid( toUid );
-
-            repository.getAttributesHandler().getAttributeStorage().putAttribute( fromAttr );
+            fromAttr.setRepositoryId( toUid.getRepository().getId() );
+            fromAttr.setPath( toUid.getPath() );
+            repository.getAttributesHandler().getAttributeStorage().putAttributes( toUid, fromAttr );
         }
 
         File fromTarget = getFileFromBase( repository, from );
@@ -485,9 +446,10 @@ public class DefaultFSLocalRepositoryStorage
                 {
                     result.add( retrieveItemFromFile( repository, collMemberReq, file ) );
                 }
-                catch( ItemNotFoundException e)
+                catch ( ItemNotFoundException e )
                 {
-                    getLogger().debug( "ItemNotFoundException while listing directory, for request: {}", collMemberReq.getRequestPath(), e );
+                    getLogger().debug( "ItemNotFoundException while listing directory, for request: {}",
+                        collMemberReq.getRequestPath(), e );
                 }
 
                 request.popRequestPath();

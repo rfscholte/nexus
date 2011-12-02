@@ -109,6 +109,23 @@ public class NexusRequestMatchers
         }
     }
 
+    public static class IsClientError
+        extends BaseStatusMatcher
+    {
+
+        @Override
+        protected boolean matchesSafely( Status item )
+        {
+            return item.isClientError();
+        }
+
+        @Override
+        public void describeTo( Description description )
+        {
+            description.appendText( "client error" );
+        }
+    }
+
     // **************** Response Matchers ******************
 
     public static abstract class BaseResponseMatcher
@@ -325,6 +342,12 @@ public class NexusRequestMatchers
     }
 
     @Factory
+    public static <T> IsClientError isClientError()
+    {
+        return new IsClientError();
+    }
+
+    @Factory
     public static <T> HasCode hasStatusCode( int expectedCode )
     {
         return new HasCode( expectedCode );
@@ -334,6 +357,12 @@ public class NexusRequestMatchers
     public static <T> HasCode isNotFound()
     {
         return new HasCode( 404 );
+    }
+
+    @Factory
+    public static <T> RespondsWithStatusCode respondsWithStatus( Status status )
+    {
+        return respondsWithStatusCode( status.getCode() );
     }
 
     @Factory

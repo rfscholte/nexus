@@ -67,10 +67,6 @@ import org.apache.maven.index.context.DocumentFilter;
 import org.apache.maven.index.context.IndexCreator;
 import org.apache.maven.index.context.IndexingContext;
 import org.apache.maven.index.context.UnsupportedExistingLuceneIndexException;
-import org.apache.maven.index.creator.JarFileContentsIndexCreator;
-import org.apache.maven.index.creator.MavenArchetypeArtifactInfoIndexCreator;
-import org.apache.maven.index.creator.MavenPluginArtifactInfoIndexCreator;
-import org.apache.maven.index.creator.MinimalArtifactInfoIndexCreator;
 import org.apache.maven.index.expr.SearchExpression;
 import org.apache.maven.index.packer.IndexPacker;
 import org.apache.maven.index.packer.IndexPackingRequest;
@@ -90,8 +86,9 @@ import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.nexus.configuration.application.NexusConfiguration;
+import org.sonatype.nexus.logging.Slf4jPlexusLogger;
 import org.sonatype.nexus.maven.tasks.SnapshotRemover;
-import org.sonatype.nexus.mime.MimeUtil;
+import org.sonatype.nexus.mime.MimeSupport;
 import org.sonatype.nexus.proxy.IllegalOperationException;
 import org.sonatype.nexus.proxy.ItemNotFoundException;
 import org.sonatype.nexus.proxy.LocalStorageException;
@@ -154,8 +151,7 @@ public class DefaultIndexerManager
 
     private static final Map<String, ReadWriteLock> locks = new HashMap<String, ReadWriteLock>();
 
-    @Requirement
-    private Logger logger;
+    private Logger logger = Slf4jPlexusLogger.getPlexusLogger( getClass() );
 
     @Requirement
     private NexusIndexer nexusIndexer;
@@ -175,17 +171,8 @@ public class DefaultIndexerManager
     @Requirement( hint = "maven2" )
     private ContentClass maven2;
 
-    @Requirement( role = IndexCreator.class, hint = MinimalArtifactInfoIndexCreator.ID )
-    private IndexCreator icMin;
-
-    @Requirement( role = IndexCreator.class, hint = MavenPluginArtifactInfoIndexCreator.ID )
-    private IndexCreator icMavenPlugin;
-
-    @Requirement( role = IndexCreator.class, hint = MavenArchetypeArtifactInfoIndexCreator.ID )
-    private IndexCreator icMavenArchetype;
-
-    @Requirement( role = IndexCreator.class, hint = JarFileContentsIndexCreator.ID )
-    private IndexCreator icJar;
+    @Requirement( role = IndexCreator.class )
+    private List<IndexCreator> indexCreators;
 
     @Requirement
     private IndexArtifactFilter indexArtifactFilter;
@@ -194,7 +181,7 @@ public class DefaultIndexerManager
     private ArtifactContextProducer artifactContextProducer;
 
     @Requirement
-    private MimeUtil mimeUtil;
+    private MimeSupport mimeSupport;
 
     @Requirement
     private IndexTreeView indexTreeView;
@@ -383,8 +370,7 @@ public class DefaultIndexerManager
                 // add context for repository
                 ctx =
                     nexusIndexer.addIndexingContextForced( getContextId( repository.getId() ), repository.getId(),
-                        repoRoot, indexDirectory, null, null,
-                        Arrays.asList( icMin, icMavenArchetype, icMavenPlugin, icJar ) );
+                        repoRoot, indexDirectory, null, null, indexCreators );
                 ctx.setSearchable( repository.isSearchable() );
             }
 
@@ -665,7 +651,7 @@ public class DefaultIndexerManager
                             if ( ai.sha1 == null )
                             {
                                 // if repo has no sha1 checksum, odd nexus one
-                                ai.sha1 = item.getAttributes().get( DigestCalculatingInspector.DIGEST_SHA1_KEY );
+                                ai.sha1 = item.getRepositoryItemAttributes().get( DigestCalculatingInspector.DIGEST_SHA1_KEY );
                             }
                         }
                     }
@@ -880,6 +866,7 @@ public class DefaultIndexerManager
 
         if ( isAlreadyBeingIndexed( repository.getId() ) )
         {
+            logAlreadyBeingIndexed( repository.getId(), "re-indexing" );
             return;
         }
 
@@ -1003,6 +990,7 @@ public class DefaultIndexerManager
 
         if ( isAlreadyBeingIndexed( repository.getId() ) )
         {
+            logAlreadyBeingIndexed( repository.getId(), "downloading index" );
             return false;
         }
 
@@ -1256,6 +1244,7 @@ public class DefaultIndexerManager
 
         if ( isAlreadyBeingIndexed( repository.getId() ) )
         {
+            logAlreadyBeingIndexed( repository.getId(), "publishing index" );
             return;
         }
 
@@ -1364,7 +1353,7 @@ public class DefaultIndexerManager
             ResourceStoreRequest request = new ResourceStoreRequest( path );
             DefaultStorageFileItem fItem =
                 new DefaultStorageFileItem( repository, request, true, true, new PreparedContentLocator( fis,
-                    mimeUtil.getMimeType( file ) ) );
+                    mimeSupport.guessMimeTypeFromPath( repository.getMimeRulesSource(), file.getAbsolutePath() ) ) );
 
             if ( context.getTimestamp() == null )
             {
@@ -2328,4 +2317,12 @@ public class DefaultIndexerManager
         // if I can't get a read lock means someone else has the write lock (index tasks do write lock)
         return !locked;
     }
+
+    private void logAlreadyBeingIndexed( final String repositoryId, final String processName )
+    {
+        getLogger().info(
+            String.format( "Repository '%s' is already in the process of being re-indexed. Skipping %s'.",
+                repositoryId, processName ) );
+    }
+
 }

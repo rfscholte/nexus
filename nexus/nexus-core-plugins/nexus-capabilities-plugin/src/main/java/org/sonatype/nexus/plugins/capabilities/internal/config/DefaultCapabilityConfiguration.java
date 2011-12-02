@@ -30,13 +30,14 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
@@ -47,33 +48,35 @@ import org.sonatype.configuration.validation.ValidationRequest;
 import org.sonatype.configuration.validation.ValidationResponse;
 import org.sonatype.nexus.configuration.ConfigurationIdGenerator;
 import org.sonatype.nexus.configuration.application.ApplicationConfiguration;
-import org.sonatype.nexus.plugins.capabilities.internal.config.events.CapabilityConfigurationAddEvent;
-import org.sonatype.nexus.plugins.capabilities.internal.config.events.CapabilityConfigurationLoadEvent;
-import org.sonatype.nexus.plugins.capabilities.internal.config.events.CapabilityConfigurationRemoveEvent;
-import org.sonatype.nexus.plugins.capabilities.internal.config.events.CapabilityConfigurationUpdateEvent;
+import org.sonatype.nexus.eventbus.NexusEventBus;
+import org.sonatype.nexus.logging.AbstractLoggingComponent;
+import org.sonatype.nexus.plugins.capabilities.api.descriptor.CapabilityDescriptor;
+import org.sonatype.nexus.plugins.capabilities.api.descriptor.CapabilityDescriptorRegistry;
 import org.sonatype.nexus.plugins.capabilities.internal.config.persistence.CCapability;
+import org.sonatype.nexus.plugins.capabilities.internal.config.persistence.CCapabilityProperty;
 import org.sonatype.nexus.plugins.capabilities.internal.config.persistence.Configuration;
 import org.sonatype.nexus.plugins.capabilities.internal.config.persistence.io.xpp3.NexusCapabilitiesConfigurationXpp3Reader;
 import org.sonatype.nexus.plugins.capabilities.internal.config.persistence.io.xpp3.NexusCapabilitiesConfigurationXpp3Writer;
-import org.sonatype.plexus.appevents.ApplicationEventMulticaster;
+import org.sonatype.nexus.proxy.events.NexusInitializedEvent;
+import com.google.common.eventbus.Subscribe;
 
+/**
+ * Handles persistence of capabilities configuration.
+ */
 @Singleton
 @Named
 public class DefaultCapabilityConfiguration
+    extends AbstractLoggingComponent
     implements CapabilityConfiguration
 {
 
-    // @Inject
-    private final ApplicationEventMulticaster applicationEventMulticaster;
+    private final NexusEventBus eventBus;
 
-    // @Inject
     private final CapabilityConfigurationValidator validator;
 
-    // @Inject
     private final ConfigurationIdGenerator idGenerator;
 
-    // @Inject
-    private final Logger logger;
+    private final CapabilityDescriptorRegistry descriptors;
 
     private final File configurationFile;
 
@@ -83,14 +86,15 @@ public class DefaultCapabilityConfiguration
 
     @Inject
     public DefaultCapabilityConfiguration( final ApplicationConfiguration applicationConfiguration,
-                                           final ApplicationEventMulticaster applicationEventMulticaster,
+                                           final NexusEventBus eventBus,
                                            final CapabilityConfigurationValidator validator,
-                                           final ConfigurationIdGenerator idGenerator, final Logger logger )
+                                           final ConfigurationIdGenerator idGenerator,
+                                           final CapabilityDescriptorRegistry descriptors )
     {
-        this.applicationEventMulticaster = applicationEventMulticaster;
+        this.eventBus = eventBus;
         this.validator = validator;
         this.idGenerator = idGenerator;
-        this.logger = logger;
+        this.descriptors = descriptors;
 
         configurationFile = new File( applicationConfiguration.getWorkingDirectory(), "conf/capabilities.xml" );
     }
@@ -112,13 +116,17 @@ public class DefaultCapabilityConfiguration
             final String generatedId = idGenerator.generateId();
 
             capability.setId( generatedId );
+            capability.setDescription( getDescription( capability ) );
             getConfiguration().addCapability( capability );
 
             save();
 
-            logger.debug( String.format( "Added capability [%s] with properties %s", capability.getName(),
-                capability.getProperties() ) );
-            applicationEventMulticaster.notifyEventListeners( new CapabilityConfigurationAddEvent( capability ) );
+            getLogger().debug(
+                "Added capability '{}' of type '{}' with properties '{}'",
+                new Object[]{ capability.getId(), capability.getTypeId(), capability.getProperties() }
+            );
+
+            eventBus.post( new CapabilityConfigurationEvent.Added( capability ) );
 
             return generatedId;
         }
@@ -147,12 +155,16 @@ public class DefaultCapabilityConfiguration
             if ( stored != null )
             {
                 getConfiguration().removeCapability( stored );
+                capability.setDescription( getDescription( capability ) );
                 getConfiguration().addCapability( capability );
                 save();
 
-                logger.debug( String.format( "Updated capability [%s] with properties %s", capability.getName(),
-                    capability.getProperties() ) );
-                applicationEventMulticaster.notifyEventListeners( new CapabilityConfigurationUpdateEvent( capability ) );
+                getLogger().debug(
+                    "Updated capability '{}' of type '{}' with properties '{}'",
+                    new Object[]{ capability.getId(), capability.getTypeId(), capability.getProperties() }
+                );
+
+                eventBus.post( new CapabilityConfigurationEvent.Updated( capability, stored ) );
             }
         }
         finally
@@ -174,9 +186,11 @@ public class DefaultCapabilityConfiguration
                 getConfiguration().removeCapability( stored );
                 save();
 
-                logger.debug( String.format( "Removed capability [%s] with properties %s", stored.getName(),
-                    stored.getProperties() ) );
-                applicationEventMulticaster.notifyEventListeners( new CapabilityConfigurationRemoveEvent( stored ) );
+                getLogger().debug(
+                    "Removed capability '{}' of type '{}' with properties '{}'",
+                    new Object[]{ stored.getId(), stored.getTypeId(), stored.getProperties() }
+                );
+                eventBus.post( new CapabilityConfigurationEvent.Removed( stored ) );
             }
         }
         finally
@@ -238,8 +252,9 @@ public class DefaultCapabilityConfiguration
 
             configuration = reader.read( fr );
 
-            final ValidationResponse vr =
-                validator.validateModel( new ValidationRequest<Configuration>( configuration ) );
+            final ValidationResponse vr = validator.validateModel(
+                new ValidationRequest<Configuration>( configuration )
+            );
 
             if ( vr.getValidationErrors().size() > 0 )
             {
@@ -280,9 +295,11 @@ public class DefaultCapabilityConfiguration
         final Collection<CCapability> capabilities = getAll();
         for ( final CCapability capability : capabilities )
         {
-            logger.debug( String.format( "Loading capability [%s] with properties [%s]", capability.getName(),
-                capability.getProperties() ) );
-            applicationEventMulticaster.notifyEventListeners( new CapabilityConfigurationLoadEvent( capability ) );
+            getLogger().debug(
+                "Loading capability '{}' of type '{}' with properties '{}'",
+                new Object[]{ capability.getId(), capability.getTypeId(), capability.getProperties() }
+            );
+            eventBus.post( new CapabilityConfigurationEvent.Loaded( capability ) );
         }
     }
 
@@ -328,9 +345,34 @@ public class DefaultCapabilityConfiguration
         configuration = null;
     }
 
-    private Logger getLogger()
+    private String getDescription( final CCapability capability )
     {
-        return logger;
+        final CapabilityDescriptor descriptor = descriptors.get( capability.getTypeId() );
+        if ( descriptor != null )
+        {
+            try
+            {
+                return descriptor.describe( asMap( capability.getProperties() ) );
+            }
+            catch ( Exception ignore )
+            {
+                getLogger().warn( "Capability descriptor '{}' failed to describe capability", descriptor.id() );
+            }
+        }
+        return capability.getDescription();
+    }
+
+    static Map<String, String> asMap( final List<CCapabilityProperty> properties )
+    {
+        final Map<String, String> map = new HashMap<String, String>();
+        if ( properties != null )
+        {
+            for ( final CCapabilityProperty property : properties )
+            {
+                map.put( property.getKey(), property.getValue() );
+            }
+        }
+        return map;
     }
 
 }

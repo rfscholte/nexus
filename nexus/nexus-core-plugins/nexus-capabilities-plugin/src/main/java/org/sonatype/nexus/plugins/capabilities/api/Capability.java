@@ -20,17 +20,72 @@ package org.sonatype.nexus.plugins.capabilities.api;
 
 import java.util.Map;
 
+import org.sonatype.nexus.plugins.capabilities.api.activation.Condition;
+
 public interface Capability
 {
 
+    /**
+     * Returns an unique capability identifier.
+     *
+     * @return identifier
+     */
     String id();
 
+    /**
+     * Callback when a new capability is created.
+     *
+     * @param properties capability configuration
+     */
     void create( Map<String, String> properties );
 
+    /**
+     * Callback when a capability configuration is loaded from persisted store (configuration file).
+     *
+     * @param properties capability configuration
+     */
     void load( Map<String, String> properties );
 
+    /**
+     * Callback when a capability configuration is updated.
+     *
+     * @param properties capability configuration
+     */
     void update( Map<String, String> properties );
 
+    /**
+     * Callback when a capability is removed.
+     */
     void remove();
+
+    /**
+     * Callback when capability is activated. Activation is triggered on create/load (if capability is not disabled)
+     * , or when capability is re-enabled.
+     */
+    void activate();
+
+    /**
+     * Callback when capability is passivated. Passivation will be triggered before a capability is removed, on
+     * Nexus shutdown or when capability is disabled.
+     */
+    void passivate();
+
+    /**
+     * Returns the condition that should be satisfied in order for this capability to be active.
+     *
+     * @return activation condition. If null, it considers that condition is always activatable.
+     */
+    Condition activationCondition();
+
+    /**
+     * Returns the condition that should be satisfied in order for this capability to be valid. When this condition
+     * becomes unsatisfied, the capability will be automatically removed.
+     *
+     * Example of such a condition will be a capability that applies to a repository should be automatically be removed
+     * when repository is removed.
+     *
+     * @return activation condition. If null, it considers that condition is always valid.
+     */
+    Condition validityCondition();
 
 }
