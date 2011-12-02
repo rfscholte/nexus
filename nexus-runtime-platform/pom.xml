@@ -83,6 +83,10 @@
         <exclusions>
           <exclusion>
             <groupId>org.sonatype.sisu</groupId>
+            <artifactId>sisu-guice</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.sonatype.sisu</groupId>
             <artifactId>sisu-guava</artifactId>
           </exclusion>
         </exclusions>
